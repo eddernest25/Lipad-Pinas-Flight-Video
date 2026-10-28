@@ -82,11 +82,14 @@ S.push({ text: `Follow us for more flights, travel tips, and Philippine aviation
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }
 // spoken form for the voice: no hyphens (TTS reads them as 'dash'), flight codes and acronyms spelled out
 const digitW = { 0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine' };
+const ones = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'], tens = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+const numWords = n => n < 20 ? ones[n] : n < 100 ? tens[Math.floor(n / 10)] + (n % 10 ? ' ' + ones[n % 10] : '') : n < 1000 ? ones[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + numWords(n % 100) : '') : numWords(Math.floor(n / 1000)) + ' thousand' + (n % 1000 ? ' ' + numWords(n % 1000) : '');
 const b7 = { 3: 'thirty', 4: 'forty', 6: 'sixty', 7: 'triple', 8: 'eighty' };
 const spoken = t => t
   .replace(/\b7([34678])7(?:-(\d+)(ER|LR)?)?/g, (m, n, suf, er) => (n === '7' ? 'triple seven' : 'seven ' + b7[n] + ' seven') + (suf ? ' ' + (/^\d00$/.test(suf) ? suf[0] + ' hundred' : suf) : '') + (er ? ' ' + er.split('').join(' ') : ''))
   .replace(/\b([A-Z0-9]{2}) (\d{1,4})\b/g, (m, a, n) => (/^\d/.test(a) ? a.split('').map(c => digitW[c] || c) : a.split('')).join(' ') + ' ' + n.split('').map(c => digitW[c]).join(' '))
-  .replace(/\bA(\d{3})(neo|ceo)?\b/g, (m, n, k) => 'A ' + (n.startsWith('3') ? 'three ' + ({ '20': 'twenty', '21': 'twenty one', '30': 'thirty', '33': 'thirty three' }[n.slice(1)] || n.slice(1).split('').join(' ')) : n) + (k ? ' ' + k : ''))
+  .replace(/\bA(\d{3})(neo|ceo)?\b/g, (m, n, k) => 'A ' + (n.startsWith('3') ? 'three ' + ({ '20': 'twenty', '21': 'twenty one', '30': 'thirty', '33': 'thirty three' }[n.slice(1)] || numWords(+n.slice(1))) : n) + (k ? ' ' + k : ''))
+  .replace(/(?<![\w:.])(?<!\bA )(\d{1,3}(?:,\d{3})+|\d{3,6})(?![\w:])/g, (m, n) => { const v = +n.replace(/,/g, ''); return !n.includes(',') && v >= 1900 && v <= 2100 ? n : numWords(v); })
   .replace(/\bSG\b/g, 'S G').replace(/-/g, ' ').replace(/\s+/g, ' ');
 for (const s of S) s.say = spoken(s.text);
 for (const s of S) s.text = s.text.replace(/\s+/g, ' ').replace(/ ,/g, ',');

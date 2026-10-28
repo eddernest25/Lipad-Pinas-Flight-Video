@@ -31,6 +31,9 @@ on:
       flight_secs:
         description: "Total video length in seconds"
         default: "64"
+      stills:
+        description: "Optional preview: comma-separated video seconds (e.g. 8,20,34,52). Renders only these still pictures, no video."
+        default: ""
       zoom_cruise:
         description: "Cruise zoom (6.4 = regional international, 9.7 = short domestic hop (auto))"
         default: "6.4"
@@ -94,15 +97,21 @@ jobs:
           node render-flat.js --track out/track.json --out out/video.mp4 \
             --fps "${{ inputs.fps }}" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
             --zoom-close 12 --zoom-cruise "$ZC" --zoom-out-end .16 --zoom-in-start $ZIN \
-            --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000
+            --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000 ${{ inputs.stills && format('--stills "{0}"', inputs.stills) || '' }}
       - name: Publish video (public release link)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if [ -n "${{ inputs.stills }}" ]; then
+            TAG="stills-$(date -u +%Y%m%d-%H%M%S)"
+            gh release create "$TAG" out/video_t*.png --title "$TAG" --notes "Preview stills, no video"
+            exit 0
+          fi
           TAG="video-$(date -u +%Y%m%d-%H%M%S)"
           gh release create "$TAG" out/video.mp4 out/narration.json --title "$TAG" --notes "Rendered from ${{ inputs.flight || inputs.raw_track }} ${{ inputs.date }}"
           echo "Video: https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4" | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
+        if: ${{ !inputs.stills }}
         with:
           name: video
           path: out/video.mp4

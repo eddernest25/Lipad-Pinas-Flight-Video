@@ -81,7 +81,7 @@ function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-
   const caps = [];
   for (const x of P) {
     const words = x.s.text.split(/\s+/), chunks = []; let cur = '';
-    for (const w of words) { if (cur && (cur + ' ' + w).length > 62) { chunks.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; if (/[,.!?;]$/.test(w) && cur.length > 28) { chunks.push(cur); cur = ''; } }
+    for (const w of words) { if (cur && (cur + ' ' + w).length > 62) { const m = cur.match(/^(.*) (\d[\d,.]*|about|of|to|and|at)$/); if (m) { chunks.push(m[1]); cur = m[2] + ' ' + w; } else { chunks.push(cur); cur = w; } } else cur = cur ? cur + ' ' + w : w; if (/[,.!?;]$/.test(w) && cur.length > 28) { chunks.push(cur); cur = ''; } }
     if (cur) chunks.push(cur);
     if (chunks.length > 1 && chunks[chunks.length - 1].length < 18) chunks.push(chunks.splice(-2).join(' '));   // no tiny orphan caption at the end of a sentence
     const tot = chunks.reduce((n, c) => n + c.length, 0); let t = x.st;

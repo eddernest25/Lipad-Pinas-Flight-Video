@@ -254,12 +254,12 @@ window.setTime = async function (tv) {
   for (let i = 1; i <= s.i; i++) {
     const est = P[i].est;
     ctx.beginPath(); ctx.moveTo(X(i - 1), Y(i - 1)); ctx.lineTo(X(i), Y(i));
-    ctx.setLineDash(est ? [14, 12] : []); ctx.lineWidth = est ? lw * .8 : lw;
-    ctx.strokeStyle = est ? 'rgba(235,240,245,.85)' : (P[i].alt < 3000 ? '#ff7a1a' : '#35e08a'); ctx.stroke();
+    ctx.setLineDash([]); ctx.lineWidth = lw;   // data gaps are drawn like the rest of the route (no dashed/white 'layover' look)
+    ctx.strokeStyle = (P[i].alt < 3000 ? '#ff7a1a' : '#35e08a'); ctx.stroke();
   }
   { const a = Math.max(0, s.i), px = cx - ox, py = cy - oy;
-    ctx.beginPath(); ctx.moveTo(X(a), Y(a)); ctx.lineTo(px, py); ctx.setLineDash(s.est ? [14, 12] : []);
-    ctx.strokeStyle = s.est ? 'rgba(235,240,245,.85)' : (s.alt < 3000 ? '#ff7a1a' : '#35e08a'); ctx.lineWidth = lw; ctx.stroke(); ctx.setLineDash([]); }
+    ctx.beginPath(); ctx.moveTo(X(a), Y(a)); ctx.lineTo(px, py); ctx.setLineDash([]);
+    ctx.strokeStyle = (s.alt < 3000 ? '#ff7a1a' : '#35e08a'); ctx.lineWidth = lw; ctx.stroke(); ctx.setLineDash([]); }
 
   // plane + flight tag
   const px = W / 2, py = H / 2, ps = CFG.planeSize || 64;

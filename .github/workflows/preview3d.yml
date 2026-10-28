@@ -1,0 +1,43 @@
+name: Preview 3D stills
+on:
+  workflow_dispatch:
+    inputs:
+      flight: { description: "Flight number, e.g. PR2853", default: "PR2853" }
+      date: { description: "Flight date YYYY-MM-DD", default: "2026-10-26" }
+      route: { description: "Route fallback ICAO pair, e.g. RPLL-RPVM", default: "RPLL-RPVM" }
+      times: { description: "Video seconds to capture, e.g. 9,30,52", default: "9,30,52" }
+concurrency:
+  group: preview3d
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+      - name: Track + 3D stills
+        env:
+          GOOGLE_MAP_TILES_KEY: ${{ secrets.GOOGLE_MAP_TILES_KEY }}
+          FR24_API_KEY: ${{ secrets.FR24_API_KEY }}
+        run: |
+          mkdir -p out
+          set -o pipefail
+          exec > >(tee out/run.log) 2>&1
+          trap 'echo "::error title=3D preview failed::$(tail -n 14 out/run.log | tr "\n" " " | cut -c1-900)"' ERR
+          node tools/fetch-fr24.js --flight "${{ inputs.flight }}" --date "${{ inputs.date }}" --route "${{ inputs.route }}" --out out/raw.json
+          node tools/process-track.js out/raw.json out/track.json --pacing uniform --dt 10 --video-secs 64 --pad-secs 2
+          node tools/preview-3d.js out/track.json --times "${{ inputs.times }}" --out out/p3d
+      - name: Publish stills
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="stills3d-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" out/p3d_t*.png --title "$TAG" --notes "3D preview stills, no video"

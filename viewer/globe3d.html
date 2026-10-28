@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://unpkg.com/cesium@1.124.0/Build/Cesium/Widgets/widgets.css">
+<script src="https://unpkg.com/cesium@1.124.0/Build/Cesium/Cesium.js"></script>
+<style>html,body,#c{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1d3a}.cesium-viewer-bottom{display:block}</style></head>
+<body><div id="c"></div><script>
+let viewer, ts;
+window.init = async (key, pts, label) => {
+  viewer = new Cesium.Viewer('c', { baseLayer: false, baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false,
+    animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false, globe: false, msaaSamples: 1 });
+  viewer.scene.skyBox.show = false; viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#9fc6ef');
+  viewer.scene.requestRenderMode = false;
+  ts = await Cesium.Cesium3DTileset.fromUrl('https://tile.googleapis.com/v1/3dtiles/root.json?key=' + key, { showCreditsOnScreen: true, maximumScreenSpaceError: 8 });
+  viewer.scene.primitives.add(ts);
+  // route line + plane marker
+  viewer.entities.add({ polyline: { positions: pts.map(p => Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt)), width: 5, material: Cesium.Color.fromCssColorString('#2ee6a6'), arcType: Cesium.ArcType.NONE } });
+  window.plane = viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt),
+    point: { pixelSize: 20, color: Cesium.Color.fromCssColorString('#ffd400'), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: { text: label, font: '700 34px Arial', fillColor: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth: 5, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(0, 48), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
+};
+window.view = async (lat, lon, alt, heading, pitch, range, ms) => {
+  const tgt = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
+  window.plane.position = tgt;
+  viewer.camera.lookAt(tgt, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(pitch), range));
+  const t0 = Date.now(); viewer.render();
+  await new Promise(r => { const chk = () => { viewer.render(); if ((ts.tilesLoaded && Date.now() - t0 > 4000) || Date.now() - t0 > ms) r(); else setTimeout(chk, 400); }; chk(); });
+  return { loaded: ts.tilesLoaded, ms: Date.now() - t0 };
+};
+</script></body></html>

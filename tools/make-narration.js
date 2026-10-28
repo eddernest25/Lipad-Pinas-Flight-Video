@@ -69,6 +69,19 @@ const spokenDur = m => { const h = Math.floor(m / 60), r = m % 60; return `${h} 
 const five = m => Math.round(m / 5) * 5;
 const nice = n => new Intl.NumberFormat('en-US').format(n);
 const km50 = Math.round(distKm / 50) * 50;
+// ---- music mode (no voice): short general-info captions spread over the whole video
+if (args.includes('--music')) {
+  const oth = rs ? rs.airlines.filter(a => a.icao !== M.airline).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
+  const L = [`${M.fromCity} to ${M.toCity} is about ${nice(km50)} kilometers`, `Flight time is about ${spokenDur(five(mins))}`];
+  if (oth.length) L.push(`Also flies non-stop on ${join(oth)}`);
+  if (fare) L.push(fare.usdLow ? `One-way tickets cost about $${fare.usdLow} to $${fare.usdHigh}, or ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}` : `One-way tickets cost about ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}`);
+  if (entry) { L.push(`Visa: ${entry.visa.replace(/\.$/, '')}`); L.push(entry.rules.replace(/\.$/, '')); }
+  const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
+  let t = t0; const caps = L.map(text => { const d = usable * Math.max(text.length, 34) / tot, c = { s: +t.toFixed(2), e: +(t + d).toFixed(2), text }; t += d + GAP; return c; });
+  fs.mkdirSync(path.dirname(outFile), { recursive: true });
+  fs.writeFileSync(outFile, JSON.stringify({ mode: 'music', captions: caps, sentences: [] }, null, 1));
+  console.log(caps.map(c => `[${c.s}-${c.e}s] ${c.text}`).join('\n')); process.exit(0);
+}
 S.push({ text: `Welcome aboard ${airline} flight ${flightSpoken}, from ${M.fromCity} to ${M.toCity}.` });
 S.push({ text: `Today's ${acName} took off from ${M.fromCity}${depT ? ` at ${depT} local time` : ''}, and climbed to its cruising altitude of about ${nice(ft)} feet.` });
 S.push({ text: `This flight covered about ${nice(km50)} kilometers in ${spokenDur(mins)}.${rs && rs.avgMin ? ` The average flight time on this route is about ${spokenDur(five(rs.avgMin))}.` : ''}` });

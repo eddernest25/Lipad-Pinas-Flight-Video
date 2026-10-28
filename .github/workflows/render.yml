@@ -40,6 +40,9 @@ on:
       fps:
         description: "Render fps (output is always 30). Domestic flights auto-use 30."
         default: "15"
+      style:
+        description: "voice = narrated (default); music = background music + general-info captions only (rotates assets/music)"
+        default: "voice"
       label_scale:
         description: "Map label size: 1 normal, 2 bigger, 4 biggest (domestic auto = 2)"
         default: "1"
@@ -88,12 +91,17 @@ jobs:
             FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao"); DAY=$(node -p "require('./out/raw.json').meta.date")
             node tools/route-stats.js --route "$FROMI-$TOI" --to "$DAY" --days 7 || echo "route stats unavailable"
           fi
+          if [ "${{ inputs.style }}" = "music" ]; then
+            node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}" --music
+            node tools/make-music.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --index "${{ github.run_number }}"
+          else
           node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}"
           if [ -n "${{ inputs.voice_dir }}" ]; then
             if [ -f "${{ inputs.voice_dir }}/urls.txt" ]; then while read -r i u; do curl -fsSL -o "${{ inputs.voice_dir }}/s$i.mp3" "$u"; done < "${{ inputs.voice_dir }}/urls.txt"; fi
             [ -f "${{ inputs.voice_dir }}/narration.json" ] && cp "${{ inputs.voice_dir }}/narration.json" out/narration.json
           fi
           node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
+          fi
           ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=9.7; echo "domestic flight: closer zoom $ZC"; fi
           FPSV="${{ inputs.fps }}"; LSV="${{ inputs.label_scale }}"; if [ "$DOM" = "true" ]; then [ "$FPSV" = "15" ] && FPSV=30; [ "$LSV" = "1" ] && LSV=2; echo "domestic: fps $FPSV, label scale $LSV"; fi
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends

@@ -34,7 +34,11 @@ function edge(text, file) {
 function fromFiles(i, file) {   // pre-generated narration (e.g. made with Higgsfield): <files-dir>/s<i>.(mp3|wav|m4a|ogg)
   const hit = ['mp3', 'wav', 'm4a', 'ogg', 'aac'].map(e => path.join(FILES_DIR, `s${i}.${e}`)).find(f => fs.existsSync(f));
   if (!hit) throw new Error('missing narration file for sentence ' + i + ' in ' + FILES_DIR);
-  fs.copyFileSync(hit, file + path.extname(hit)); return file + path.extname(hit); }
+  const out = file.replace(/\.mp3$/, '') + '_trim.wav';          // strip leading/trailing silence so sentences run back to back
+  const af = 'silenceremove=start_periods=1:start_threshold=-48dB:start_silence=0.05,areverse,silenceremove=start_periods=1:start_threshold=-48dB:start_silence=0.05,areverse';
+  const r = sh('ffmpeg', ['-y', '-loglevel', 'error', '-i', hit, '-af', af, '-ar', '44100', '-ac', '1', out]);
+  if (r.status !== 0 || !fs.existsSync(out)) { fs.copyFileSync(hit, file + path.extname(hit)); return file + path.extname(hit); }
+  return out; }
 function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', `sine=frequency=220:duration=${(n * 0.4).toFixed(2)}`, '-q:a', '6', file]); }
 
 (async () => {

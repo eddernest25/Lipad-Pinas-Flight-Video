@@ -49,6 +49,7 @@ function gfetch(url, opts = {}) {
 }
 async function newSession(kind) {
   const body = { mapType: 'satellite', language: 'en-US', region: 'US' };
+  const LS = +opt('label-scale', 1); if (LS > 1) body.scale = 'scaleFactor' + LS + 'x';   // bigger place-name labels
   if (kind === 'lab') { body.layerTypes = ['layerRoadmap']; body.overlay = false; }
   const r = await gfetch(`https://tile.googleapis.com/v1/createSession?key=${KEY}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
   if (r.status !== 200) throw new Error(`createSession(${kind}) failed (${r.status}): ${r.body.toString().slice(0, 300)}`);

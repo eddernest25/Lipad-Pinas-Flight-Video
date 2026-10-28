@@ -38,8 +38,11 @@ on:
         description: "Cruise zoom (6.4 = regional international, 9.7 = short domestic hop (auto))"
         default: "6.4"
       fps:
-        description: "Render fps (output is always 30)"
+        description: "Render fps (output is always 30). Domestic flights auto-use 30."
         default: "15"
+      label_scale:
+        description: "Map label size: 1 normal, 2 bigger, 4 biggest (domestic auto = 2)"
+        default: "1"
   # Daily schedule - enable once a real flight-data step exists (see README):
   # schedule:
   #   - cron: "0 22 * * *"    # 22:00 UTC = 06:00 PHT
@@ -92,10 +95,11 @@ jobs:
           fi
           node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
           ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=9.7; echo "domestic flight: closer zoom $ZC"; fi
+          FPSV="${{ inputs.fps }}"; LSV="${{ inputs.label_scale }}"; if [ "$DOM" = "true" ]; then [ "$FPSV" = "15" ] && FPSV=30; [ "$LSV" = "1" ] && LSV=2; echo "domestic: fps $FPSV, label scale $LSV"; fi
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
-            --fps "${{ inputs.fps }}" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
+            --fps "$FPSV" --label-scale "$LSV" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
             --zoom-close 12 --zoom-cruise "$ZC" --zoom-out-end .16 --zoom-in-start $ZIN \
             --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000 ${{ inputs.stills && format('--stills "{0}"', inputs.stills) || '' }}
       - name: Publish video (public release link)

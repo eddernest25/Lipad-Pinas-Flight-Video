@@ -11,7 +11,12 @@
    "visa": "Filipino passport holders need an eVisa approved online before traveling.",
    "rules": "Apply on the official Bahrain eVisa portal, and bring a passport valid for at least six months and a confirmed return or onward ticket.",
    "source": "EntryBrief (reviewed Aug 2 2026) citing evisa.gov.bh; other sites conflict on fee/stay - re-check evisa.gov.bh",
-   "checked": "2026-10-29"
+   "checked": "2026-10-29",
+   "ofw": [
+    "Working in Bahrain? A licensed Bahraini employer must sponsor your work visa with a confirmed job offer",
+    "OFWs also need an Overseas Employment Certificate (OEC) from DMW before flying, and should use a licensed agency"
+   ],
+   "ofw_source": "terratern.com Bahrain employment visa guide (employer-sponsored via LMRA); OEC per DMW/DFA advisories - re-check dmw.gov.ph and lmra.gov.bh"
   }
  },
  "fares": {

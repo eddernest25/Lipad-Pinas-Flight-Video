@@ -54,6 +54,9 @@ jobs:
           FR24_API_KEY: ${{ secrets.FR24_API_KEY }}
         run: |
           mkdir -p out
+          set -o pipefail
+          exec > >(tee out/run.log) 2>&1
+          trap 'echo "::error title=Render failed::$(tail -n 14 out/run.log | tr "\n" " " | cut -c1-900)"' ERR
           RAW="${{ inputs.raw_track }}"
           if [ -n "${{ inputs.flight }}" ]; then
             node tools/fetch-fr24.js --flight "${{ inputs.flight }}" --date "${{ inputs.date }}" --route "${{ inputs.route }}" --out out/raw.json

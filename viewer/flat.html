@@ -114,7 +114,7 @@ function drawLabels(z, ox, oy, cx, tv) {
   const inside = r => r.x >= 22 && r.x + r.w <= W - 22 && r.y >= 60 && r.y + r.h <= H - 40;
   const vis = r => r.x + r.w > 0 && r.x < W && r.y + r.h > 0 && r.y < H;
   rects.push({ x: W / 2 - 80, y: H / 2 - 70, w: 340, h: 150 });                       // keep the plane + its tag clear
-  if (CFG.captions && CFG.captions.length) rects.push({ x: 40, y: (CFG.captionY || 1340) - 230, w: 1000, h: 250 });   // caption zone
+  if (CFG.captions && CFG.captions.length) rects.push({ x: 40, y: (CFG.captionY || 1340) - 260, w: 1000, h: 280 });   // caption zone
   if (bannerOn > .02) rects.push({ x: 60, y: 270, w: 960, h: 360 });                   // banner + flags
   if (logoOn > .02) { const R = { tl: [20, 20], tr: [W - 270, 20], bl: [20, H - 330], br: [W - 270, H - 330], bc: [W / 2 - 130, H - 520] }[CFG.logoPos || 'bc']; rects.push({ x: R[0], y: R[1], w: 260, h: 230 }); }
   const halo = (txt, x, y, fill, alpha, ls) => { ctx.letterSpacing = ls || '0px'; ctx.globalAlpha = alpha; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(5,12,24,.85)'; ctx.strokeText(txt, x, y); ctx.fillStyle = fill; ctx.fillText(txt, x, y); ctx.globalAlpha = 1; };
@@ -276,12 +276,17 @@ window.setTime = async function (tv) {
   if (CFG.captions && CFG.captions.length) {
     const c = CFG.captions.find(q => tv >= q.s - .05 && tv <= q.e + .25);
     if (c) { const a = clamp((tv - c.s + .05) / .18, 0, 1) * clamp((c.e + .25 - tv) / .18, 0, 1);
-      ctx.save(); ctx.letterSpacing = '0px'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.font = '700 46px Arial, Helvetica, sans-serif';
-      const maxW = 900, words = c.text.split(' '), lines = []; let cur = '';
-      for (const w of words) { const t = cur ? cur + ' ' + w : w; if (cur && ctx.measureText(t).width > maxW) { lines.push(cur); cur = w; } else cur = t; } if (cur) lines.push(cur);
-      const lh = 58, bw = Math.min(980, Math.max(...lines.map(l => ctx.measureText(l).width)) + 56), bh = lines.length * lh + 26, bottom = CFG.captionY || 1340, top = bottom - bh;
-      ctx.globalAlpha = a; ctx.fillStyle = 'rgba(8,16,30,.74)'; ctx.beginPath(); ctx.roundRect(W / 2 - bw / 2, top, bw, bh, 18); ctx.fill();
-      ctx.fillStyle = '#fff'; lines.forEach((l, i) => ctx.fillText(l, W / 2, top + 13 + lh * i + 42)); ctx.restore(); }
+      // keyword-emphasis style: white outlined text, numbers + units bigger and yellow, no box
+      ctx.save(); ctx.letterSpacing = '0px'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.lineJoin = 'round';
+      const F0 = '800 50px Arial, Helvetica, sans-serif', F1 = '800 62px Arial, Helvetica, sans-serif', UNIT = /^(hours?|minutes?|kilometers?|km|feet|ft|days?|percent|USD|PHP|pesos?|dollars?|meters?)[.,]?$/i;
+      const words = []; c.text.split(' ').forEach(w => { const kw = /\d/.test(w) || (words.length && words[words.length - 1].kw && UNIT.test(w)); words.push({ w, kw }); });
+      const mw = w => { ctx.font = w.kw ? F1 : F0; return ctx.measureText(w.w).width; };
+      ctx.font = F0; const sp = ctx.measureText(' ').width, maxW = 940, lines = []; let cur = [], cw = 0;
+      for (const w of words) { const ww = mw(w); if (cur.length && cw + sp + ww > maxW) { lines.push({ ws: cur, w: cw }); cur = [w]; cw = ww; } else { cw += (cur.length ? sp : 0) + ww; cur.push(w); } } if (cur.length) lines.push({ ws: cur, w: cw });
+      const lh = 72, bottom = CFG.captionY || 1340, top = bottom - lines.length * lh; ctx.globalAlpha = a;
+      lines.forEach((ln, i) => { let x = W / 2 - ln.w / 2; const y = top + lh * i + 56;
+        for (const w of ln.ws) { ctx.font = w.kw ? F1 : F0; ctx.strokeStyle = '#000'; ctx.lineWidth = 9; ctx.strokeText(w.w, x, y); ctx.fillStyle = w.kw ? '#ffd400' : '#fff'; ctx.fillText(w.w, x, y); x += mw(w) + sp; } });
+      ctx.restore(); }
   }
 
   // overlays: banner + flags at start and end, logo near the end

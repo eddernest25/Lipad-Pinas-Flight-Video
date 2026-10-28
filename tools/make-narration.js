@@ -82,7 +82,9 @@ S.push({ text: `Follow us for more flights, travel tips, and Philippine aviation
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }
 // spoken form for the voice: no hyphens (TTS reads them as 'dash'), flight codes and acronyms spelled out
 const digitW = { 0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine' };
+const b7 = { 3: 'thirty', 4: 'forty', 6: 'sixty', 7: 'triple', 8: 'eighty' };
 const spoken = t => t
+  .replace(/\b7([34678])7(?:-(\d+)(ER|LR)?)?/g, (m, n, suf, er) => (n === '7' ? 'triple seven' : 'seven ' + b7[n] + ' seven') + (suf ? ' ' + (/^\d00$/.test(suf) ? suf[0] + ' hundred' : suf) : '') + (er ? ' ' + er.split('').join(' ') : ''))
   .replace(/\b([A-Z0-9]{2}) (\d{1,4})\b/g, (m, a, n) => (/^\d/.test(a) ? a.split('').map(c => digitW[c] || c) : a.split('')).join(' ') + ' ' + n.split('').map(c => digitW[c]).join(' '))
   .replace(/\bA(\d{3})(neo|ceo)?\b/g, (m, n, k) => 'A ' + (n.startsWith('3') ? 'three ' + ({ '20': 'twenty', '21': 'twenty one', '30': 'thirty', '33': 'thirty three' }[n.slice(1)] || n.slice(1).split('').join(' ')) : n) + (k ? ' ' + k : ''))
   .replace(/\bSG\b/g, 'S G').replace(/-/g, ' ').replace(/\s+/g, ' ');

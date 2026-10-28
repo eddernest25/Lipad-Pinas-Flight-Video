@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : d; };
 const [inFile, outDir] = args.filter((a, i) => !a.startsWith('--') && !(args[i - 1] || '').startsWith('--'));
 const VIDEO = +opt('video-secs', 64), GAP = 0.25, END_PAD = 0.4;
-const PROVIDER = opt('provider', 'auto'), RATE = +opt('rate', 1.08), PITCH = +opt('pitch', 2);
+const FILES_DIR = opt('files-dir', ''), PROVIDER = opt('provider', 'auto'), RATE = +opt('rate', 1.08), PITCH = +opt('pitch', 2);
 const GENDER = opt('gender', 'MALE'), VOICE = opt('voice', '');
 const KEY = process.env.GOOGLE_TTS_KEY || process.env.GOOGLE_MAP_TILES_KEY || '';
 const sh = (cmd, a, o) => { const r = spawnSync(cmd, a, { encoding: 'utf8', ...o }); return r; };
@@ -31,15 +31,19 @@ function edge(text, file) {
   const r = sh('edge-tts', ['--voice', v, '--rate=' + (pct >= 0 ? '+' : '') + pct + '%', '--pitch=+' + Math.max(0, PITCH * 2) + 'Hz', '--text', text, '--write-media', file]);
   if (r.status !== 0 || !fs.existsSync(file)) throw new Error('edge-tts failed: ' + (r.stderr || r.error || '').toString().slice(0, 200));
 }
+function fromFiles(i, file) {   // pre-generated narration (e.g. made with Higgsfield): <files-dir>/s<i>.(mp3|wav|m4a|ogg)
+  const hit = ['mp3', 'wav', 'm4a', 'ogg', 'aac'].map(e => path.join(FILES_DIR, `s${i}.${e}`)).find(f => fs.existsSync(f));
+  if (!hit) throw new Error('missing narration file for sentence ' + i + ' in ' + FILES_DIR);
+  fs.copyFileSync(hit, file + path.extname(hit)); return file + path.extname(hit); }
 function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', `sine=frequency=220:duration=${(n * 0.4).toFixed(2)}`, '-q:a', '6', file]); }
 
 (async () => {
-  const order = PROVIDER === 'auto' ? (KEY ? ['google', 'edge'] : ['edge']) : [PROVIDER];
+  const order = FILES_DIR ? ['files'] : PROVIDER === 'auto' ? (KEY ? ['google', 'edge'] : ['edge']) : [PROVIDER];
   let ok = false, lastErr = '';
   for (const prov of order) {
     try {
       for (let i = 0; i < S.length; i++) { const f = path.join(outDir, `s${i}.mp3`); fs.rmSync(f, { force: true });
-        if (prov === 'google') await google(S[i].text, f); else if (prov === 'edge') edge(S[i].text, f); else test(S[i].text, f); S[i].file = f; S[i].d = dur(f); }
+        const say = S[i].say || S[i].text.replace(/-/g, ' '); let out = f; if (prov === 'google') await google(say, f); else if (prov === 'edge') edge(say, f); else if (prov === 'files') out = fromFiles(i, f); else test(say, f); S[i].file = out; S[i].d = dur(f); }
       used.provider = prov; ok = true; break;
     } catch (e) { lastErr = e.message; console.error('TTS provider ' + prov + ' failed: ' + e.message); }
   }

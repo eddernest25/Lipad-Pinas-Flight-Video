@@ -15,6 +15,9 @@ on:
       logo_pos:
         description: "Lipad Pinas logo position: bc (lower middle) tl tr bl br"
         default: "bc"
+      voice_dir:
+        description: "Optional: repo folder with pre-generated narration clips s0.mp3, s1.mp3 ... (e.g. made with Higgsfield)"
+        default: ""
       voice_gender:
         description: "Narrator voice: MALE or FEMALE"
         default: "MALE"
@@ -73,7 +76,7 @@ jobs:
             node tools/route-stats.js --route "$FROMI-$TOI" --to "$DAY" --days 7 || echo "route stats unavailable"
           fi
           node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}"
-          node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}"
+          node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
@@ -85,7 +88,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="video-$(date -u +%Y%m%d-%H%M%S)"
-          gh release create "$TAG" out/video.mp4 --title "$TAG" --notes "Rendered from ${{ inputs.flight || inputs.raw_track }} ${{ inputs.date }}"
+          gh release create "$TAG" out/video.mp4 out/narration.json --title "$TAG" --notes "Rendered from ${{ inputs.flight || inputs.raw_track }} ${{ inputs.date }}"
           echo "Video: https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4" | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:

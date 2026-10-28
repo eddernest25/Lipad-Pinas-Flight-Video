@@ -77,9 +77,16 @@ if (others.length) S.push({ text: `Besides ${airline}, you can fly ${M.fromCity}
 if (fare) S.push({ text: `One-way tickets on this route usually cost about ${fare.usdLow} to ${fare.usdHigh} U.S. dollars, or roughly ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.`, opt: 3 });
 if (entry) { S.push({ text: `Traveling to ${B.city}? ${entry.visa}`, opt: 4 }); S.push({ text: entry.rules, opt: 5 }); }
 S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
-S.push({ text: `Follow Lipad Pinas for more flights, travel tips, and Philippine aviation stories.` });
+S.push({ text: `Follow us for more flights, travel tips, and Philippine aviation stories.` });
 // spread start times evenly by word count; the last line is anchored to the end of the video
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }
+// spoken form for the voice: no hyphens (TTS reads them as 'dash'), flight codes and acronyms spelled out
+const digitW = { 0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine' };
+const spoken = t => t
+  .replace(/\b([A-Z0-9]{2}) (\d{1,4})\b/g, (m, a, n) => (/^\d/.test(a) ? a.split('').map(c => digitW[c] || c) : a.split('')).join(' ') + ' ' + n.split('').map(c => digitW[c]).join(' '))
+  .replace(/\bA(\d{3})(neo|ceo)?\b/g, (m, n, k) => 'A ' + (n.startsWith('3') ? 'three ' + ({ '20': 'twenty', '21': 'twenty one', '30': 'thirty', '33': 'thirty three' }[n.slice(1)] || n.slice(1).split('').join(' ')) : n) + (k ? ' ' + k : ''))
+  .replace(/\bSG\b/g, 'S G').replace(/-/g, ' ').replace(/\s+/g, ' ');
+for (const s of S) s.say = spoken(s.text);
 for (const s of S) s.text = s.text.replace(/\s+/g, ' ').replace(/ ,/g, ',');
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, JSON.stringify({ sentences: S }, null, 1));

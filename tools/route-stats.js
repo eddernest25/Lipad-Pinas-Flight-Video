@@ -11,7 +11,8 @@ const airlines = JSON.parse(fs.readFileSync(__dirname + '/../data/airlines.json'
   const j = await r.json(); if (!r.ok) { console.error('FR24', r.status, JSON.stringify(j).slice(0, 300)); process.exit(1); }
   const rows = (j.data || j).filter(x => x.datetime_takeoff && x.datetime_landed && x.dest_icao_actual !== undefined ? true : x.datetime_takeoff && x.datetime_landed);
   const by = {}, all = [];
-  for (const x of rows) { const m = (new Date(x.datetime_landed) - new Date(x.datetime_takeoff)) / 60000; if (m < 60 || m > 600) continue; const k = x.operating_as || x.painted_as || '?'; (by[k] = by[k] || { airline: airlines[k] || k, icao: k, flights: new Set(), mins: [] }); by[k].flights.add(x.flight); by[k].mins.push(m); all.push(m); }
+  const durs = rows.map(x => (new Date(x.datetime_landed) - new Date(x.datetime_takeoff)) / 60000).filter(m => m >= 20 && m <= 900).sort((a, b) => a - b), med = durs.length ? durs[Math.floor(durs.length / 2)] : 0;   // median-based outlier filter (diversions, bad records)
+  for (const x of rows) { const m = (new Date(x.datetime_landed) - new Date(x.datetime_takeoff)) / 60000; if (m < 20 || m > 900 || (med && (m < med * 0.6 || m > med * 1.6))) continue; const k = x.operating_as || x.painted_as || '?'; if (k === '?') continue; (by[k] = by[k] || { airline: airlines[k] || k, icao: k, flights: new Set(), mins: [] }); by[k].flights.add(x.flight); by[k].mins.push(m); all.push(m); }
   const out = { route, days, flights: all.length, avgMin: Math.round(all.reduce((a, b) => a + b, 0) / all.length), airlines: Object.values(by).map(a => ({ airline: a.airline, icao: a.icao, flightNumbers: [...a.flights].sort(), n: a.mins.length, avgMin: Math.round(a.mins.reduce((x, y) => x + y, 0) / a.mins.length) })) };
   fs.mkdirSync('out', { recursive: true }); fs.writeFileSync(opt('out', 'out/route-stats.json'), JSON.stringify(out, null, 1));
   console.log(JSON.stringify(out));

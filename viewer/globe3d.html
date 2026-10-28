@@ -4,25 +4,30 @@
 <style>html,body,#c{margin:0;width:100%;height:100%;overflow:hidden;background:#0b1d3a}.cesium-viewer-bottom{display:block}</style></head>
 <body><div id="c"></div><script>
 let viewer, ts;
-window.init = async (key, pts, label) => {
+window.init = async (key, pts, label, planeSvg, places, cities) => {
   viewer = new Cesium.Viewer('c', { baseLayer: false, baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false, navigationHelpButton: false,
     animation: false, timeline: false, fullscreenButton: false, infoBox: false, selectionIndicator: false, globe: false, msaaSamples: 1 });
   viewer.scene.skyBox.show = false; viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#9fc6ef');
-  viewer.scene.requestRenderMode = false;
-  ts = await Cesium.Cesium3DTileset.fromUrl('https://tile.googleapis.com/v1/3dtiles/root.json?key=' + key, { showCreditsOnScreen: true, maximumScreenSpaceError: 8 });
+  ts = await Cesium.Cesium3DTileset.fromUrl('https://tile.googleapis.com/v1/3dtiles/root.json?key=' + key, { showCreditsOnScreen: true, maximumScreenSpaceError: 6 });
   viewer.scene.primitives.add(ts);
-  // route line + plane marker
-  viewer.entities.add({ polyline: { positions: pts.map(p => Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt)), width: 5, material: Cesium.Color.fromCssColorString('#2ee6a6'), arcType: Cesium.ArcType.NONE } });
+  // route line (primitive polyline, drawn over terrain)
+  const pl = viewer.scene.primitives.add(new Cesium.PolylineCollection());
+  pl.add({ positions: pts.map(p => Cesium.Cartesian3.fromDegrees(p.lon, p.lat, Math.max(p.alt, 30))), width: 6, material: Cesium.Material.fromType('Color', { color: Cesium.Color.fromCssColorString('#2ee6a6') }) });
+  // place names (islands, seas, cities): white text with dark outline, fade by distance
+  const lab = (n, lat, lon, px, maxD, col) => viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(lon, lat, 200), label: { text: n, font: '700 ' + px + 'px Arial', fillColor: Cesium.Color.fromCssColorString(col), outlineColor: Cesium.Color.BLACK, outlineWidth: 6, style: Cesium.LabelStyle.FILL_AND_OUTLINE, horizontalOrigin: Cesium.HorizontalOrigin.CENTER, verticalOrigin: Cesium.VerticalOrigin.CENTER, distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, maxD), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
+  for (const [n, la, lo] of places.islands) lab(n.toUpperCase(), la, lo, 40, 220000, '#ffffff');
+  for (const [n, la, lo] of places.waters) lab(n, la, lo, 32, 200000, '#bfe6ff');
+  for (const [n, la, lo] of cities) lab(n, la, lo, 30, 90000, '#ffd78a');
   window.plane = viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt),
-    point: { pixelSize: 20, color: Cesium.Color.fromCssColorString('#ffd400'), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, disableDepthTestDistance: Number.POSITIVE_INFINITY },
-    label: { text: label, font: '700 34px Arial', fillColor: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth: 5, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(0, 48), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
+    billboard: { image: 'data:image/svg+xml;base64,' + btoa(planeSvg), width: 130, height: 130, disableDepthTestDistance: Number.POSITIVE_INFINITY } });
+  window.tag = viewer.entities.add({ position: window.plane.position, label: { text: label, font: '700 36px Arial', fillColor: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth: 6, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(0, 95), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
 };
 window.view = async (lat, lon, alt, heading, pitch, range, ms) => {
   const tgt = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
-  window.plane.position = tgt;
+  window.plane.position = tgt; window.tag.position = tgt;
   viewer.camera.lookAt(tgt, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(heading), Cesium.Math.toRadians(pitch), range));
   const t0 = Date.now(); viewer.render();
-  await new Promise(r => { const chk = () => { viewer.render(); if ((ts.tilesLoaded && Date.now() - t0 > 4000) || Date.now() - t0 > ms) r(); else setTimeout(chk, 400); }; chk(); });
+  await new Promise(r => { const chk = () => { viewer.render(); if ((ts.tilesLoaded && Date.now() - t0 > 9000) || Date.now() - t0 > ms) r(); else setTimeout(chk, 400); }; chk(); });
   return { loaded: ts.tilesLoaded, ms: Date.now() - t0 };
 };
 </script></body></html>

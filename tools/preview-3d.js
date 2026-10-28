@@ -18,13 +18,18 @@ const bearing = (a, b) => { const t = x => x * Math.PI / 180, y = Math.sin(t(b.l
   page.on('console', m => { const t = m.text(); if (/error|fail/i.test(t)) console.log('[page]', t.slice(0, 200)); });
   await page.goto('file://' + path.join(__dirname, '../viewer/globe3d.html'));
   await page.waitForFunction(() => window.Cesium, null, { timeout: 60000 });
-  await page.evaluate(([k, pts, l]) => window.init(k, pts, l), [KEY, P.map(p => ({ lat: p.lat, lon: p.lon, alt: p.alt })), D.meta.flight]);
+  const root = path.join(__dirname, '..'), svg = fs.readFileSync(path.join(root, 'assets/plane.svg'), 'utf8'), places = JSON.parse(fs.readFileSync(path.join(root, 'data/places-ph.json'), 'utf8'));
+  const md = JSON.parse(fs.readFileSync(path.join(root, 'viewer/mapdata.json'), 'utf8')), lats = P.map(p => p.lat), lons = P.map(p => p.lon);
+  const box = [Math.min(...lats) - 1.2, Math.max(...lats) + 1.2, Math.min(...lons) - 1.2, Math.max(...lons) + 1.2];
+  const cities = md.cities.filter(c => c[3] >= 150000 && c[1] > box[0] && c[1] < box[1] && c[2] > box[2] && c[2] < box[3]).slice(0, 40).map(c => [c[0], c[1], c[2]]);
+  console.log('labels:', places.islands.length, 'islands,', places.waters.length, 'waters,', cities.length, 'cities');
+  await page.evaluate(([k, pts, l, s, pl, ct]) => window.init(k, pts, l, s, pl, ct), [KEY, P.map(p => ({ lat: p.lat, lon: p.lon, alt: p.alt })), D.meta.flight, svg, places, cities]);
   for (const s of times) {
     const i = at(s / FLIGHT), p = P[i], q = P[Math.min(P.length - 1, i + Math.max(2, Math.round(P.length / 40)))], p0 = P[Math.max(0, i - 2)];
     const hd = bearing(i === P.length - 1 ? p0 : p, i === P.length - 1 ? p : q), alt = p.alt || 0;
     const range = Math.max(6000, Math.min(60000, 4000 + alt * 6)), pitch = -(22 + Math.min(1, alt / 9000) * 14);
     const r = await page.evaluate(a => window.view(...a), [p.lat, p.lon, alt, hd, pitch, range, 90000]);
-    const f = `${outBase}_t${s}.png`; await page.screenshot({ path: f }); console.log('still', f, JSON.stringify(r), 'alt', Math.round(alt), 'range', range);
+    const f = `${outBase}_t${s}.png`; await page.screenshot({ path: f }); console.log('still', f, JSON.stringify(r), 'at', p.lat.toFixed(2), p.lon.toFixed(2), 'hdg', Math.round(hd), 'alt', Math.round(alt), 'range', range);
   }
   await browser.close();
 })().catch(e => { console.error('::error title=3D preview failed::' + String(e.message).slice(0, 300)); process.exit(1); });

@@ -7,10 +7,10 @@
   html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#06101f; font-family:'Poppins','Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
   #map { position:absolute; left:0; top:0; }
   .abs { position:absolute; }
-  #banner { left:0; top:300px; width:100%; display:flex; justify-content:center; opacity:0; }
+  #banner { left:0; top:400px; width:100%; display:flex; justify-content:center; opacity:0; }
   #banner .bar { background:linear-gradient(90deg,rgba(255,255,255,.97),rgba(255,255,255,.88)); padding:14px 64px; box-shadow:0 6px 24px rgba(0,0,0,.35); }
   #banner .t { font-size:70px; font-weight:800; color:#111; letter-spacing:-.01em; text-shadow:3px 3px 0 #f6c744; white-space:nowrap; }
-  #flags { left:0; top:455px; width:100%; opacity:0; }
+  #flags { left:0; top:560px; width:100%; opacity:0; }
   .flag { position:absolute; width:150px; height:150px; border-radius:50%; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,.45); border:3px solid rgba(255,255,255,.9); }
   .flag svg, .flag img { width:100%; height:100%; display:block; }
   #flagL { left:70px; } #flagR { right:70px; }
@@ -115,7 +115,7 @@ function drawLabels(z, ox, oy, cx, tv) {
   const vis = r => r.x + r.w > 0 && r.x < W && r.y + r.h > 0 && r.y < H;
   rects.push({ x: W / 2 - 80, y: H / 2 - 70, w: 340, h: 150 });                       // keep the plane + its tag clear
   if (CFG.captions && CFG.captions.length) rects.push({ x: 40, y: (CFG.captionY || 1340) - 260, w: 1000, h: 280 });   // caption zone
-  if (bannerOn > .02) rects.push({ x: 60, y: 270, w: 960, h: 360 });                   // banner + flags
+  if (bannerOn > .02) rects.push({ x: 60, y: 370, w: 960, h: 360 });                   // banner + flags
   if (logoOn > .02) { const R = { tl: [20, 20], tr: [W - 270, 20], bl: [20, H - 330], br: [W - 270, H - 330], bc: [W / 2 - 130, H - 520] }[CFG.logoPos || 'bc']; rects.push({ x: R[0], y: R[1], w: 260, h: 230 }); }
   const halo = (txt, x, y, fill, alpha, ls) => { ctx.letterSpacing = ls || '0px'; ctx.globalAlpha = alpha; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(5,12,24,.85)'; ctx.strokeText(txt, x, y); ctx.fillStyle = fill; ctx.fillText(txt, x, y); ctx.globalAlpha = 1; };
   const measure = (txt, f, ls) => { ctx.font = f.font; ctx.letterSpacing = ls || '0px'; return ctx.measureText(txt).width; };
@@ -243,7 +243,7 @@ window.setTime = async function (tv) {
     s.zi = zi;
   } else drawVectorBase(z, ox, oy);
   { const T0 = intro + flight + outro, fd = (a, b, c, d) => clamp((tv - a) / (b - a), 0, 1) * (1 - clamp((tv - c) / (d - c), 0, 1));
-    bannerOn = Math.max(fd(0, .6, CFG.bannerHold || 6, (CFG.bannerHold || 6) + .8), fd(T0 - 5.2, T0 - 4.6, T0 + 1, T0 + 2)); logoOn = fd(T0 * .72, T0 * .72 + .8, T0 * .92, T0 * .92 + .8); }
+    bannerOn = Math.max(fd(-1, 0, CFG.bannerHold || 6, (CFG.bannerHold || 6) + .8), fd(T0 - 5.2, T0 - 4.6, T0 + 1, T0 + 2)); logoOn = fd(T0 * .72, T0 * .72 + .8, T0 * .92, T0 * .92 + .8); }
   drawLabels(z, ox, oy, cx, tv);
 
   // route trail: thin line, orange when low, green at cruise, dashed grey where the data had a gap
@@ -291,7 +291,7 @@ window.setTime = async function (tv) {
 
   // overlays: banner + flags at start and end, logo near the end
   const T = intro + flight + outro, fade = (a, b, c, d) => clamp((tv - a) / (b - a), 0, 1) * (1 - clamp((tv - c) / (d - c), 0, 1));
-  const showBanner = Math.max(fade(0, .6, CFG.bannerHold || 6, (CFG.bannerHold || 6) + .8), fade(T - 5.2, T - 4.6, T + 1, T + 2));
+  const showBanner = Math.max(fade(-1, 0, CFG.bannerHold || 6, (CFG.bannerHold || 6) + .8), fade(T - 5.2, T - 4.6, T + 1, T + 2));
   $('banner').style.opacity = showBanner; $('flags').style.opacity = showBanner;
   $('logo').style.opacity = fade(T * .72, T * .72 + .8, T * .92, T * .92 + .8);
 

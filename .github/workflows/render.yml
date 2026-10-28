@@ -18,6 +18,10 @@ on:
       voice_dir:
         description: "Optional: repo folder with pre-generated narration clips s0.mp3, s1.mp3 ... (e.g. made with Higgsfield)"
         default: ""
+      voice_name:
+        description: 'Google voice name, e.g. en-US-Chirp3-HD-Puck (blank = Neural2 by gender)'
+        required: false
+        default: ''
       voice_gender:
         description: "Narrator voice: MALE or FEMALE"
         default: "MALE"
@@ -80,7 +84,7 @@ jobs:
             if [ -f "${{ inputs.voice_dir }}/urls.txt" ]; then while read -r i u; do curl -fsSL -o "${{ inputs.voice_dir }}/s$i.mp3" "$u"; done < "${{ inputs.voice_dir }}/urls.txt"; fi
             [ -f "${{ inputs.voice_dir }}/narration.json" ] && cp "${{ inputs.voice_dir }}/narration.json" out/narration.json
           fi
-          node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
+          node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \

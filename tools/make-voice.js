@@ -20,7 +20,7 @@ const used = { provider: null };
 async function google(text, file) {
   const voice = { languageCode: 'en-US', name: VOICE || (GENDER === 'FEMALE' ? 'en-US-Neural2-F' : 'en-US-Neural2-D') };
   const r = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key=' + KEY, { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ input: { text }, voice, audioConfig: { audioEncoding: 'MP3', speakingRate: RATE, pitch: PITCH, sampleRateHertz: 24000 } }) });
+    body: JSON.stringify({ input: { text }, voice, audioConfig: Object.assign({ audioEncoding: 'MP3', speakingRate: RATE, sampleRateHertz: 24000 }, /Chirp/.test(voice.name) ? {} : { pitch: PITCH }) }) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok || !j.audioContent) throw new Error('google tts ' + r.status + ' ' + JSON.stringify(j).slice(0, 200));
   fs.writeFileSync(file, Buffer.from(j.audioContent, 'base64'));

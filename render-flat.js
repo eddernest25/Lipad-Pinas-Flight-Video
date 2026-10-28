@@ -24,12 +24,15 @@ const FPS = +opt('fps', 30), INTRO = +opt('intro', 0), FLIGHT = +opt('flight', 5
 const W = 1080, H = 1920, TOTAL = INTRO + FLIGHT + OUTRO, NFRAMES = Math.round(TOTAL * FPS);
 const KEY = opt('google-key', process.env.GOOGLE_MAP_TILES_KEY || '');
 const logoFile = opt('logo', '');
+const airlineFile = opt('airline-logo', ''), hasAirline = airlineFile && fs.existsSync(airlineFile);
+const flagSvg = cc => { try { return 'data:image/svg+xml;base64,' + fs.readFileSync(path.join(__dirname, 'node_modules/flag-icons/flags/1x1', String(cc).toLowerCase() + '.svg')).toString('base64'); } catch (e) { return null; } };
 const cfg = {
   intro: INTRO, flight: FLIGHT, outro: OUTRO, tiles: KEY ? 'google' : 'vector',
   zoomClose: +opt('zoom-close', 11), zoomCruise: +opt('zoom-cruise', 6.6), zoomOutEnd: +opt('zoom-out-end', .14), zoomInStart: +opt('zoom-in-start', .90),
-  logo: logoFile ? '/logo' + path.extname(logoFile) : '', logoPos: opt('logo-pos', 'bc'), maxTileZoom: +opt('max-tile-zoom', 19)
+  airlineLogo: hasAirline ? '/airline.png' : '', logo: logoFile ? '/logo' + path.extname(logoFile) : '', logoPos: opt('logo-pos', 'bc'), maxTileZoom: +opt('max-tile-zoom', 19)
 };
 const track = JSON.parse(fs.readFileSync(trackFile, 'utf8'));
+cfg.flagImages = {}; for (const cc of [track.meta.fromCountry, track.meta.toCountry]) { const f = cc && flagSvg(cc); if (f) cfg.flagImages[String(cc).toUpperCase()] = f; }
 
 // ---- Google Map Tiles API (2D): satellite + roadmap/labels layer, fetched server-side and streamed to the page (nothing is written to disk)
 const tileCache = new Map();   // in-memory only, for this run: each unique tile is fetched from Google at most once
@@ -77,6 +80,7 @@ const server = http.createServer(async (req, res) => {
     if (u === '/') { res.writeHead(200, { 'content-type': 'text/html' }); return fs.createReadStream(path.join(__dirname, 'viewer/flat.html')).pipe(res); }
     if (u === '/earth.jpg') { res.writeHead(200, { 'content-type': 'image/jpeg' }); return fs.createReadStream(path.join(__dirname, 'viewer/earth.jpg')).pipe(res); }
     if (logoFile && u.startsWith('/logo')) { res.writeHead(200, { 'content-type': mime[path.extname(logoFile).toLowerCase()] || 'image/png' }); return fs.createReadStream(logoFile).pipe(res); }
+    if (hasAirline && u === '/airline.png') { res.writeHead(200, { 'content-type': 'image/png' }); return fs.createReadStream(airlineFile).pipe(res); }
     if (u === '/mapdata.json') { res.writeHead(200, { 'content-type': 'application/json' }); return fs.createReadStream(path.join(__dirname, 'viewer/mapdata.json')).pipe(res); }
     if ((m = u.match(/^\/tile\/(plain|lab)\/(\d+)\/(\d+)\/(\d+)$/)) && KEY) {
       const r = await getGoogleTile(m[1], m[2], m[3], m[4]);
@@ -96,7 +100,7 @@ const server = http.createServer(async (req, res) => {
   if (KEY) { await newSession('plain'); await newSession('lab'); console.log('Google tile sessions OK'); } else console.log('No Google key -> crisp vector stand-in map (testing only)');
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const base = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
   const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: SCALE });
   const page = await ctx.newPage();
   page.on('pageerror', e => console.error('[page error]', e.message));

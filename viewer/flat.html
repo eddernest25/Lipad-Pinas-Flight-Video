@@ -17,7 +17,7 @@
   #logo { opacity:0; width:230px; text-align:center; color:#fff; }
   #logo .dot { width:120px; height:120px; margin:0 auto; border-radius:50%; background:radial-gradient(circle at 35% 30%,#3aa0ff,#173a8c); border:4px solid #fff; box-shadow:0 6px 18px rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; line-height:1.1; }
   #logo .follow { margin-top:-12px; display:inline-block; background:#e5322d; border-radius:10px; padding:5px 16px; font-weight:700; font-size:22px; box-shadow:0 3px 10px rgba(0,0,0,.4); }
-  #logo img { width:120px; height:120px; border-radius:50%; border:4px solid #fff; object-fit:cover; }
+  #logo img { width:150px; height:150px; border-radius:50%; box-shadow:0 6px 18px rgba(0,0,0,.55); object-fit:cover; }
   #attr { left:12px; right:12px; bottom:8px; font:500 15px/1.2 Arial,sans-serif; color:rgba(255,255,255,.85); text-shadow:0 1px 3px #000; }
 </style>
 </head>
@@ -34,7 +34,7 @@ const ease = f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2;
 const sm = f => f * f * (3 - 2 * f);
 const $ = id => document.getElementById(id);
 const W = 1080, H = 1920, TS = 256;
-let bannerOn = 0, logoOn = 0, cv, ctx, D, P, CFG, lonU = [], planeImg, logoImg, cache = new Map(), attrText = '', attrAt = -1e9;
+let bannerOn = 0, logoOn = 0, cv, ctx, D, P, CFG, lonU = [], planeImg, logoImg, airImg, cache = new Map(), attrText = '', attrAt = -1e9;
 
 // ------------------------------------------------------------ flags (hand-drawn SVG for the common ones; any other -> code badge)
 const FLAGS = {
@@ -105,9 +105,9 @@ function drawLabels(z, ox, oy, cx) {
   if (!MD) return;
   const wp = worldPx(z), rects = [], font = (w, px, st) => `${st || ''} ${w} ${px}px Arial, Helvetica, sans-serif`;
   const fits = r => { if (r.x < 22 || r.x + r.w > W - 22) return false; for (const q of rects) if (r.x < q.x + q.w && r.x + r.w > q.x && r.y < q.y + q.h && r.y + r.h > q.y) return false; return true; };
-  rects.push({ x: W / 2 - 80, y: H / 2 - 70, w: 300, h: 140 });                       // keep the plane + its tag clear
+  rects.push({ x: W / 2 - 80, y: H / 2 - 70, w: 340, h: 150 });                       // keep the plane + its tag clear
   if (bannerOn > .02) rects.push({ x: 60, y: 270, w: 960, h: 360 });                   // banner + flags
-  if (logoOn > .02) rects.push({ x: 380, y: H - 330, w: 330, h: 270 });
+  if (logoOn > .02) { const lp = CFG.logoPos || 'bc', R = { tl: [20, 20], tr: [W - 270, 20], bl: [20, H - 330], br: [W - 270, H - 330], bc: [380, H - 330] }[lp]; rects.push({ x: R[0], y: R[1], w: 250, h: 290 }); }
   const halo = (txt, x, y, fill, alpha, ls) => { ctx.letterSpacing = ls || '0px'; ctx.globalAlpha = alpha; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(5,12,24,.85)'; ctx.strokeText(txt, x, y); ctx.fillStyle = fill; ctx.fillText(txt, x, y); ctx.globalAlpha = 1; };
   const place = (txt, x, y, px, ls) => { ctx.font = px.font; ctx.letterSpacing = ls || '0px'; const w = ctx.measureText(txt).width; return { x: x - w / 2, y: y - px.size, w, h: px.size * 1.25 }; };
   const toXY = (lat, lon) => { let x = (lon + 180) / 360 * wp; x += Math.round((cx - x) / wp) * wp; return [x - ox, my(clamp(lat, -LATMAX, LATMAX), z) - oy]; };
@@ -151,6 +151,7 @@ window.initFlat = async function (cfg, track) {
   cv = $('map'); cv.width = W; cv.height = H; cv.style.width = W + 'px'; cv.style.height = H + 'px'; ctx = cv.getContext('2d');
   let u = P[0].lon; P.forEach(p => { while (p.lon + 0 - u > 180) p.lon -= 360; while (u - p.lon > 180) p.lon += 360; u = p.lon; lonU.push(p.lon); });   // continuous longitude
   await loadMapData();
+  if (cfg.airlineLogo) { airImg = new Image(); airImg.src = cfg.airlineLogo; await airImg.decode().catch(() => { airImg = null; }); }
   planeImg = await makePlane(); if (cfg.logo) { logoImg = new Image(); logoImg.src = cfg.logo; await logoImg.decode().catch(() => { logoImg = null; }); }
   const m = D.meta; $('title').textContent = `${m.fromCity} to ${m.toCity}`;
   setFlag($('flagL'), m.fromCountry); setFlag($('flagR'), m.toCountry);
@@ -230,9 +231,13 @@ window.setTime = async function (tv) {
   // plane + flight tag
   const px = W / 2, py = H / 2, ps = CFG.planeSize || 64;
   ctx.save(); ctx.translate(px, py); ctx.rotate(s.hdg * Math.PI / 180); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 8; ctx.drawImage(planeImg, -ps / 2, -ps / 2, ps, ps); ctx.restore();
-  const tag = D.meta.flight; ctx.font = '600 22px Arial'; const tw = ctx.measureText(tag).width + 26;
-  ctx.fillStyle = 'rgba(20,28,40,.78)'; ctx.beginPath(); ctx.roundRect(px + 34, py + 22, tw, 34, 8); ctx.fill();
-  ctx.fillStyle = '#fff'; ctx.fillText(tag, px + 47, py + 46);
+  const tag = D.meta.flight; ctx.font = '700 26px Arial'; const L = airImg ? 36 : 0, tw = ctx.measureText(tag).width + 28 + (L ? L + 8 : 0), th = 46, bx = px + 36, by = py + 20;
+  ctx.fillStyle = 'rgba(20,28,40,.82)'; ctx.beginPath(); ctx.roundRect(bx, by, tw, th, 10); ctx.fill();
+  let tx = bx + 14;
+  if (L) { ctx.save(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.roundRect(bx + 5, by + (th - L) / 2, L + 4, L, 6); ctx.fill(); ctx.clip();
+    const r = Math.min((L + 4) / airImg.width, L / airImg.height) * .92, dw = airImg.width * r, dh = airImg.height * r;
+    ctx.drawImage(airImg, bx + 5 + (L + 4 - dw) / 2, by + (th - dh) / 2, dw, dh); ctx.restore(); tx = bx + L + 18; }
+  ctx.fillStyle = '#fff'; ctx.textBaseline = 'alphabetic'; ctx.fillText(tag, tx, by + 33);
 
   // overlays: banner + flags at start and end, logo near the end
   const T = intro + flight + outro, fade = (a, b, c, d) => clamp((tv - a) / (b - a), 0, 1) * (1 - clamp((tv - c) / (d - c), 0, 1));

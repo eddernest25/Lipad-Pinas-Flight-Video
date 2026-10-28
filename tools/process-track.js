@@ -8,6 +8,8 @@ const opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i
 const [inFile, outFile] = args.filter(a => !a.startsWith('--') && !args[args.indexOf(a) - 1]?.startsWith('--'));
 const DT = +opt('dt', 30);
 const PACING = opt('pacing', 'places');   // 'places' = slow down near places (3D style) | 'uniform' = steady crawl, slower only at takeoff/landing (flat map style)
+const VIDEO_S = +opt('video-secs', 0), PAD_S = +opt('pad-secs', 2), PAD_REAL = +opt('pad-real', 45);  // exact timing: PAD_S video-seconds before liftoff and after touchdown, whole video = VIDEO_S
+const LIFT_ALT_M = +opt('lift-alt', 90);
 const MAX_KT = 700, GAP_S = 240, MAX_PLACES = +opt('places', 9), MIN_SEP_S = +opt('sep', 1500);
 
 const raw = JSON.parse(fs.readFileSync(inFile, 'utf8'));
@@ -43,6 +45,18 @@ const last = good[good.length - 1];
 if (res[res.length - 1].t < last.t) res.push({ t: last.t, lat: last.lat, lon: last.lon, alt: last.alt, gs: last.gs, est: false });
 for (let i = 1; i < good.length; i++) if (good[i].t - good[i-1].t > GAP_S)
   log.gaps.push({ fromMin: +(good[i-1].t / 60).toFixed(1), toMin: +(good[i].t / 60).toFixed(1) });
+
+// 3b. trim to [PAD_REAL s before liftoff .. PAD_REAL s after touchdown] (only when --video-secs is given)
+let liftI = 0, downI = res.length - 1;
+if (VIDEO_S) {
+  const a = res.findIndex(p => p.alt > LIFT_ALT_M), b = res.length - 1 - [...res].reverse().findIndex(p => p.alt > LIFT_ALT_M);
+  if (a >= 0) {
+    const from = Math.max(0, a - Math.round(PAD_REAL / DT)), to = Math.min(res.length - 1, b + Math.round(PAD_REAL / DT));
+    const base = res[from].t; res.splice(to + 1); res.splice(0, from); res.forEach(p => p.t -= base);
+    liftI = a - from; downI = b - from;
+    console.log(`trim: liftoff at index ${liftI}, touchdown at ${downI} of ${res.length - 1} (${(res[res.length-1].t/3600).toFixed(2)} h kept)`);
+  }
+}
 
 // 4. heading (smoothed + unwrapped so the camera never snaps across 360->0), distance flown
 const n = res.length, K = 4;
@@ -87,7 +101,15 @@ let cum = 0; res.forEach((p, i) => {
   if (PACING !== 'uniform') for (const pl of picked) w += 4.5 * g(p.t - pl.t, 420); // ~7 min around each place
   p.w = w; cum += w * (i ? DT : 0); p.cv = cum;
 });
-res.forEach(p => { p.v = p.cv / cum; delete p.cv; });      // v in 0..1 = video progress through the flight
+if (VIDEO_S && (liftI > 0 || downI < res.length - 1)) {            // pin the ground pads to exactly PAD_S video seconds each
+  const pf = PAD_S / VIDEO_S, pS = liftI > 0 ? pf : 0, pE = downI < res.length - 1 ? pf : 0, i0 = liftI, i1 = downI, N = res.length - 1, c0 = res[i0].cv, c1 = res[i1].cv;
+  res.forEach((p, i) => {
+    if (i <= i0) p.v = i0 ? pS * (p.t / res[i0].t) : 0;
+    else if (i >= i1) p.v = N > i1 ? 1 - pE + pE * ((p.t - res[i1].t) / (res[N].t - res[i1].t)) : 1;
+    else p.v = pS + (1 - pS - pE) * ((p.cv - c0) / (c1 - c0));
+    delete p.cv;
+  });
+} else res.forEach(p => { p.v = p.cv / cum; delete p.cv; });      // v in 0..1 = video progress through the flight
 
 const round = (x, d) => +x.toFixed(d);
 const out = {

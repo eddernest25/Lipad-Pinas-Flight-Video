@@ -2,5 +2,8 @@
   "name": "lipad-pinas-flight-video",
   "version": "0.2.0",
   "private": true,
-  "dependencies": { "playwright": "^1.50.0" }
+  "dependencies": {
+    "flag-icons": "^7.2.3",
+    "playwright": "^1.50.0"
+  }
 }

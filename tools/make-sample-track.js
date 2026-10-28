@@ -6,6 +6,8 @@ const { distKm, bearing, interpGC, KT_TO_KMH } = require('./geo');
 const PRESETS = {
   'mnl-ceb': { A: { lat: 14.5086, lon: 121.0194 }, B: { lat: 10.3075, lon: 123.9794 }, hours: 1.25, cruise: 9000, climb: 900, desc: 1200,
     meta: { airline: 'Sample Air', flight: 'XX591', reg: 'SAMPLE', aircraft: 'Airbus A320', from: 'MNL', fromCity: 'Manila', fromCountry: 'PH', to: 'CEB', toCity: 'Cebu', toCountry: 'PH' } },
+  'mnl-sin': { A: { lat: 14.5086, lon: 121.0194 }, B: { lat: 1.3644, lon: 103.9915 }, hours: 3.4, climb: 1100, desc: 1500,
+    meta: { airline: 'PAL', flight: 'PR511', reg: 'RP-C9999', aircraft: 'Airbus A321neo', from: 'MNL', fromCity: 'Manila', fromCountry: 'PH', to: 'SIN', toCity: 'Singapore', toCountry: 'SG' } },
   'mnl-lax': { A: { lat: 14.5086, lon: 121.0194 }, B: { lat: 33.9425, lon: -118.4081 }, hours: 13.2,
     meta: { airline: 'Sample Air', flight: 'XX102', reg: 'SAMPLE', aircraft: 'Boeing 777-300ER', from: 'MNL', fromCity: 'Manila', fromCountry: 'PH', to: 'LAX', toCity: 'Los Angeles', toCountry: 'US' } },
   'mnl-kwi': { A: { lat: 14.5086, lon: 121.0194 }, B: { lat: 29.2266, lon: 47.9689 }, hours: 9.0,

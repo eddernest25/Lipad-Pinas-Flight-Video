@@ -9,15 +9,21 @@ on:
       date:
         description: "Flight date YYYY-MM-DD (the day it took off)"
         default: ""
+      route:
+        description: "Optional ICAO route to list alternatives if the flight number is not found, e.g. RPLL-WSSS"
+        default: ""
+      logo_pos:
+        description: "Lipad Pinas logo position: tl tr bl br bc"
+        default: "tr"
       raw_track:
         description: "Only used when flight is empty: raw track JSON in the repo (see data/)"
         default: "data/mnl-ceb-raw.json"
       flight_secs:
-        description: "Seconds of video spent on the flight itself"
-        default: "40"
+        description: "Total video length in seconds"
+        default: "64"
       zoom_cruise:
-        description: "Cruise zoom (6.6 = long-haul regional, 8.2 = short domestic hop)"
-        default: "8.2"
+        description: "Cruise zoom (6.4 = regional international, 8.2 = short domestic hop)"
+        default: "6.4"
       fps:
         description: "Render fps (output is always 30)"
         default: "15"
@@ -50,13 +56,15 @@ jobs:
           mkdir -p out
           RAW="${{ inputs.raw_track }}"
           if [ -n "${{ inputs.flight }}" ]; then
-            node tools/fetch-fr24.js --flight "${{ inputs.flight }}" --date "${{ inputs.date }}" --out out/raw.json
+            node tools/fetch-fr24.js --flight "${{ inputs.flight }}" --date "${{ inputs.date }}" --route "${{ inputs.route }}" --out out/raw.json
             RAW=out/raw.json
           fi
-          node tools/process-track.js "$RAW" out/track.json --pacing uniform
+          node tools/process-track.js "$RAW" out/track.json --pacing uniform --dt 10 --video-secs "${{ inputs.flight_secs }}" --pad-secs 2
+          AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
-            --fps "${{ inputs.fps }}" --out-fps 30 --flight "${{ inputs.flight_secs }}" --outro 6 \
-            --zoom-cruise "${{ inputs.zoom_cruise }}" --max-tiles 6000
+            --fps "${{ inputs.fps }}" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
+            --zoom-close 12 --zoom-cruise "${{ inputs.zoom_cruise }}" --zoom-out-end .16 --zoom-in-start .88 \
+            --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --max-tiles 8000
       - name: Publish video (public release link)
         env:
           GH_TOKEN: ${{ github.token }}

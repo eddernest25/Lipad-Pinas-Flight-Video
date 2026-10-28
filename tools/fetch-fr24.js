@@ -41,7 +41,13 @@ const place = icao => ap[icao] || { name: icao, city: icao, cc: '', iata: icao }
     // prefer the one whose local takeoff date matches (PHT-agnostic: match UTC date first, then +8h date)
     const dOf = (x, h) => new Date(+new Date(x.datetime_takeoff) + h * 36e5).toISOString().slice(0, 10);
     summary = list.find(x => x.datetime_takeoff && dOf(x, 0) === date) || list.find(x => x.datetime_takeoff && dOf(x, 8) === date) || list[0];
-    if (!summary) { console.error('no completed flight found for that number/date'); process.exit(1); }
+    if (!summary) {
+      console.error('no completed flight found for that number/date');
+      const route = opt('route', '');
+      if (route) { const j2 = await api('/flight-summary/light', { routes: route, flight_datetime_from: f(from), flight_datetime_to: f(to), sort: 'asc', limit: 50 });
+        console.error('flights on route ' + route + ' in that window:'); for (const x of rows(j2 || [])) console.error(' ', x.flight || x.callsign, x.fr24_id, x.datetime_takeoff, x.reg || ''); }
+      process.exit(1);
+    }
     id = summary.fr24_id;
   }
   const tj = await api('/flight-tracks', { flight_id: id });
@@ -64,6 +70,14 @@ const place = icao => ap[icao] || { name: icao, city: icao, cc: '', iata: icao }
     source: 'Flightradar24 API (fr24_id ' + id + ')'
   };
   fs.mkdirSync(path.dirname(out), { recursive: true });
+  // airline logo (by ICAO airline code) from the open Jxck-S/airline-logos collection -> <out dir>/airline.png (optional; the video just omits it if missing)
+  for (const code of [s.operating_as, s.painted_as].filter(Boolean)) {
+    let ok = false;
+    for (const dir of ['flightaware_logos', 'radarbox_logos']) {
+      try { const r = await fetch(`https://raw.githubusercontent.com/Jxck-S/airline-logos/main/${dir}/${code}.png`); if (r.ok) { fs.writeFileSync(path.join(path.dirname(out), 'airline.png'), Buffer.from(await r.arrayBuffer())); console.log('airline logo:', dir, code); ok = true; break; } } catch (e) {}
+    }
+    if (ok) break;
+  }
   fs.writeFileSync(out, JSON.stringify({ meta, points }));
   console.log(`wrote ${out}: ${points.length} points, ${meta.from} ${meta.fromCity} -> ${meta.to} ${meta.toCity}, ${(points[points.length - 1].t / 3600).toFixed(2)} h`);
   if (!summary || !summary.orig_icao) console.log('NOTE: origin/destination missing from lookup; pass a flight number+date (not --id) so cities and flags are filled.');

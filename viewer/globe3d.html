@@ -18,8 +18,10 @@ window.init = async (key, pts, label, planeSvg, places, cities) => {
   for (const [n, la, lo] of places.islands) lab(n.toUpperCase(), la, lo, 40, 220000, '#ffffff');
   for (const [n, la, lo] of places.waters) lab(n, la, lo, 32, 200000, '#bfe6ff');
   for (const [n, la, lo] of cities) lab(n, la, lo, 30, 90000, '#ffd78a');
+  const pimg = new Image(); pimg.src = 'data:image/svg+xml;base64,' + btoa(planeSvg); await pimg.decode().catch(() => {});
+  const pc = document.createElement('canvas'); pc.width = pc.height = 192; pc.getContext('2d').drawImage(pimg, 0, 0, 192, 192);
   window.plane = viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt),
-    billboard: { image: 'data:image/svg+xml;base64,' + btoa(planeSvg), width: 130, height: 130, disableDepthTestDistance: Number.POSITIVE_INFINITY } });
+    billboard: { image: pc, width: 130, height: 130, disableDepthTestDistance: Number.POSITIVE_INFINITY } });
   window.tag = viewer.entities.add({ position: window.plane.position, label: { text: label, font: '700 36px Arial', fillColor: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth: 6, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(0, 95), disableDepthTestDistance: Number.POSITIVE_INFINITY } });
 };
 window.view = async (lat, lon, alt, heading, pitch, range, ms) => {

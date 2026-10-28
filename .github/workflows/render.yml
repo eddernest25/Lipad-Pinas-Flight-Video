@@ -3,8 +3,14 @@ name: Render flight video
 on:
   workflow_dispatch:
     inputs:
+      flight:
+        description: "Real flight number, e.g. PR127 (leave empty to use raw_track sample instead)"
+        default: ""
+      date:
+        description: "Flight date YYYY-MM-DD (the day it took off)"
+        default: ""
       raw_track:
-        description: "Raw track JSON in the repo (see data/)"
+        description: "Only used when flight is empty: raw track JSON in the repo (see data/)"
         default: "data/mnl-ceb-raw.json"
       flight_secs:
         description: "Seconds of video spent on the flight itself"
@@ -39,9 +45,15 @@ jobs:
       - name: Clean track + render video
         env:
           GOOGLE_MAP_TILES_KEY: ${{ secrets.GOOGLE_MAP_TILES_KEY }}
+          FR24_API_KEY: ${{ secrets.FR24_API_KEY }}
         run: |
           mkdir -p out
-          node tools/process-track.js "${{ inputs.raw_track }}" out/track.json --pacing uniform
+          RAW="${{ inputs.raw_track }}"
+          if [ -n "${{ inputs.flight }}" ]; then
+            node tools/fetch-fr24.js --flight "${{ inputs.flight }}" --date "${{ inputs.date }}" --out out/raw.json
+            RAW=out/raw.json
+          fi
+          node tools/process-track.js "$RAW" out/track.json --pacing uniform
           node render-flat.js --track out/track.json --out out/video.mp4 \
             --fps "${{ inputs.fps }}" --out-fps 30 --flight "${{ inputs.flight_secs }}" --outro 6 \
             --zoom-cruise "${{ inputs.zoom_cruise }}" --max-tiles 6000
@@ -50,7 +62,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="video-$(date -u +%Y%m%d-%H%M%S)"
-          gh release create "$TAG" out/video.mp4 --title "$TAG" --notes "Rendered from ${{ inputs.raw_track }}"
+          gh release create "$TAG" out/video.mp4 --title "$TAG" --notes "Rendered from ${{ inputs.flight || inputs.raw_track }} ${{ inputs.date }}"
           echo "Video: https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4" | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:

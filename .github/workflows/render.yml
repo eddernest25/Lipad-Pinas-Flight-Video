@@ -32,7 +32,7 @@ on:
         description: "Total video length in seconds"
         default: "64"
       zoom_cruise:
-        description: "Cruise zoom (6.4 = regional international, 8.2 = short domestic hop)"
+        description: "Cruise zoom (6.4 = regional international, 9.0 = short domestic hop (auto))"
         default: "6.4"
       fps:
         description: "Render fps (output is always 30)"
@@ -88,7 +88,7 @@ jobs:
             [ -f "${{ inputs.voice_dir }}/narration.json" ] && cp "${{ inputs.voice_dir }}/narration.json" out/narration.json
           fi
           node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
-          ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=8.2; echo "domestic flight: closer zoom $ZC"; fi
+          ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=9.0; echo "domestic flight: closer zoom $ZC"; fi
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \

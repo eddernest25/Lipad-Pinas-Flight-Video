@@ -6,6 +6,12 @@
    "rules": "Bring a passport valid for at least six months, proof of onward travel, and the free SG Arrival Card, filled in online within three days before you arrive.",
    "source": "ICA Singapore (arrival card 3 days, free, 6-month validity, onward travel); 30-day visa-free from evisas.io, verified Feb 2026 - re-check ica.gov.sg",
    "checked": "2026-10-27"
+  },
+  "BH": {
+   "visa": "Filipino passport holders must get an eVisa approved online before traveling, since there is no visa on arrival.",
+   "rules": "Apply on the official Bahrain eVisa portal, and bring a passport valid for at least six months and a confirmed return or onward ticket.",
+   "source": "EntryBrief (reviewed Aug 2 2026) citing evisa.gov.bh; other sites conflict on fee/stay - re-check evisa.gov.bh",
+   "checked": "2026-10-29"
   }
  },
  "fares": {
@@ -22,6 +28,11 @@
    "phpHigh": 4500,
    "source": "Cheapflights PH from PHP 1,350; Philippine Airlines from PHP 2,385 (web search Oct 28 2026) - estimate range, not a verified average",
    "checked": "2026-10-28"
+  },
+  "MNL-BAH": {
+   "phpFrom": 31900,
+   "source": "Trip.com PH: Gulf Air non-stop one-way from PHP 31,897 (Oct 29 2026) - 'from' price only",
+   "checked": "2026-10-29"
   }
  }
 }

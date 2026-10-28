@@ -13,8 +13,8 @@ on:
         description: "Optional ICAO route to list alternatives if the flight number is not found, e.g. RPLL-WSSS"
         default: ""
       logo_pos:
-        description: "Lipad Pinas logo position: tl tr bl br bc"
-        default: "tr"
+        description: "Lipad Pinas logo position: bc (lower middle) tl tr bl br"
+        default: "bc"
       raw_track:
         description: "Only used when flight is empty: raw track JSON in the repo (see data/)"
         default: "data/mnl-ceb-raw.json"
@@ -63,10 +63,11 @@ jobs:
             RAW=out/raw.json
           fi
           node tools/process-track.js "$RAW" out/track.json --pacing uniform --dt 10 --video-secs "${{ inputs.flight_secs }}" --pad-secs 2
+          ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
             --fps "${{ inputs.fps }}" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
-            --zoom-close 12 --zoom-cruise "${{ inputs.zoom_cruise }}" --zoom-out-end .16 --zoom-in-start .88 \
+            --zoom-close 12 --zoom-cruise "${{ inputs.zoom_cruise }}" --zoom-out-end .16 --zoom-in-start $ZIN \
             --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --max-tiles 8000
       - name: Publish video (public release link)
         env:

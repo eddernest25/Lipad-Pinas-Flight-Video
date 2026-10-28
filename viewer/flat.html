@@ -101,48 +101,79 @@ function drawVectorBase(z, ox, oy) {
   ctx.lineWidth = 1.4; ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.stroke();
 }
 
-function drawLabels(z, ox, oy, cx) {
+// Stateful label manager: a label that is showing keeps its slot (no re-shuffling every frame), new labels are admitted slowly
+// and fade in/out, and the total number of labels is capped. This is what stops names from "flashing" as the map moves.
+const LS = new Map(); let lastTvL = null, admit = 0;
+function drawLabels(z, ox, oy, cx, tv) {
   if (!MD) return;
+  const first = lastTvL === null, dt = first ? 5 : clamp(Math.abs(tv - lastTvL), 0, .25); lastTvL = tv;
+  admit = first ? 99 : Math.min(admit + dt * (CFG.labelRate ?? 1.6), 3);       // new labels per second (budget)
+  const CAP_CITY = CFG.cityCap ?? 9, FADE = CFG.labelFade ?? .8;
   const wp = worldPx(z), rects = [], font = (w, px, st) => `${st || ''} ${w} ${px}px Arial, Helvetica, sans-serif`;
-  const fits = r => { if (r.x < 22 || r.x + r.w > W - 22) return false; for (const q of rects) if (r.x < q.x + q.w && r.x + r.w > q.x && r.y < q.y + q.h && r.y + r.h > q.y) return false; return true; };
+  const hit = r => { for (const q of rects) if (r.x < q.x + q.w && r.x + r.w > q.x && r.y < q.y + q.h && r.y + r.h > q.y) return true; return false; };
+  const inside = r => r.x >= 22 && r.x + r.w <= W - 22 && r.y >= 60 && r.y + r.h <= H - 40;
+  const vis = r => r.x + r.w > 0 && r.x < W && r.y + r.h > 0 && r.y < H;
   rects.push({ x: W / 2 - 80, y: H / 2 - 70, w: 340, h: 150 });                       // keep the plane + its tag clear
   if (bannerOn > .02) rects.push({ x: 60, y: 270, w: 960, h: 360 });                   // banner + flags
-  if (logoOn > .02) { const lp = CFG.logoPos || 'bc', R = { tl: [20, 20], tr: [W - 270, 20], bl: [20, H - 330], br: [W - 270, H - 330], bc: [380, H - 330] }[lp]; rects.push({ x: R[0], y: R[1], w: 250, h: 290 }); }
+  if (logoOn > .02) { const R = { tl: [20, 20], tr: [W - 270, 20], bl: [20, H - 330], br: [W - 270, H - 330], bc: [W / 2 - 130, H - 520] }[CFG.logoPos || 'bc']; rects.push({ x: R[0], y: R[1], w: 260, h: 230 }); }
   const halo = (txt, x, y, fill, alpha, ls) => { ctx.letterSpacing = ls || '0px'; ctx.globalAlpha = alpha; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(5,12,24,.85)'; ctx.strokeText(txt, x, y); ctx.fillStyle = fill; ctx.fillText(txt, x, y); ctx.globalAlpha = 1; };
-  const place = (txt, x, y, px, ls) => { ctx.font = px.font; ctx.letterSpacing = ls || '0px'; const w = ctx.measureText(txt).width; return { x: x - w / 2, y: y - px.size, w, h: px.size * 1.25 }; };
+  const measure = (txt, f, ls) => { ctx.font = f.font; ctx.letterSpacing = ls || '0px'; return ctx.measureText(txt).width; };
   const toXY = (lat, lon) => { let x = (lon + 180) / 360 * wp; x += Math.round((cx - x) / wp) * wp; return [x - ox, my(clamp(lat, -LATMAX, LATMAX), z) - oy]; };
-  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  const C = [];                                   // candidates this frame: {k, prio, r, draw(alpha)}
+  const was = k => { const e = LS.get(k); return !!(e && e.on); };
 
-  // country names (big, spaced, uppercase) – fade out as we zoom in toward cities
+  // country names (big, spaced, uppercase) - fade out as we zoom in toward cities
   const cAlpha = z < 7.0 ? 1 : clamp(1 - (z - 7.0) / 0.9, 0, 1);
   if (cAlpha > 0) {
     const minA = z < 3.8 ? 400 : z < 4.8 ? 60 : z < 5.8 ? 12 : 0;
-    ctx.textAlign = 'center';
-    for (const c of MD.countries.slice().sort((a, b) => b.a - a.a)) { if (c.a < minA) continue;
-      const [x, y] = toXY(c.lat, c.lon); if (x < -100 || x > W + 100 || y < 60 || y > H - 60) continue;
-      const size = clamp(24 + z * 2.2, 26, 40), f = { font: font(800, size), size }, txt = c.n.toUpperCase(), r = place(txt, x, y, f, '5px'); r.x = x - r.w / 2;
-      if (!fits(r)) continue; rects.push(r); ctx.font = f.font; halo(txt, x, y, '#fff', cAlpha * .95, '5px'); }
+    for (const c of MD.countries) { if (c.a < minA) continue;
+      const [x, y] = toXY(c.lat, c.lon), k = 'c:' + c.n; if (x < -300 || x > W + 300 || y < 0 || y > H) continue;
+      const size = clamp(24 + z * 2.2, 26, 40), f = { font: font(800, size), size }, txt = c.n.toUpperCase(), w = measure(txt, f, '5px');
+      const r = { x: x - w / 2, y: y - size, w, h: size * 1.25 };
+      C.push({ k, prio: 1000 + Math.log10(c.a + 1) * 10, r, strict: true, draw: al => { ctx.textAlign = 'center'; ctx.font = f.font; halo(txt, x, y, '#fff', cAlpha * .95 * al, '5px'); ctx.textAlign = 'left'; } }); }
   }
   // seas / oceans
-  if (z > 3.4 && z < 8.6) { ctx.textAlign = 'center';
-    for (const w of MD.water) { const [x, y] = toXY(w.lat, w.lon); if (x < -100 || x > W + 100 || y < 60 || y > H - 60) continue;
-      const size = 26, f = { font: font(500, size, 'italic'), size }, r = place(w.n, x, y, f, '3px'); r.x = x - r.w / 2; if (!fits(r)) continue; rects.push(r);
-      ctx.font = f.font; halo(w.n, x, y, '#a6dcff', .92, '3px'); } }
-  // cities: population threshold by zoom; cities the route passes get amber, bigger labels and priority
+  if (z > 3.4 && z < 8.6) for (const wt of MD.water) { const [x, y] = toXY(wt.lat, wt.lon), k = 'w:' + wt.n; if (x < -300 || x > W + 300 || y < 0 || y > H) continue;
+    const size = 26, f = { font: font(500, size, 'italic'), size }, w = measure(wt.n, f, '3px'), r = { x: x - w / 2, y: y - size, w, h: size * 1.25 };
+    C.push({ k, prio: 900, r, strict: true, draw: al => { ctx.textAlign = 'center'; ctx.font = f.font; halo(wt.n, x, y, '#a6dcff', .92 * al, '3px'); ctx.textAlign = 'left'; } }); }
+  // cities: cities the route passes get amber, bigger labels and priority; the rest by population (continuous, with hysteresis)
   const cityAlpha = (CFG.tiles !== 'google' || z < 9.2) ? 1 : clamp(1 - (z - 9.2) / .6, 0, 1);
   if (cityAlpha > 0) {
-    const thr = z < 4 ? 4e6 : z < 5 ? 2e6 : z < 6 ? 1.1e6 : z < 7 ? 6e5 : z < 8 ? 2.5e5 : z < 9 ? 1e5 : z < 10 ? 4e4 : 1.5e4;
-    ctx.textAlign = 'left'; let count = 0;
-    const emit = (c, onRoute) => {
-      const [x, y] = toXY(c[1], c[2]); if (x < -40 || x > W - 40 || y < 70 || y > H - 50) return;
-      const size = onRoute ? 32 : clamp(22 + Math.log10(c[3]) * 1.4, 24, 30), f = { font: font(onRoute ? 800 : 600, size), size }, r = place(c[0], x + 14 + 0, y + size * .35, f, '0px');
-      r.x = x + 12; r.y = y - size * .55; r.w += 16; if (!fits(r)) return; rects.push(r);
-      ctx.beginPath(); ctx.arc(x, y, onRoute ? 7 : 5, 0, 7); ctx.fillStyle = onRoute ? '#ffc933' : '#fff'; ctx.globalAlpha = cityAlpha; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(5,12,24,.9)'; ctx.stroke(); ctx.globalAlpha = 1;
-      ctx.font = f.font; halo(c[0], x + 14, y + size * .35, onRoute ? '#ffd966' : '#fff', cityAlpha, '0px'); count++; };
-    let amber = 0; for (const c of routeCities) { if (amber >= 10) break; if (c[3] >= (z < 8 ? 100000 : 15000)) { const before = rects.length; emit(c, true); if (rects.length > before) amber++; } }
-    for (const c of MD.cities) { if (c[3] < thr || count > 30) break; if (!routeCities.has(c)) emit(c, false); }
+    const thr = z < 4 ? 4e6 : z < 5 ? 2.5e6 : z < 6 ? 1.5e6 : z < 7 ? 9e5 : z < 8 ? 4e5 : z < 9 ? 1.5e5 : z < 10 ? 5e4 : 2e4;
+    const add = (c, onRoute) => {
+      const k = 'm:' + c[0] + c[1].toFixed(1) + c[2].toFixed(1), [x, y] = toXY(c[1], c[2]);
+      const size = onRoute ? 32 : clamp(22 + Math.log10(c[3]) * 1.4, 24, 30), f = { font: font(onRoute ? 800 : 600, size), size };
+      const r = { x: x + 12, y: y - size * .55, w: measure(c[0], f) + 16, h: size * 1.25 };
+      if (!vis(r)) return;
+      C.push({ k, prio: (onRoute ? 800 : 0) + Math.log10(c[3]) * 100, r, city: true, route: onRoute, draw: al => {
+        ctx.beginPath(); ctx.arc(x, y, onRoute ? 7 : 5, 0, 7); ctx.fillStyle = onRoute ? '#ffc933' : '#fff'; ctx.globalAlpha = cityAlpha * al; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(5,12,24,.9)'; ctx.stroke(); ctx.globalAlpha = 1;
+        ctx.textAlign = 'left'; ctx.font = f.font; halo(c[0], x + 14, y + size * .35, onRoute ? '#ffd966' : '#fff', cityAlpha * al, '0px'); } }); };
+    let n = 0; for (const c of routeCities) { if (n >= 6) break; if (c[3] >= (z < 8 ? 150000 : 25000)) { add(c, true); n++; } }
+    let m = 0; for (const c of MD.cities) { const k = 'm:' + c[0] + c[1].toFixed(1) + c[2].toFixed(1); if (c[3] < (was(k) ? thr / 3 : thr) || m > 60) break; if (!routeCities.has(c)) { add(c, false); m++; } }
   }
   ctx.letterSpacing = '0px'; ctx.textAlign = 'left';
+
+  // choose: labels already showing keep priority (hysteresis), then importance; admit new ones within the budget and the city cap
+  C.sort((a, b) => (b.prio + (was(b.k) ? 450 : 0)) - (a.prio + (was(a.k) ? 450 : 0)));
+  const nowOn = new Set(); let cityOn = 0;
+  for (const c of C) {
+    const on = was(c.k);
+    if (c.city && cityOn >= CAP_CITY && !(c.route && on)) continue;
+    if (on) { if (hit(c.r)) continue; }
+    else { if (!inside(c.r) || hit(c.r) || admit < 1) continue; admit -= 1; }
+    rects.push(c.r); nowOn.add(c.k); if (c.city) cityOn++;
+  }
+  // fade states
+  const seen = new Set();
+  for (const c of C) {
+    let e = LS.get(c.k); const t = nowOn.has(c.k);
+    if (!e) { if (!t) continue; e = { a: first ? 1 : 0, on: true }; LS.set(c.k, e); }
+    e.on = t; e.a = clamp(e.a + (t ? 1 : -1) * dt / FADE, 0, 1); seen.add(c.k);
+    if (e.a <= 0 && !t) { LS.delete(c.k); continue; }
+    c.draw(e.a);
+  }
+  for (const k of [...LS.keys()]) if (!seen.has(k)) LS.delete(k);       // out of range / out of view: drop at once
 }
 
 // ------------------------------------------------------------ init
@@ -156,7 +187,7 @@ window.initFlat = async function (cfg, track) {
   const m = D.meta; $('title').textContent = `${m.fromCity} to ${m.toCity}`;
   setFlag($('flagL'), m.fromCountry); setFlag($('flagR'), m.toCountry);
   const lg = $('logo'); lg.innerHTML = (logoImg ? `<img src="${cfg.logo}">` : `<div class="dot">LIPAD<br>PINAS</div>`) + `<div class="follow">Follow Us</div>`;
-  const pos = { tl: 'left:40px;top:40px', tr: 'right:40px;top:40px', bl: 'left:40px;bottom:70px', br: 'right:40px;bottom:70px', bc: 'left:425px;bottom:150px' }[cfg.logoPos || 'bc'];
+  const pos = { tl: 'left:40px;top:40px', tr: 'right:40px;top:40px', bl: 'left:40px;bottom:70px', br: 'right:40px;bottom:70px', bc: 'left:425px;bottom:330px' }[cfg.logoPos || 'bc'];
   lg.style.cssText += ';' + pos;
   await document.fonts.ready; return true;
 };
@@ -212,7 +243,7 @@ window.setTime = async function (tv) {
   } else drawVectorBase(z, ox, oy);
   { const T0 = intro + flight + outro, fd = (a, b, c, d) => clamp((tv - a) / (b - a), 0, 1) * (1 - clamp((tv - c) / (d - c), 0, 1));
     bannerOn = Math.max(fd(0, .6, CFG.bannerHold || 6, (CFG.bannerHold || 6) + .8), fd(T0 - 5.2, T0 - 4.6, T0 + 1, T0 + 2)); logoOn = fd(T0 * .72, T0 * .72 + .8, T0 * .92, T0 * .92 + .8); }
-  drawLabels(z, ox, oy, cx);
+  drawLabels(z, ox, oy, cx, tv);
 
   // route trail: thin line, orange when low, green at cruise, dashed grey where the data had a gap
   const X = i => mx(lonU[i], z) - ox, Y = i => my(P[i].lat, z) - oy;

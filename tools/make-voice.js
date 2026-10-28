@@ -7,8 +7,8 @@ const fs = require('fs'), path = require('path'), { spawnSync } = require('child
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : d; };
 const [inFile, outDir] = args.filter((a, i) => !a.startsWith('--') && !(args[i - 1] || '').startsWith('--'));
-const VIDEO = +opt('video-secs', 64), GAP = 0.35, END_PAD = 0.4;
-const PROVIDER = opt('provider', 'auto'), RATE = +opt('rate', 0.96);
+const VIDEO = +opt('video-secs', 64), GAP = 0.25, END_PAD = 0.4;
+const PROVIDER = opt('provider', 'auto'), RATE = +opt('rate', 1.08), PITCH = +opt('pitch', 2);
 const GENDER = opt('gender', 'MALE'), VOICE = opt('voice', '');
 const KEY = process.env.GOOGLE_TTS_KEY || process.env.GOOGLE_MAP_TILES_KEY || '';
 const sh = (cmd, a, o) => { const r = spawnSync(cmd, a, { encoding: 'utf8', ...o }); return r; };
@@ -18,17 +18,17 @@ let S = JSON.parse(fs.readFileSync(inFile, 'utf8')).sentences;
 const used = { provider: null };
 
 async function google(text, file) {
-  const voice = VOICE ? { languageCode: VOICE.split('-').slice(0, 2).join('-'), name: VOICE } : { languageCode: 'en-PH', ssmlGender: GENDER };
+  const voice = { languageCode: 'en-US', name: VOICE || (GENDER === 'FEMALE' ? 'en-US-Neural2-F' : 'en-US-Neural2-D') };
   const r = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key=' + KEY, { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ input: { text }, voice, audioConfig: { audioEncoding: 'MP3', speakingRate: RATE, sampleRateHertz: 24000 } }) });
+    body: JSON.stringify({ input: { text }, voice, audioConfig: { audioEncoding: 'MP3', speakingRate: RATE, pitch: PITCH, sampleRateHertz: 24000 } }) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok || !j.audioContent) throw new Error('google tts ' + r.status + ' ' + JSON.stringify(j).slice(0, 200));
   fs.writeFileSync(file, Buffer.from(j.audioContent, 'base64'));
 }
 function edge(text, file) {
-  const v = VOICE || (GENDER === 'FEMALE' ? 'en-PH-RosaNeural' : 'en-PH-JamesNeural');
+  const v = VOICE || (GENDER === 'FEMALE' ? 'en-US-AriaNeural' : 'en-US-GuyNeural');
   const pct = Math.round((RATE - 1) * 100);
-  const r = sh('edge-tts', ['--voice', v, '--rate=' + (pct >= 0 ? '+' : '') + pct + '%', '--text', text, '--write-media', file]);
+  const r = sh('edge-tts', ['--voice', v, '--rate=' + (pct >= 0 ? '+' : '') + pct + '%', '--pitch=+' + Math.max(0, PITCH * 2) + 'Hz', '--text', text, '--write-media', file]);
   if (r.status !== 0 || !fs.existsSync(file)) throw new Error('edge-tts failed: ' + (r.stderr || r.error || '').toString().slice(0, 200));
 }
 function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', `sine=frequency=220:duration=${(n * 0.4).toFixed(2)}`, '-q:a', '6', file]); }

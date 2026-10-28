@@ -1,0 +1,21 @@
+{
+ "_note": "Curated facts used by narration. Each entry has a source and the date it was checked; review before relying on it.",
+ "entry": {
+  "SG": {
+   "visa": "Filipino passport holders can visit visa-free for up to 30 days.",
+   "rules": "Bring a passport valid for at least six months, proof of onward travel, and the free SG Arrival Card, filled in online within three days before you arrive.",
+   "source": "ICA Singapore (arrival card 3 days, free, 6-month validity, onward travel); 30-day visa-free from evisas.io, verified Feb 2026 - re-check ica.gov.sg",
+   "checked": "2026-10-27"
+  }
+ },
+ "fares": {
+  "MNL-SIN": {
+   "usdLow": 80,
+   "usdHigh": 250,
+   "phpLow": 5000,
+   "phpHigh": 16000,
+   "source": "Cheapflights PH (Oct 26 2026), Expedia, Kupi; ~PHP 64 per USD (Oct 27 2026)",
+   "checked": "2026-10-27"
+  }
+ }
+}

@@ -68,6 +68,10 @@ jobs:
             RAW=out/raw.json
           fi
           node tools/process-track.js "$RAW" out/track.json --pacing uniform --dt 10 --video-secs "${{ inputs.flight_secs }}" --pad-secs 2
+          if [ -n "${{ inputs.flight }}" ]; then
+            FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao"); DAY=$(node -p "require('./out/raw.json').meta.date")
+            node tools/route-stats.js --route "$FROMI-$TOI" --to "$DAY" --days 7 || echo "route stats unavailable"
+          fi
           node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}"
           node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}"
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends

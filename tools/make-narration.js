@@ -61,19 +61,25 @@ const maxGs = Math.round(Math.max(...P.map(p => p.gs)) * 1.852 / 10) * 10;
 // video second when the plane is over entity e
 const vsec = v => Math.round(v * VIDEO * 10) / 10;
 const S = [];
-S.push({ text: `Kumusta, mga kabayan! Welcome aboard ${airline} flight ${flightSpoken}, from ${M.fromCity} to ${M.toCity}.`, want: 0.4 });
-S.push({ text: `This ${acName}${''} took off from ${A.name}${depT ? ` at ${depT}` : ''} local time${dateS ? ` on ${dateS}` : ''}.`, want: 3.2 });
-const routeEnt = mid.slice(0, 5);
-if (routeEnt.length >= 2) {
-  const first = routeEnt.slice(0, 2), rest = routeEnt.slice(2);
-  S.push({ text: `Climbing to ${ft.toLocaleString('en-US')} feet, it left ${the({ n: depC || M.fromCity })} and crossed ${join(first.map(e => (e.t === 'w' ? 'the ' : '') + the(e)))}.`.replace(/the the/g, 'the'), want: Math.max(9, vsec(first[0].v0)) });
-  if (rest.length) S.push({ text: `Further along, the flight passed over ${join(rest.map(e => (e.t === 'w' ? 'the ' : '') + the(e)))}.`.replace(/the the/g, 'the'), want: Math.min(36, Math.max(22, vsec(rest[0].v0))), opt: 2 });
-} else if (routeEnt.length === 1) S.push({ text: `Cruising at ${ft.toLocaleString('en-US')} feet, it crossed ${(routeEnt[0].t === 'w' ? 'the ' : '') + the(routeEnt[0])}.`.replace(/the the/g, 'the'), want: 12 });
-if (nearC.length) S.push({ text: `It flew close to ${join(nearC.slice(0, 3).map(c => c.n))} along the way.`, want: Math.min(30, Math.max(14, vsec(nearC[0].v) - 1)), opt: 4 });
-S.push({ text: `In all, it covered about ${num(distKm)} kilometers in ${dur}, cruising at around ${cruiseKmh} kilometers an hour.${maxGs - cruiseKmh >= 40 ? ` Its fastest ground speed reached about ${maxGs} kilometers an hour.` : ''}`, want: 36, opt: 1 });
-S.push({ text: `Now descending toward ${B.city}, lining up for the final approach.`, want: Math.max(44, VIDEO - 17), opt: 3 });
-S.push({ text: `It touched down at ${B.name}${arrT ? ` at ${arrT}` : ''} local time.`, want: VIDEO - 10 });
-S.push({ text: `Follow Lipad Pinas for more flights across the Philippines and the world.`, want: VIDEO - 5.2 });
+const facts = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, 'data/facts.json'), 'utf8')); } catch (e) { return {}; } })();
+const rs = (() => { try { return JSON.parse(fs.readFileSync(opt('route-stats', 'out/route-stats.json'), 'utf8')); } catch (e) { return null; } })();
+const entry = (facts.entry || {})[B.cc] || null, fare = (facts.fares || {})[`${M.from}-${M.to}`] || null;
+const mins = Math.round((M.takeoffUtc && M.landedUtc ? (new Date(M.landedUtc) - new Date(M.takeoffUtc)) / 60000 : D.meta.durationS / 60));
+const spokenDur = m => { const h = Math.floor(m / 60), r = m % 60; return `${h} hour${h === 1 ? '' : 's'}${r ? ` and ${r} minute${r === 1 ? '' : 's'}` : ''}`; };
+const five = m => Math.round(m / 5) * 5;
+const nice = n => new Intl.NumberFormat('en-US').format(n);
+const km50 = Math.round(distKm / 50) * 50;
+S.push({ text: `Welcome aboard ${airline} flight ${flightSpoken}, from ${M.fromCity} to ${M.toCity}.` });
+S.push({ text: `Today's ${acName} took off from ${M.fromCity}${depT ? ` at ${depT} local time` : ''}, and climbed to its cruising altitude of about ${nice(ft)} feet.` });
+S.push({ text: `This flight covered about ${nice(km50)} kilometers in ${spokenDur(mins)}.${rs && rs.avgMin ? ` The average flight time on this route is about ${spokenDur(five(rs.avgMin))}.` : ''}` });
+const others = rs ? rs.airlines.filter(a => a.icao !== M.airline).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
+if (others.length) S.push({ text: `Besides ${airline}, you can fly ${M.fromCity} to ${M.toCity} non-stop on ${join(others)}.`, opt: 2 });
+if (fare) S.push({ text: `One-way tickets on this route usually cost about ${fare.usdLow} to ${fare.usdHigh} U.S. dollars, or roughly ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.`, opt: 3 });
+if (entry) { S.push({ text: `Traveling to ${B.city}? ${entry.visa}`, opt: 4 }); S.push({ text: entry.rules, opt: 5 }); }
+S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
+S.push({ text: `Follow Lipad Pinas for more flights, travel tips, and Philippine aviation stories.` });
+// spread start times evenly by word count; the last line is anchored to the end of the video
+{ const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }
 for (const s of S) s.text = s.text.replace(/\s+/g, ' ').replace(/ ,/g, ',');
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, JSON.stringify({ sentences: S }, null, 1));

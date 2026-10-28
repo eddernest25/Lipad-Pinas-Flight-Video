@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Flat flight map</title>
+<style>
+  html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#06101f; font-family:'Poppins','Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+  #map { position:absolute; left:0; top:0; }
+  .abs { position:absolute; }
+  #banner { left:0; top:300px; width:100%; display:flex; justify-content:center; opacity:0; }
+  #banner .bar { background:linear-gradient(90deg,rgba(255,255,255,.97),rgba(255,255,255,.88)); padding:14px 64px; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+  #banner .t { font-size:70px; font-weight:800; color:#111; letter-spacing:-.01em; text-shadow:3px 3px 0 #f6c744; white-space:nowrap; }
+  #flags { left:0; top:455px; width:100%; opacity:0; }
+  .flag { position:absolute; width:150px; height:150px; border-radius:50%; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,.45); border:3px solid rgba(255,255,255,.9); }
+  .flag svg, .flag img { width:100%; height:100%; display:block; }
+  #flagL { left:70px; } #flagR { right:70px; }
+  #logo { opacity:0; width:230px; text-align:center; color:#fff; }
+  #logo .dot { width:120px; height:120px; margin:0 auto; border-radius:50%; background:radial-gradient(circle at 35% 30%,#3aa0ff,#173a8c); border:4px solid #fff; box-shadow:0 6px 18px rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; line-height:1.1; }
+  #logo .follow { margin-top:-12px; display:inline-block; background:#e5322d; border-radius:10px; padding:5px 16px; font-weight:700; font-size:22px; box-shadow:0 3px 10px rgba(0,0,0,.4); }
+  #logo img { width:120px; height:120px; border-radius:50%; border:4px solid #fff; object-fit:cover; }
+  #attr { left:12px; right:12px; bottom:8px; font:500 15px/1.2 Arial,sans-serif; color:rgba(255,255,255,.85); text-shadow:0 1px 3px #000; }
+</style>
+</head>
+<body>
+<canvas id="map"></canvas>
+<div id="banner" class="abs"><div class="bar"><div class="t" id="title"></div></div></div>
+<div id="flags" class="abs"><div class="flag" id="flagL"></div><div class="flag" id="flagR"></div></div>
+<div id="logo" class="abs"></div>
+<div id="attr" class="abs"></div>
+<script>
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, f) => a + (b - a) * f;
+const ease = f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2;
+const sm = f => f * f * (3 - 2 * f);
+const $ = id => document.getElementById(id);
+const W = 1080, H = 1920, TS = 256;
+let bannerOn = 0, logoOn = 0, cv, ctx, D, P, CFG, lonU = [], planeImg, logoImg, cache = new Map(), attrText = '', attrAt = -1e9;
+
+// ------------------------------------------------------------ flags (hand-drawn SVG for the common ones; any other -> code badge)
+const FLAGS = {
+  PH: `<svg viewBox="0 0 100 100"><rect width="100" height="50" fill="#0038a8"/><rect y="50" width="100" height="50" fill="#ce1126"/><path d="M0 0 L58 50 L0 100Z" fill="#fff"/><circle cx="19" cy="50" r="8" fill="#fcd116"/></svg>`,
+  KW: `<svg viewBox="0 0 100 100"><rect width="100" height="34" fill="#007a3d"/><rect y="33" width="100" height="34" fill="#fff"/><rect y="66" width="100" height="34" fill="#ce1126"/><path d="M0 0 L30 33 L30 67 L0 100Z" fill="#000"/></svg>`,
+  US: `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#fff"/>${[0,1,2,3,4,5,6].map(i => `<rect y="${i*15.4}" width="100" height="7.7" fill="#b22234"/>`).join('')}<rect width="48" height="54" fill="#3c3b6e"/></svg>`,
+  AE: `<svg viewBox="0 0 100 100"><rect width="100" height="34" fill="#00732f"/><rect y="33" width="100" height="34" fill="#fff"/><rect y="66" width="100" height="34" fill="#000"/><rect width="28" height="100" fill="#ce1126"/></svg>`,
+  QA: `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#8d1b3d"/><path d="M0 0 H34 L24 8 L34 16 L24 24 L34 32 L24 40 L34 48 L24 56 L34 64 L24 72 L34 80 L24 88 L34 100 H0Z" fill="#fff"/></svg>`,
+  JP: `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#fff"/><circle cx="50" cy="50" r="22" fill="#bc002d"/></svg>`,
+  SG: `<svg viewBox="0 0 100 100"><rect width="100" height="50" fill="#ed2939"/><rect y="50" width="100" height="50" fill="#fff"/></svg>`
+};
+function setFlag(el, code) {
+  code = (code || '').toUpperCase();
+  if (CFG.flagImages && CFG.flagImages[code]) { el.innerHTML = `<img src="${CFG.flagImages[code]}">`; return; }
+  el.innerHTML = FLAGS[code] || `<div style="width:100%;height:100%;background:#24324f;color:#fff;display:flex;align-items:center;justify-content:center;font:800 44px Arial">${code}</div>`;
+}
+
+// ------------------------------------------------------------ projection (Web Mercator, continuous longitude)
+const worldPx = z => TS * Math.pow(2, z);
+const mx = (lon, z) => (lon + 180) / 360 * worldPx(z);
+const my = (lat, z) => { const s = Math.sin(lat * Math.PI / 180); return (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * worldPx(z); };
+
+// ------------------------------------------------------------ tiles (Google 2D satellite; 'plain' = imagery only, 'lab' = imagery + roads/place names for close zoom)
+function getTile(kind, z, x, y) {
+  const n = Math.pow(2, z), xx = ((x % n) + n) % n, key = `${kind}/${z}/${xx}/${y}`;
+  if (!cache.has(key)) {
+    cache.set(key, fetch(`/tile/${kind}/${z}/${xx}/${y}`).then(r => r.ok ? r.blob() : null).then(b => b ? createImageBitmap(b) : null).catch(() => null));
+    if (cache.size > 700) cache.delete(cache.keys().next().value);
+  }
+  return cache.get(key);
+}
+
+// ------------------------------------------------------------ vector base map (stand-in when there is no Google key) + our own labels
+let MD, polyPx = [], borderPx = [], routeCities = new Set();
+const LATMAX = 85.05;
+const mercU = lat => { const s = Math.sin(clamp(lat, -LATMAX, LATMAX) * Math.PI / 180); return 0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI); };
+async function loadMapData() {
+  MD = await (await fetch('/mapdata.json')).json();
+  const conv = ring => { const xs = new Float32Array(ring.length), ys = new Float32Array(ring.length); let x0 = 1, x1 = 0, y0 = 1, y1 = 0;
+    ring.forEach(([lo, la], i) => { xs[i] = (lo + 180) / 360; ys[i] = mercU(la); x0 = Math.min(x0, xs[i]); x1 = Math.max(x1, xs[i]); y0 = Math.min(y0, ys[i]); y1 = Math.max(y1, ys[i]); });
+    return { xs, ys, x0, x1, y0, y1 }; };
+  polyPx = MD.land.map(poly => poly.map(conv));
+  borderPx = MD.borders.map(conv);
+  // cities the route passes close to (<=45 km) get emphasised labels
+  const pts = P.filter((_, i) => i % 8 === 0), kmx = Math.PI / 180 * 6371;
+  for (const c of MD.cities) { if (c[3] < 60000) break;
+    for (const p of pts) { const dy = (p.lat - c[1]) * kmx, dx = ((((p.lon - c[2]) % 360) + 540) % 360 - 180) * kmx * Math.cos(c[1] * Math.PI / 180); if (dx * dx + dy * dy < 45 * 45) { routeCities.add(c); break; } } }
+}
+function drawVectorBase(z, ox, oy) {
+  const wp = worldPx(z);
+  ctx.fillStyle = '#0c2b4e'; ctx.fillRect(0, 0, W, H);
+  const kmin = Math.floor((ox - wp) / wp) - 1, kmax = Math.ceil((ox + W) / wp) + 1;
+  ctx.beginPath();
+  for (const poly of polyPx) for (let k = kmin; k <= kmax; k++) {
+    const o = poly[0]; if (o.x1 * wp + k * wp < ox - 4 || o.x0 * wp + k * wp > ox + W + 4 || o.y1 * wp < oy - 4 || o.y0 * wp > oy + H + 4) continue;
+    for (const r of poly) { for (let i = 0; i < r.xs.length; i++) { const px = r.xs[i] * wp + k * wp - ox, py = r.ys[i] * wp - oy; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.closePath(); }
+  }
+  ctx.fillStyle = '#3f5f3e'; ctx.fill('evenodd'); ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(140,190,210,.55)'; ctx.stroke();
+  ctx.beginPath();
+  for (const l of borderPx) for (let k = kmin; k <= kmax; k++) {
+    if (l.x1 * wp + k * wp < ox - 4 || l.x0 * wp + k * wp > ox + W + 4 || l.y1 * wp < oy - 4 || l.y0 * wp > oy + H + 4) continue;
+    for (let i = 0; i < l.xs.length; i++) { const px = l.xs[i] * wp + k * wp - ox, py = l.ys[i] * wp - oy; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+  }
+  ctx.lineWidth = 1.4; ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.stroke();
+}
+
+function drawLabels(z, ox, oy, cx) {
+  if (!MD) return;
+  const wp = worldPx(z), rects = [], font = (w, px, st) => `${st || ''} ${w} ${px}px Arial, Helvetica, sans-serif`;
+  const fits = r => { if (r.x < 22 || r.x + r.w > W - 22) return false; for (const q of rects) if (r.x < q.x + q.w && r.x + r.w > q.x && r.y < q.y + q.h && r.y + r.h > q.y) return false; return true; };
+  rects.push({ x: W / 2 - 80, y: H / 2 - 70, w: 300, h: 140 });                       // keep the plane + its tag clear
+  if (bannerOn > .02) rects.push({ x: 60, y: 270, w: 960, h: 360 });                   // banner + flags
+  if (logoOn > .02) rects.push({ x: 380, y: H - 330, w: 330, h: 270 });
+  const halo = (txt, x, y, fill, alpha, ls) => { ctx.letterSpacing = ls || '0px'; ctx.globalAlpha = alpha; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(5,12,24,.85)'; ctx.strokeText(txt, x, y); ctx.fillStyle = fill; ctx.fillText(txt, x, y); ctx.globalAlpha = 1; };
+  const place = (txt, x, y, px, ls) => { ctx.font = px.font; ctx.letterSpacing = ls || '0px'; const w = ctx.measureText(txt).width; return { x: x - w / 2, y: y - px.size, w, h: px.size * 1.25 }; };
+  const toXY = (lat, lon) => { let x = (lon + 180) / 360 * wp; x += Math.round((cx - x) / wp) * wp; return [x - ox, my(clamp(lat, -LATMAX, LATMAX), z) - oy]; };
+  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+
+  // country names (big, spaced, uppercase) – fade out as we zoom in toward cities
+  const cAlpha = z < 7.0 ? 1 : clamp(1 - (z - 7.0) / 0.9, 0, 1);
+  if (cAlpha > 0) {
+    const minA = z < 3.8 ? 400 : z < 4.8 ? 60 : z < 5.8 ? 12 : 0;
+    ctx.textAlign = 'center';
+    for (const c of MD.countries.slice().sort((a, b) => b.a - a.a)) { if (c.a < minA) continue;
+      const [x, y] = toXY(c.lat, c.lon); if (x < -100 || x > W + 100 || y < 60 || y > H - 60) continue;
+      const size = clamp(24 + z * 2.2, 26, 40), f = { font: font(800, size), size }, txt = c.n.toUpperCase(), r = place(txt, x, y, f, '5px'); r.x = x - r.w / 2;
+      if (!fits(r)) continue; rects.push(r); ctx.font = f.font; halo(txt, x, y, '#fff', cAlpha * .95, '5px'); }
+  }
+  // seas / oceans
+  if (z > 3.4 && z < 8.6) { ctx.textAlign = 'center';
+    for (const w of MD.water) { const [x, y] = toXY(w.lat, w.lon); if (x < -100 || x > W + 100 || y < 60 || y > H - 60) continue;
+      const size = 26, f = { font: font(500, size, 'italic'), size }, r = place(w.n, x, y, f, '3px'); r.x = x - r.w / 2; if (!fits(r)) continue; rects.push(r);
+      ctx.font = f.font; halo(w.n, x, y, '#a6dcff', .92, '3px'); } }
+  // cities: population threshold by zoom; cities the route passes get amber, bigger labels and priority
+  const cityAlpha = (CFG.tiles !== 'google' || z < 9.2) ? 1 : clamp(1 - (z - 9.2) / .6, 0, 1);
+  if (cityAlpha > 0) {
+    const thr = z < 4 ? 4e6 : z < 5 ? 2e6 : z < 6 ? 1.1e6 : z < 7 ? 6e5 : z < 8 ? 2.5e5 : z < 9 ? 1e5 : z < 10 ? 4e4 : 1.5e4;
+    ctx.textAlign = 'left'; let count = 0;
+    const emit = (c, onRoute) => {
+      const [x, y] = toXY(c[1], c[2]); if (x < -40 || x > W - 40 || y < 70 || y > H - 50) return;
+      const size = onRoute ? 32 : clamp(22 + Math.log10(c[3]) * 1.4, 24, 30), f = { font: font(onRoute ? 800 : 600, size), size }, r = place(c[0], x + 14 + 0, y + size * .35, f, '0px');
+      r.x = x + 12; r.y = y - size * .55; r.w += 16; if (!fits(r)) return; rects.push(r);
+      ctx.beginPath(); ctx.arc(x, y, onRoute ? 7 : 5, 0, 7); ctx.fillStyle = onRoute ? '#ffc933' : '#fff'; ctx.globalAlpha = cityAlpha; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(5,12,24,.9)'; ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.font = f.font; halo(c[0], x + 14, y + size * .35, onRoute ? '#ffd966' : '#fff', cityAlpha, '0px'); count++; };
+    let amber = 0; for (const c of routeCities) { if (amber >= 10) break; if (c[3] >= (z < 8 ? 100000 : 15000)) { const before = rects.length; emit(c, true); if (rects.length > before) amber++; } }
+    for (const c of MD.cities) { if (c[3] < thr || count > 30) break; if (!routeCities.has(c)) emit(c, false); }
+  }
+  ctx.letterSpacing = '0px'; ctx.textAlign = 'left';
+}
+
+// ------------------------------------------------------------ init
+window.initFlat = async function (cfg, track) {
+  CFG = cfg; D = track; P = D.points;
+  cv = $('map'); cv.width = W; cv.height = H; cv.style.width = W + 'px'; cv.style.height = H + 'px'; ctx = cv.getContext('2d');
+  let u = P[0].lon; P.forEach(p => { while (p.lon + 0 - u > 180) p.lon -= 360; while (u - p.lon > 180) p.lon += 360; u = p.lon; lonU.push(p.lon); });   // continuous longitude
+  await loadMapData();
+  planeImg = await makePlane(); if (cfg.logo) { logoImg = new Image(); logoImg.src = cfg.logo; await logoImg.decode().catch(() => { logoImg = null; }); }
+  const m = D.meta; $('title').textContent = `${m.fromCity} to ${m.toCity}`;
+  setFlag($('flagL'), m.fromCountry); setFlag($('flagR'), m.toCountry);
+  const lg = $('logo'); lg.innerHTML = (logoImg ? `<img src="${cfg.logo}">` : `<div class="dot">LIPAD<br>PINAS</div>`) + `<div class="follow">Follow Us</div>`;
+  const pos = { tl: 'left:40px;top:40px', tr: 'right:40px;top:40px', bl: 'left:40px;bottom:70px', br: 'right:40px;bottom:70px', bc: 'left:425px;bottom:150px' }[cfg.logoPos || 'bc'];
+  lg.style.cssText += ';' + pos;
+  await document.fonts.ready; return true;
+};
+async function makePlane() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="#ffe14d" stroke="#3a2f00" stroke-width="1.6" stroke-linejoin="round"><path d="M32 2c2.4 0 3.6 2.6 3.6 6v15l24 14v6.5l-24-7V50l6.5 4.8V61L32 58.3 21.9 61v-6.2l6.5-4.8V36.5l-24 7V37l24-14V8c0-3.4 1.2-6 3.6-6z"/></g></svg>`;
+  const img = new Image(); img.src = 'data:image/svg+xml;base64,' + btoa(svg); await img.decode(); return img;
+}
+
+// ------------------------------------------------------------ state
+function stateAt(u) {
+  let lo = 0, hi = P.length - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (P[mid].v <= u) lo = mid; else hi = mid; }
+  const a = P[lo], b = P[hi], f = b.v > a.v ? clamp((u - a.v) / (b.v - a.v), 0, 1) : 0;
+  return { i: lo, t: lerp(a.t, b.t, f), lat: lerp(a.lat, b.lat, f), lon: lerp(lonU[lo], lonU[hi], f), alt: lerp(a.alt, b.alt, f), hdg: lerp(a.hdg, b.hdg, f), est: a.est || b.est };
+}
+function zoomAt(u) {                       // 3-stage zoom like the reference: close at departure -> regional cruise -> close at arrival
+  const Z = CFG.zoomClose ?? 11, C = CFG.zoomCruise ?? 6.6, a = CFG.zoomOutEnd ?? .14, b = CFG.zoomInStart ?? .90;
+  if (u < a) return lerp(Z, C, ease(u / a));
+  if (u > b) return lerp(C, Z + .6, ease((u - b) / (1 - b)));
+  return C;
+}
+
+
+// All unique Google tiles the video will need (same camera math as setTime). Used to show the exact request count and to prefetch.
+window.tileList = function (fps, from, to) {
+  const { intro, flight, outro } = CFG, T = intro + flight + outro, N = Math.round(T * fps), set = new Set();
+  for (let n = from ?? 0; n <= (to ?? N - 1); n++) {
+    const tv = n / fps, u = clamp((tv - intro) / flight, 0, 1), s = stateAt(u), z = zoomAt(u);
+    const ox = mx(s.lon, z) - W / 2, oy = my(s.lat, z) - H / 2;
+    const zi = clamp(Math.ceil(z - 0.001), 0, CFG.maxTileZoom || 19), ts = TS * Math.pow(2, z - zi), nn = Math.pow(2, zi), kind = zi >= 9 ? 'lab' : 'plain';
+    const x0 = Math.floor(ox / ts), x1 = Math.floor((ox + W) / ts), y0 = Math.max(0, Math.floor(oy / ts)), y1 = Math.min(nn - 1, Math.floor((oy + H) / ts));
+    for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) set.add(`${kind}/${zi}/${((tx % nn) + nn) % nn}/${ty}`);
+  }
+  return [...set];
+};
+
+// ------------------------------------------------------------ draw one frame
+window.setTime = async function (tv) {
+  const { intro, flight, outro } = CFG, u = clamp((tv - intro) / flight, 0, 1);
+  const s = stateAt(u), z = zoomAt(u);
+  const cx = mx(s.lon, z), cy = my(s.lat, z), ox = cx - W / 2, oy = cy - H / 2;
+
+  if (CFG.tiles === 'google') {
+    // tiles: pick the integer zoom just above z so imagery stays sharp, scale down to z; labelled tiles for close zoom
+    const zi = clamp(Math.ceil(z - 0.001), 0, CFG.maxTileZoom || 19), k = Math.pow(2, z - zi), ts = TS * k, n = Math.pow(2, zi), kind = zi >= 9 ? 'lab' : 'plain';
+    const x0 = Math.floor(ox / ts), x1 = Math.floor((ox + W) / ts), y0 = Math.max(0, Math.floor(oy / ts)), y1 = Math.min(n - 1, Math.floor((oy + H) / ts));
+    const jobs = [];
+    for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) jobs.push(getTile(kind, zi, tx, ty).then(img => ({ img, tx, ty })));
+    const tiles = await Promise.race([Promise.all(jobs), new Promise(r => setTimeout(() => r(null), 20000))]) || [];
+    ctx.fillStyle = '#06101f'; ctx.fillRect(0, 0, W, H); ctx.imageSmoothingQuality = 'high';
+    for (const t of tiles) if (t.img) ctx.drawImage(t.img, Math.round(t.tx * ts - ox), Math.round(t.ty * ts - oy), Math.ceil(ts) + 1, Math.ceil(ts) + 1);
+    s.zi = zi;
+  } else drawVectorBase(z, ox, oy);
+  { const T0 = intro + flight + outro, fd = (a, b, c, d) => clamp((tv - a) / (b - a), 0, 1) * (1 - clamp((tv - c) / (d - c), 0, 1));
+    bannerOn = Math.max(fd(0, .6, CFG.bannerHold || 6, (CFG.bannerHold || 6) + .8), fd(T0 - 5.2, T0 - 4.6, T0 + 1, T0 + 2)); logoOn = fd(T0 * .72, T0 * .72 + .8, T0 * .92, T0 * .92 + .8); }
+  drawLabels(z, ox, oy, cx);
+
+  // route trail: thin line, orange when low, green at cruise, dashed grey where the data had a gap
+  const X = i => mx(lonU[i], z) - ox, Y = i => my(P[i].lat, z) - oy;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const lw = CFG.lineWidth || 3.2;
+  for (let i = 1; i <= s.i; i++) {
+    const est = P[i].est;
+    ctx.beginPath(); ctx.moveTo(X(i - 1), Y(i - 1)); ctx.lineTo(X(i), Y(i));
+    ctx.setLineDash(est ? [14, 12] : []); ctx.lineWidth = est ? lw * .8 : lw;
+    ctx.strokeStyle = est ? 'rgba(235,240,245,.85)' : (P[i].alt < 3000 ? '#ff7a1a' : '#35e08a'); ctx.stroke();
+  }
+  { const a = Math.max(0, s.i), px = cx - ox, py = cy - oy;
+    ctx.beginPath(); ctx.moveTo(X(a), Y(a)); ctx.lineTo(px, py); ctx.setLineDash(s.est ? [14, 12] : []);
+    ctx.strokeStyle = s.est ? 'rgba(235,240,245,.85)' : (s.alt < 3000 ? '#ff7a1a' : '#35e08a'); ctx.lineWidth = lw; ctx.stroke(); ctx.setLineDash([]); }
+
+  // plane + flight tag
+  const px = W / 2, py = H / 2, ps = CFG.planeSize || 64;
+  ctx.save(); ctx.translate(px, py); ctx.rotate(s.hdg * Math.PI / 180); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 8; ctx.drawImage(planeImg, -ps / 2, -ps / 2, ps, ps); ctx.restore();
+  const tag = D.meta.flight; ctx.font = '600 22px Arial'; const tw = ctx.measureText(tag).width + 26;
+  ctx.fillStyle = 'rgba(20,28,40,.78)'; ctx.beginPath(); ctx.roundRect(px + 34, py + 22, tw, 34, 8); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText(tag, px + 47, py + 46);
+
+  // overlays: banner + flags at start and end, logo near the end
+  const T = intro + flight + outro, fade = (a, b, c, d) => clamp((tv - a) / (b - a), 0, 1) * (1 - clamp((tv - c) / (d - c), 0, 1));
+  const showBanner = Math.max(fade(0, .6, CFG.bannerHold || 6, (CFG.bannerHold || 6) + .8), fade(T - 5.2, T - 4.6, T + 1, T + 2));
+  $('banner').style.opacity = showBanner; $('flags').style.opacity = showBanner;
+  $('logo').style.opacity = fade(T * .72, T * .72 + .8, T * .92, T * .92 + .8);
+
+  // required Google attribution (copyright string for what is on screen); refreshed every few seconds
+  if (CFG.tiles === 'google') {
+    if (tv - attrAt > 4) { attrAt = tv; const zi = s.zi || Math.ceil(z), lat = s.lat, lon = ((s.lon + 540) % 360) - 180, d = 360 / Math.pow(2, z) * 1.2;
+      try { const r = await fetch(`/viewport?zoom=${zi}&north=${lat + d}&south=${lat - d}&east=${lon + d}&west=${lon - d}`); if (r.ok) attrText = (await r.json()).copyright || attrText; } catch (e) {} }
+    $('attr').textContent = 'Google  ·  ' + attrText;
+  } else $('attr').textContent = 'Stand-in vector map (Natural Earth, GeoNames) – real renders use Google satellite imagery';
+  return 1;
+};
+</script>
+</body>
+</html>

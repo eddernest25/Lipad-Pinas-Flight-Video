@@ -1,0 +1,471 @@
+[
+ {
+  "name": "Manila",
+  "sub": "Philippines",
+  "kind": "city",
+  "lat": 14.6,
+  "lon": 120.98,
+  "r": 60,
+  "imp": 9
+ },
+ {
+  "name": "Lingayen Gulf",
+  "sub": "Pangasinan, Philippines",
+  "kind": "water",
+  "lat": 16.2,
+  "lon": 120.2,
+  "r": 70,
+  "imp": 4
+ },
+ {
+  "name": "Ilocos Region",
+  "sub": "Philippines",
+  "kind": "region",
+  "lat": 17.6,
+  "lon": 120.4,
+  "r": 80,
+  "imp": 5
+ },
+ {
+  "name": "Luzon Strait",
+  "sub": "Philippines / Taiwan",
+  "kind": "water",
+  "lat": 20.5,
+  "lon": 121.5,
+  "r": 120,
+  "imp": 6
+ },
+ {
+  "name": "Taiwan",
+  "sub": "East Asia",
+  "kind": "country",
+  "lat": 23.7,
+  "lon": 121,
+  "r": 120,
+  "imp": 7
+ },
+ {
+  "name": "Taipei",
+  "sub": "Taiwan",
+  "kind": "city",
+  "lat": 25.03,
+  "lon": 121.56,
+  "r": 80,
+  "imp": 6
+ },
+ {
+  "name": "East China Sea",
+  "sub": "",
+  "kind": "water",
+  "lat": 28.5,
+  "lon": 126.5,
+  "r": 200,
+  "imp": 5
+ },
+ {
+  "name": "Okinawa",
+  "sub": "Japan",
+  "kind": "island",
+  "lat": 26.33,
+  "lon": 127.8,
+  "r": 120,
+  "imp": 7
+ },
+ {
+  "name": "Ryukyu Islands",
+  "sub": "Japan",
+  "kind": "island",
+  "lat": 28.3,
+  "lon": 129.5,
+  "r": 120,
+  "imp": 5
+ },
+ {
+  "name": "Kyushu",
+  "sub": "Japan",
+  "kind": "island",
+  "lat": 32.6,
+  "lon": 131,
+  "r": 120,
+  "imp": 7
+ },
+ {
+  "name": "Shikoku",
+  "sub": "Japan",
+  "kind": "island",
+  "lat": 33.75,
+  "lon": 133.3,
+  "r": 100,
+  "imp": 5
+ },
+ {
+  "name": "Osaka",
+  "sub": "Japan",
+  "kind": "city",
+  "lat": 34.69,
+  "lon": 135.5,
+  "r": 90,
+  "imp": 7
+ },
+ {
+  "name": "Mt. Fuji",
+  "sub": "Japan",
+  "kind": "landmark",
+  "lat": 35.36,
+  "lon": 138.73,
+  "r": 80,
+  "imp": 9
+ },
+ {
+  "name": "Tokyo",
+  "sub": "Japan",
+  "kind": "city",
+  "lat": 35.68,
+  "lon": 139.69,
+  "r": 90,
+  "imp": 9
+ },
+ {
+  "name": "Hokkaido",
+  "sub": "Japan",
+  "kind": "island",
+  "lat": 43.3,
+  "lon": 142.8,
+  "r": 150,
+  "imp": 6
+ },
+ {
+  "name": "Kuril Islands",
+  "sub": "Russia",
+  "kind": "island",
+  "lat": 47,
+  "lon": 152,
+  "r": 200,
+  "imp": 5
+ },
+ {
+  "name": "Kamchatka Peninsula",
+  "sub": "Russia",
+  "kind": "region",
+  "lat": 54.5,
+  "lon": 159,
+  "r": 250,
+  "imp": 6
+ },
+ {
+  "name": "Sea of Okhotsk",
+  "sub": "",
+  "kind": "water",
+  "lat": 55,
+  "lon": 150,
+  "r": 300,
+  "imp": 4
+ },
+ {
+  "name": "Commander Islands",
+  "sub": "Russia",
+  "kind": "island",
+  "lat": 55,
+  "lon": 166,
+  "r": 200,
+  "imp": 4
+ },
+ {
+  "name": "Bering Sea",
+  "sub": "",
+  "kind": "water",
+  "lat": 57,
+  "lon": -175,
+  "r": 400,
+  "imp": 6
+ },
+ {
+  "name": "International Date Line",
+  "sub": "180° longitude",
+  "kind": "landmark",
+  "lat": 53,
+  "lon": 180,
+  "r": 900,
+  "imp": 8,
+  "meridian": 180
+ },
+ {
+  "name": "Aleutian Islands",
+  "sub": "Alaska, USA",
+  "kind": "island",
+  "lat": 52,
+  "lon": -176,
+  "r": 250,
+  "imp": 8
+ },
+ {
+  "name": "Unalaska",
+  "sub": "Alaska, USA",
+  "kind": "city",
+  "lat": 53.88,
+  "lon": -166.54,
+  "r": 200,
+  "imp": 6
+ },
+ {
+  "name": "Alaska Peninsula",
+  "sub": "Alaska, USA",
+  "kind": "region",
+  "lat": 56,
+  "lon": -159,
+  "r": 250,
+  "imp": 6
+ },
+ {
+  "name": "Kodiak Island",
+  "sub": "Alaska, USA",
+  "kind": "island",
+  "lat": 57.5,
+  "lon": -153.5,
+  "r": 200,
+  "imp": 6
+ },
+ {
+  "name": "Gulf of Alaska",
+  "sub": "",
+  "kind": "water",
+  "lat": 55,
+  "lon": -145,
+  "r": 1100,
+  "imp": 6
+ },
+ {
+  "name": "Haida Gwaii",
+  "sub": "British Columbia, Canada",
+  "kind": "island",
+  "lat": 53.3,
+  "lon": -132,
+  "r": 200,
+  "imp": 6
+ },
+ {
+  "name": "Vancouver Island",
+  "sub": "British Columbia, Canada",
+  "kind": "island",
+  "lat": 49.6,
+  "lon": -125.5,
+  "r": 180,
+  "imp": 7
+ },
+ {
+  "name": "Vancouver",
+  "sub": "Canada",
+  "kind": "city",
+  "lat": 49.28,
+  "lon": -123.12,
+  "r": 120,
+  "imp": 7
+ },
+ {
+  "name": "Seattle",
+  "sub": "Washington, USA",
+  "kind": "city",
+  "lat": 47.61,
+  "lon": -122.33,
+  "r": 120,
+  "imp": 7
+ },
+ {
+  "name": "Mt. Rainier",
+  "sub": "Washington, USA",
+  "kind": "landmark",
+  "lat": 46.85,
+  "lon": -121.76,
+  "r": 80,
+  "imp": 6
+ },
+ {
+  "name": "Portland",
+  "sub": "Oregon, USA",
+  "kind": "city",
+  "lat": 45.52,
+  "lon": -122.68,
+  "r": 120,
+  "imp": 6
+ },
+ {
+  "name": "Crater Lake",
+  "sub": "Oregon, USA",
+  "kind": "landmark",
+  "lat": 42.94,
+  "lon": -122.11,
+  "r": 90,
+  "imp": 6
+ },
+ {
+  "name": "Mt. Shasta",
+  "sub": "California, USA",
+  "kind": "landmark",
+  "lat": 41.41,
+  "lon": -122.19,
+  "r": 90,
+  "imp": 6
+ },
+ {
+  "name": "Sacramento",
+  "sub": "California, USA",
+  "kind": "city",
+  "lat": 38.58,
+  "lon": -121.49,
+  "r": 100,
+  "imp": 5
+ },
+ {
+  "name": "San Francisco Bay",
+  "sub": "California, USA",
+  "kind": "water",
+  "lat": 37.77,
+  "lon": -122.35,
+  "r": 110,
+  "imp": 8
+ },
+ {
+  "name": "Big Sur",
+  "sub": "California, USA",
+  "kind": "landmark",
+  "lat": 36.27,
+  "lon": -121.81,
+  "r": 90,
+  "imp": 5
+ },
+ {
+  "name": "Santa Barbara",
+  "sub": "California, USA",
+  "kind": "city",
+  "lat": 34.42,
+  "lon": -119.7,
+  "r": 80,
+  "imp": 4
+ },
+ {
+  "name": "Los Angeles",
+  "sub": "California, USA",
+  "kind": "city",
+  "lat": 34.05,
+  "lon": -118.24,
+  "r": 60,
+  "imp": 9
+ },
+ {
+  "name": "Sierra Madre Mountains",
+  "sub": "Luzon, Philippines",
+  "kind": "landmark",
+  "lat": 16.5,
+  "lon": 122,
+  "r": 120,
+  "imp": 5
+ },
+ {
+  "name": "Philippine Sea",
+  "sub": "",
+  "kind": "water",
+  "lat": 20,
+  "lon": 128,
+  "r": 450,
+  "imp": 6
+ },
+ {
+  "name": "Iwo Jima",
+  "sub": "Ogasawara, Japan",
+  "kind": "island",
+  "lat": 24.78,
+  "lon": 141.32,
+  "r": 550,
+  "imp": 8
+ },
+ {
+  "name": "Ogasawara Islands",
+  "sub": "Tokyo, Japan",
+  "kind": "island",
+  "lat": 27.1,
+  "lon": 142.2,
+  "r": 350,
+  "imp": 7
+ },
+ {
+  "name": "Northwest Pacific Ocean",
+  "sub": "",
+  "kind": "water",
+  "lat": 38,
+  "lon": 158,
+  "r": 700,
+  "imp": 3
+ },
+ {
+  "name": "Emperor Seamounts",
+  "sub": "North Pacific",
+  "kind": "landmark",
+  "lat": 42,
+  "lon": 170,
+  "r": 600,
+  "imp": 5
+ },
+ {
+  "name": "North Pacific Ocean",
+  "sub": "",
+  "kind": "water",
+  "lat": 46,
+  "lon": -160,
+  "r": 800,
+  "imp": 3
+ },
+ {
+  "name": "Cape Mendocino",
+  "sub": "California, USA",
+  "kind": "landmark",
+  "lat": 40.44,
+  "lon": -124.4,
+  "r": 260,
+  "imp": 5
+ },
+ {
+  "name": "Golden Gate Bridge",
+  "sub": "San Francisco, USA",
+  "kind": "landmark",
+  "lat": 37.82,
+  "lon": -122.48,
+  "r": 140,
+  "imp": 9
+ },
+ {
+  "name": "Monterey Bay",
+  "sub": "California, USA",
+  "kind": "water",
+  "lat": 36.8,
+  "lon": -121.9,
+  "r": 130,
+  "imp": 6
+ },
+ {
+  "name": "Channel Islands",
+  "sub": "California, USA",
+  "kind": "island",
+  "lat": 34,
+  "lon": -119.9,
+  "r": 110,
+  "imp": 5
+ },
+ {
+  "name": "Catalina Island",
+  "sub": "California, USA",
+  "kind": "island",
+  "lat": 33.39,
+  "lon": -118.42,
+  "r": 80,
+  "imp": 6
+ },
+ {
+  "name": "Hollywood Sign",
+  "sub": "Los Angeles, USA",
+  "kind": "landmark",
+  "lat": 34.134,
+  "lon": -118.321,
+  "r": 60,
+  "imp": 8
+ }
+]

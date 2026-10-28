@@ -1,0 +1,58 @@
+name: Render flight video
+
+on:
+  workflow_dispatch:
+    inputs:
+      raw_track:
+        description: "Raw track JSON in the repo (see data/)"
+        default: "data/mnl-ceb-raw.json"
+      flight_secs:
+        description: "Seconds of video spent on the flight itself"
+        default: "40"
+      zoom_cruise:
+        description: "Cruise zoom (6.6 = long-haul regional, 8.2 = short domestic hop)"
+        default: "8.2"
+      fps:
+        description: "Render fps (output is always 30)"
+        default: "15"
+  # Daily schedule - enable once a real flight-data step exists (see README):
+  # schedule:
+  #   - cron: "0 22 * * *"    # 22:00 UTC = 06:00 PHT
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install ffmpeg + dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg fonts-liberation
+          npm install
+          npx playwright install --with-deps chromium
+      - name: Clean track + render video
+        env:
+          GOOGLE_MAP_TILES_KEY: ${{ secrets.GOOGLE_MAP_TILES_KEY }}
+        run: |
+          mkdir -p out
+          node tools/process-track.js "${{ inputs.raw_track }}" out/track.json --pacing uniform
+          node render-flat.js --track out/track.json --out out/video.mp4 \
+            --fps "${{ inputs.fps }}" --out-fps 30 --flight "${{ inputs.flight_secs }}" --outro 6 \
+            --zoom-cruise "${{ inputs.zoom_cruise }}" --max-tiles 6000
+      - name: Publish video (public release link)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="video-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" out/video.mp4 --title "$TAG" --notes "Rendered from ${{ inputs.raw_track }}"
+          echo "Video: https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4" | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video
+          path: out/video.mp4

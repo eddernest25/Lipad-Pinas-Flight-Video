@@ -46,18 +46,18 @@ function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-
   if (!ok) { console.error('::error title=Narration failed::' + lastErr); process.exit(1); }
   console.log('voice provider:', used.provider);
 
-  // ---- schedule: each sentence starts at its wanted second, never overlapping the previous one; must finish before the video ends
-  let tempo = 1;
-  const plan = () => { let t = 0; const out = []; for (const s of S) { const d = s.d / tempo, st = Math.max(s.want, t); out.push({ s, st, d }); t = st + d + GAP; } return out; };
-  const fit = () => { let P = plan(); const end = () => P[P.length - 1].st + P[P.length - 1].d;
-    if (end() > VIDEO - END_PAD) { // pull later sentences earlier (backward pass)
-      let nextStart = VIDEO - END_PAD; for (let i = P.length - 1; i >= 0; i--) { const e = i === P.length - 1 ? nextStart : nextStart - GAP; P[i].st = Math.min(P[i].st, e - P[i].d); nextStart = P[i].st; } }
-    return P; };
-  let P = fit();
-  while (P[0].st < 0 && S.some(s => s.opt)) { const drop = S.filter(s => s.opt).sort((a, b) => b.opt - a.opt)[0]; console.log('dropping optional sentence:', drop.text.slice(0, 50)); S = S.filter(s => s !== drop); P = fit(); }
-  if (P[0].st < 0) { const total = S.reduce((n, s) => n + s.d + GAP, 0); tempo = Math.min(1.25, total / (VIDEO - END_PAD)); P = fit(); }
-  const lastS = P[P.length - 1]; lastS.st = Math.max(lastS.st, VIDEO - END_PAD - lastS.d);      // finish the narration right at the end of the video
-  for (let i = 1; i < P.length; i++) if (P[i].st < P[i - 1].st + P[i - 1].d + 0.1) P[i].st = P[i - 1].st + P[i - 1].d + 0.1;
+  // ---- schedule: sentences run back to back (even small gaps) so the voice covers the whole video and finishes right at the end
+  let tempo = 1, P;
+  const build = () => { const n = S.length, avail = VIDEO - END_PAD - 0.3, sumd = S.reduce((a, s) => a + s.d / tempo, 0);
+    const gap = n > 1 ? Math.min(1.2, (avail - sumd) / (n - 1)) : 0; if (gap < 0.15 && n > 1) return null;
+    let t = 0.3; return S.map(s => { const d = s.d / tempo, x = { s, st: t, d }; t += d + gap; return x; }); };
+  P = build();
+  while (!P) {
+    const sumd = S.reduce((a, s) => a + s.d, 0), need = sumd / (VIDEO - END_PAD - 0.3 - 0.15 * (S.length - 1));
+    if (need <= 1.25) { tempo = need; P = build(); if (P) break; tempo = need * 1.01; P = build(); break; }
+    const drop = S.filter(s => s.opt).sort((a, b) => b.opt - a.opt)[0]; if (!drop) { tempo = 1.25; P = build() || S.map(() => null); break; }
+    console.log('dropping optional sentence:', drop.text.slice(0, 50)); S = S.filter(s => s !== drop); P = build();
+  }
   console.log(P.map(x => `${x.st.toFixed(1)}-${(x.st + x.d).toFixed(1)}s  ${x.s.text.slice(0, 60)}`).join('\n'), '\ntempo', tempo.toFixed(2));
 
   // ---- mix into one track of exactly VIDEO seconds

@@ -53,6 +53,7 @@ function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-
   }
   if (!ok) { console.error('::error title=Narration failed::' + lastErr); process.exit(1); }
   console.log('voice provider:', used.provider);
+  console.log('::notice title=Narration voice::provider=' + used.provider + (used.provider === 'google' ? ' voice=' + (VOICE || (GENDER === 'FEMALE' ? 'en-US-Neural2-F' : 'en-US-Neural2-D')) : used.provider === 'edge' ? ' voice=' + (VOICE || (GENDER === 'FEMALE' ? 'en-US-AriaNeural' : 'en-US-GuyNeural')) : ''));
 
   // ---- schedule: sentences run back to back (even small gaps) so the voice covers the whole video and finishes right at the end
   let tempo = 1, P;

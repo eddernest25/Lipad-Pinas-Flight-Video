@@ -76,6 +76,10 @@ jobs:
             node tools/route-stats.js --route "$FROMI-$TOI" --to "$DAY" --days 7 || echo "route stats unavailable"
           fi
           node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}"
+          if [ -n "${{ inputs.voice_dir }}" ]; then
+            if [ -f "${{ inputs.voice_dir }}/urls.txt" ]; then while read -r i u; do curl -fsSL -o "${{ inputs.voice_dir }}/s$i.mp3" "$u"; done < "${{ inputs.voice_dir }}/urls.txt"; fi
+            [ -f "${{ inputs.voice_dir }}/narration.json" ] && cp "${{ inputs.voice_dir }}/narration.json" out/narration.json
+          fi
           node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"

@@ -1,0 +1,40 @@
+{
+ "sentences": [
+  {
+   "text": "Welcome aboard Philippine Airlines flight PR 507, from Manila to Singapore.",
+   "want": 0
+  },
+  {
+   "text": "Today's Airbus A321neo took off from Manila at 10:02 AM local time, and climbed to its cruising altitude of about 37,000 feet.",
+   "want": 0
+  },
+  {
+   "text": "This flight covered about 2,400 kilometers in 3 hours and 3 minutes. The average flight time on this route is about 3 hours and 10 minutes.",
+   "want": 0
+  },
+  {
+   "text": "Besides Philippine Airlines, you can fly Manila to Singapore non-stop on Singapore Airlines, Cebu Pacific and Scoot.",
+   "want": 0
+  },
+  {
+   "text": "One-way tickets on this route usually cost about 80 to 250 U.S. dollars, or roughly 5,000 to 16,000 pesos, depending on the airline and how early you book.",
+   "want": 0
+  },
+  {
+   "text": "Traveling to Singapore? Filipino passport holders can visit visa-free for up to 30 days.",
+   "want": 0
+  },
+  {
+   "text": "Bring a passport valid for at least six months, proof of onward travel, and the free SG Arrival Card, filled in online within three days before you arrive.",
+   "want": 0
+  },
+  {
+   "text": "The aircraft touched down at Singapore Changi Airport at 1:05 PM local time.",
+   "want": 0
+  },
+  {
+   "text": "Follow us for more flights, travel tips, and Philippine aviation stories.",
+   "want": 0
+  }
+ ]
+}

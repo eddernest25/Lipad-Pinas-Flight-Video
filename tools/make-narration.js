@@ -75,7 +75,8 @@ if (args.includes('--music')) {
   const L = [`${M.fromCity} to ${M.toCity} is about ${nice(km50)} kilometers`, `Flight time is about ${spokenDur(five(mins))}`];
   if (oth.length) L.push(`Also flies non-stop on ${join(oth)}`);
   if (fare) L.push(fare.usdLow ? `One-way tickets cost about $${fare.usdLow} to $${fare.usdHigh}, or ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}` : `One-way tickets cost about ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}`);
-  if (entry) { L.push(`Visa: ${entry.visa.replace(/\.$/, '')}`); L.push(entry.rules.replace(/\.$/, '')); }
+  if (entry) { L.push(`Visa: ${entry.visa.replace(/\.$/, '')}`); const rl = entry.rules.replace(/\.$/, ''), k = rl.lastIndexOf(', and ');
+    if (rl.length > 90 && k > 20) { L.push(rl.slice(0, k)); L.push(rl.slice(k + 6).replace(/^./, c => c.toUpperCase())); } else L.push(rl); }
   const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
   let t = t0; const caps = L.map(text => { const d = usable * Math.max(text.length, 34) / tot, c = { s: +t.toFixed(2), e: +(t + d).toFixed(2), text }; t += d + GAP; return c; });
   fs.mkdirSync(path.dirname(outFile), { recursive: true });

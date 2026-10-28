@@ -41,13 +41,16 @@ on:
   # schedule:
   #   - cron: "0 22 * * *"    # 22:00 UTC = 06:00 PHT
 
+concurrency:
+  group: render-video
+  cancel-in-progress: false
 permissions:
   contents: write
 
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

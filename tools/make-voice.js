@@ -49,7 +49,7 @@ function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-
       for (let i = 0; i < S.length; i++) { const f = path.join(outDir, `s${i}.mp3`); fs.rmSync(f, { force: true });
         const say = S[i].say || S[i].text.replace(/-/g, ' '); let out = f; if (prov === 'google') await google(say, f); else if (prov === 'edge') edge(say, f); else if (prov === 'files') out = fromFiles(i, f); else test(say, f); S[i].file = out; S[i].d = dur(S[i].file); }
       used.provider = prov; ok = true; break;
-    } catch (e) { lastErr = e.message; console.error('TTS provider ' + prov + ' failed: ' + e.message); }
+    } catch (e) { lastErr = e.message; console.error('TTS provider ' + prov + ' failed: ' + e.message); console.log('::warning title=TTS ' + prov + ' failed::' + e.message.replace(/[\r\n%]/g,' ').slice(0,300)); }
   }
   if (!ok) { console.error('::error title=Narration failed::' + lastErr); process.exit(1); }
   console.log('voice provider:', used.provider);

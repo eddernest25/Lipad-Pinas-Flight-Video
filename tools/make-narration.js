@@ -74,7 +74,7 @@ S.push({ text: `Today's ${acName} took off from ${M.fromCity}${depT ? ` at ${dep
 S.push({ text: `This flight covered about ${nice(km50)} kilometers in ${spokenDur(mins)}.${rs && rs.avgMin ? ` The average flight time on this route is about ${spokenDur(five(rs.avgMin))}.` : ''}` });
 const others = rs ? rs.airlines.filter(a => a.icao !== M.airline).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
 if (others.length) S.push({ text: `Besides ${airline}, you can fly ${M.fromCity} to ${M.toCity} non-stop on ${join(others)}.`, opt: 2 });
-if (fare) S.push({ text: `One-way tickets on this route usually cost about ${fare.usdLow} to ${fare.usdHigh} U.S. dollars, or roughly ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.`, opt: 3 });
+if (fare) S.push({ text: fare.usdLow ? `One-way tickets on this route usually cost about ${fare.usdLow} to ${fare.usdHigh} U.S. dollars, or roughly ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.` : `One-way tickets on this route usually cost about ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.`, opt: 3 });
 if (entry) { S.push({ text: `Traveling to ${B.city}? ${entry.visa}`, opt: 4 }); S.push({ text: entry.rules, opt: 5 }); }
 S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
 S.push({ text: `Follow us for more flights, travel tips, and Philippine aviation stories.` });

@@ -88,11 +88,12 @@ jobs:
             [ -f "${{ inputs.voice_dir }}/narration.json" ] && cp "${{ inputs.voice_dir }}/narration.json" out/narration.json
           fi
           node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
+          ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=8.2; echo "domestic flight: closer zoom $ZC"; fi
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
             --fps "${{ inputs.fps }}" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
-            --zoom-close 12 --zoom-cruise "${{ inputs.zoom_cruise }}" --zoom-out-end .16 --zoom-in-start $ZIN \
+            --zoom-close 12 --zoom-cruise "$ZC" --zoom-out-end .16 --zoom-in-start $ZIN \
             --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000
       - name: Publish video (public release link)
         env:

@@ -187,6 +187,7 @@ window.initFlat = async function (cfg, track) {
   planeImg = await makePlane(); if (cfg.logo) { logoImg = new Image(); logoImg.src = cfg.logo; await logoImg.decode().catch(() => { logoImg = null; }); }
   const m = D.meta; $('title').textContent = `${m.fromCity} to ${m.toCity}`;
   setFlag($('flagL'), m.fromCountry); setFlag($('flagR'), m.toCountry);
+  if (m.fromCountry && m.fromCountry === m.toCountry) { $('flagR').style.display = 'none'; $('flagL').style.cssText += ';left:50%;right:auto;transform:translateX(-50%)'; }   // domestic: one flag in the middle
   const lg = $('logo'); lg.innerHTML = (logoImg ? `<img src="${cfg.logo}">` : `<div class="dot">LIPAD<br>PINAS</div>`) + `<div class="follow">Follow Us</div>`;
   const pos = { tl: 'left:40px;top:40px', tr: 'right:40px;top:40px', bl: 'left:40px;bottom:70px', br: 'right:40px;bottom:70px', bc: 'left:425px;bottom:330px' }[cfg.logoPos || 'bc'];
   lg.style.cssText += ';' + pos;

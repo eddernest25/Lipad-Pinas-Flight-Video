@@ -16,6 +16,12 @@
    "phpHigh": 16000,
    "source": "Cheapflights PH (Oct 26 2026), Expedia, Kupi; ~PHP 64 per USD (Oct 27 2026)",
    "checked": "2026-10-27"
+  },
+  "MNL-CEB": {
+   "phpLow": 1500,
+   "phpHigh": 4500,
+   "source": "Cheapflights PH from PHP 1,350; Philippine Airlines from PHP 2,385 (web search Oct 28 2026) - estimate range, not a verified average",
+   "checked": "2026-10-28"
   }
  }
 }

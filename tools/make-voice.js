@@ -55,11 +55,13 @@ function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-
   const build = () => { const n = S.length, avail = VIDEO - END_PAD - 0.3, sumd = S.reduce((a, s) => a + s.d / tempo, 0);
     const gap = n > 1 ? Math.min(1.2, (avail - sumd) / (n - 1)) : 0; if (gap < 0.15 && n > 1) return null;
     let t = 0.3; return S.map(s => { const d = s.d / tempo, x = { s, st: t, d }; t += d + gap; return x; }); };
+  console.log('::notice title=Clip durations::' + S.map((x, i) => `${i}:${x.d.toFixed(1)}s`).join(' ') + ' total ' + S.reduce((n, x) => n + x.d, 0).toFixed(1) + 's');
   P = build();
   while (!P) {
     const sumd = S.reduce((a, s) => a + s.d, 0), need = sumd / (VIDEO - END_PAD - 0.3 - 0.15 * (S.length - 1));
-    if (need <= 1.25) { tempo = need; P = build(); if (P) break; tempo = need * 1.01; P = build(); break; }
-    const drop = S.filter(s => s.opt).sort((a, b) => b.opt - a.opt)[0]; if (!drop) { tempo = 1.25; P = build() || S.map(() => null); break; }
+    if (need <= 1.3) { tempo = need * 1.002; P = build(); if (P) break; }
+    const drop = S.filter(s => s.opt).sort((a, b) => b.opt - a.opt)[0];
+    if (!drop) { tempo = Math.min(need * 1.002, 1.6); console.log('WARNING: narration needs tempo', need.toFixed(2)); P = build(); if (!P) { tempo = need * 1.01; P = build(); } if (!P) { console.error('::error title=Narration too long::' + sumd.toFixed(1) + 's of speech for a ' + VIDEO + 's video'); process.exit(1); } break; }
     console.log('dropping optional sentence:', drop.text.slice(0, 50)); S = S.filter(s => s !== drop); P = build();
   }
   console.log(P.map(x => `${x.st.toFixed(1)}-${(x.st + x.d).toFixed(1)}s  ${x.s.text.slice(0, 60)}`).join('\n'), '\ntempo', tempo.toFixed(2));

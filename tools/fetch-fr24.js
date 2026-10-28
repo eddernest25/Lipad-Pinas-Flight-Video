@@ -67,6 +67,7 @@ const place = icao => ap[icao] || { name: icao, city: icao, cc: '', iata: icao }
     date: date || (s.datetime_takeoff || '').slice(0, 10),
     from: A.iata || s.orig_iata || '', fromCity: A.city, fromCountry: A.cc,
     to: B.iata || s.dest_iata || '', toCity: B.city, toCountry: B.cc,
+    takeoffUtc: s.datetime_takeoff || '', landedUtc: s.datetime_landed || '',
     source: 'Flightradar24 API (fr24_id ' + id + ')'
   };
   fs.mkdirSync(path.dirname(out), { recursive: true });

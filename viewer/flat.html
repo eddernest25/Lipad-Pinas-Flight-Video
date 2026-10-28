@@ -114,6 +114,7 @@ function drawLabels(z, ox, oy, cx, tv) {
   const inside = r => r.x >= 22 && r.x + r.w <= W - 22 && r.y >= 60 && r.y + r.h <= H - 40;
   const vis = r => r.x + r.w > 0 && r.x < W && r.y + r.h > 0 && r.y < H;
   rects.push({ x: W / 2 - 80, y: H / 2 - 70, w: 340, h: 150 });                       // keep the plane + its tag clear
+  if (CFG.captions && CFG.captions.length) rects.push({ x: 40, y: (CFG.captionY || 1340) - 230, w: 1000, h: 250 });   // caption zone
   if (bannerOn > .02) rects.push({ x: 60, y: 270, w: 960, h: 360 });                   // banner + flags
   if (logoOn > .02) { const R = { tl: [20, 20], tr: [W - 270, 20], bl: [20, H - 330], br: [W - 270, H - 330], bc: [W / 2 - 130, H - 520] }[CFG.logoPos || 'bc']; rects.push({ x: R[0], y: R[1], w: 260, h: 230 }); }
   const halo = (txt, x, y, fill, alpha, ls) => { ctx.letterSpacing = ls || '0px'; ctx.globalAlpha = alpha; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(5,12,24,.85)'; ctx.strokeText(txt, x, y); ctx.fillStyle = fill; ctx.fillText(txt, x, y); ctx.globalAlpha = 1; };
@@ -262,6 +263,7 @@ window.setTime = async function (tv) {
   // plane + flight tag
   const px = W / 2, py = H / 2, ps = CFG.planeSize || 64;
   ctx.save(); ctx.translate(px, py); ctx.rotate(s.hdg * Math.PI / 180); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 8; ctx.drawImage(planeImg, -ps / 2, -ps / 2, ps, ps); ctx.restore();
+  ctx.letterSpacing = '0px'; ctx.textAlign = 'left'; ctx.globalAlpha = 1; ctx.setLineDash([]);
   const tag = D.meta.flight; ctx.font = '700 26px Arial'; const L = airImg ? 36 : 0, tw = ctx.measureText(tag).width + 28 + (L ? L + 8 : 0), th = 46, bx = px + 36, by = py + 20;
   ctx.fillStyle = 'rgba(20,28,40,.82)'; ctx.beginPath(); ctx.roundRect(bx, by, tw, th, 10); ctx.fill();
   let tx = bx + 14;
@@ -269,6 +271,18 @@ window.setTime = async function (tv) {
     const r = Math.min((L + 4) / airImg.width, L / airImg.height) * .92, dw = airImg.width * r, dh = airImg.height * r;
     ctx.drawImage(airImg, bx + 5 + (L + 4 - dw) / 2, by + (th - dh) / 2, dw, dh); ctx.restore(); tx = bx + L + 18; }
   ctx.fillStyle = '#fff'; ctx.textBaseline = 'alphabetic'; ctx.fillText(tag, tx, by + 33);
+
+  // narration captions (burned in): current chunk, wrapped, bottom edge at CFG.captionY
+  if (CFG.captions && CFG.captions.length) {
+    const c = CFG.captions.find(q => tv >= q.s - .05 && tv <= q.e + .25);
+    if (c) { const a = clamp((tv - c.s + .05) / .18, 0, 1) * clamp((c.e + .25 - tv) / .18, 0, 1);
+      ctx.save(); ctx.letterSpacing = '0px'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.font = '700 46px Arial, Helvetica, sans-serif';
+      const maxW = 900, words = c.text.split(' '), lines = []; let cur = '';
+      for (const w of words) { const t = cur ? cur + ' ' + w : w; if (cur && ctx.measureText(t).width > maxW) { lines.push(cur); cur = w; } else cur = t; } if (cur) lines.push(cur);
+      const lh = 58, bw = Math.min(980, Math.max(...lines.map(l => ctx.measureText(l).width)) + 56), bh = lines.length * lh + 26, bottom = CFG.captionY || 1340, top = bottom - bh;
+      ctx.globalAlpha = a; ctx.fillStyle = 'rgba(8,16,30,.74)'; ctx.beginPath(); ctx.roundRect(W / 2 - bw / 2, top, bw, bh, 18); ctx.fill();
+      ctx.fillStyle = '#fff'; lines.forEach((l, i) => ctx.fillText(l, W / 2, top + 13 + lh * i + 42)); ctx.restore(); }
+  }
 
   // overlays: banner + flags at start and end, logo near the end
   const T = intro + flight + outro, fade = (a, b, c, d) => clamp((tv - a) / (b - a), 0, 1) * (1 - clamp((tv - c) / (d - c), 0, 1));

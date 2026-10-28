@@ -15,6 +15,9 @@ on:
       logo_pos:
         description: "Lipad Pinas logo position: bc (lower middle) tl tr bl br"
         default: "bc"
+      voice_gender:
+        description: "Narrator voice: MALE or FEMALE"
+        default: "MALE"
       raw_track:
         description: "Only used when flight is empty: raw track JSON in the repo (see data/)"
         default: "data/mnl-ceb-raw.json"
@@ -47,11 +50,13 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y ffmpeg fonts-liberation
           npm install
+          pip install --break-system-packages edge-tts || pip install edge-tts
           npx playwright install --with-deps chromium
       - name: Clean track + render video
         env:
           GOOGLE_MAP_TILES_KEY: ${{ secrets.GOOGLE_MAP_TILES_KEY }}
           FR24_API_KEY: ${{ secrets.FR24_API_KEY }}
+          GOOGLE_TTS_KEY: ${{ secrets.GOOGLE_TTS_KEY }}
         run: |
           mkdir -p out
           set -o pipefail
@@ -63,12 +68,14 @@ jobs:
             RAW=out/raw.json
           fi
           node tools/process-track.js "$RAW" out/track.json --pacing uniform --dt 10 --video-secs "${{ inputs.flight_secs }}" --pad-secs 2
+          node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}"
+          node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}"
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
             --fps "${{ inputs.fps }}" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
             --zoom-close 12 --zoom-cruise "${{ inputs.zoom_cruise }}" --zoom-out-end .16 --zoom-in-start $ZIN \
-            --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --max-tiles 8000
+            --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000
       - name: Publish video (public release link)
         env:
           GH_TOKEN: ${{ github.token }}

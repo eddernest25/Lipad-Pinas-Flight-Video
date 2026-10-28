@@ -7,6 +7,7 @@
 //   --scale 1                                      1 = 1080x1920, 0.5 = fast preview
 //   --google-key KEY                               omit -> stand-in low-res map (offline testing only)
 //   --logo path.png  --logo-pos bc|tl|tr|bl|br     page logo for the "Follow Us" badge
+//   --audio voice.wav  --captions captions.json  --caption-y 1340   narration track + burned-in captions
 //   --music file.mp3                               mixed under the video, faded out at the end
 //   --zoom-close 11 --zoom-cruise 6.6              camera zoom levels (Web Mercator); see flat.html zoomAt()
 //   --stills 0,3,20      PNGs at those video-seconds, no video
@@ -32,6 +33,7 @@ const cfg = {
   airlineLogo: hasAirline ? '/airline.png' : '', logo: logoFile ? '/logo' + path.extname(logoFile) : '', logoPos: opt('logo-pos', 'bc'), maxTileZoom: +opt('max-tile-zoom', 19)
 };
 const track = JSON.parse(fs.readFileSync(trackFile, 'utf8'));
+cfg.captions = opt('captions', '') ? JSON.parse(fs.readFileSync(opt('captions', ''), 'utf8')) : []; cfg.captionY = +opt('caption-y', 1340);
 cfg.flagImages = {}; for (const cc of [track.meta.fromCountry, track.meta.toCountry]) { const f = cc && flagSvg(cc); if (f) cfg.flagImages[String(cc).toUpperCase()] = f; }
 
 // ---- Google Map Tiles API (2D): satellite + roadmap/labels layer, fetched server-side and streamed to the page (nothing is written to disk)
@@ -147,7 +149,10 @@ const server = http.createServer(async (req, res) => {
 
   const dur = (to - from + 1) / FPS, music = opt('music', '');
   const args = ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(framesDir, 'f%05d.jpg')];
-  if (music) args.push('-stream_loop', '-1', '-i', music, '-filter_complex', `[1:a]afade=t=out:st=${Math.max(0, dur - 2.5)}:d=2.5[a]`, '-map', '0:v', '-map', '[a]', '-c:a', 'aac', '-b:a', '192k', '-t', String(dur));
+  const voice = opt('audio', ''), aout = ['-c:a', 'aac', '-b:a', '192k', '-t', String(dur)];
+  if (voice && music) args.push('-i', voice, '-stream_loop', '-1', '-i', music, '-filter_complex', `[2:a]volume=0.12,afade=t=out:st=${Math.max(0, dur - 2.5)}:d=2.5[m];[1:a][m]amix=inputs=2:normalize=0:duration=first[a]`, '-map', '0:v', '-map', '[a]', ...aout);
+  else if (voice) args.push('-i', voice, '-map', '0:v', '-map', '1:a', ...aout);
+  else if (music) args.push('-stream_loop', '-1', '-i', music, '-filter_complex', `[1:a]afade=t=out:st=${Math.max(0, dur - 2.5)}:d=2.5[a]`, '-map', '0:v', '-map', '[a]', ...aout);
   const OUTFPS = +opt('out-fps', FPS);
   if (OUTFPS !== FPS) args.push('-vf', `fps=${OUTFPS}`);
   args.push('-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', outFile);

@@ -1,0 +1,17 @@
+name: Route stats
+on:
+  workflow_dispatch:
+    inputs:
+      route: { description: "ICAO route, e.g. RPLL-WSSS", default: "RPLL-WSSS" }
+      to: { description: "Window end date YYYY-MM-DD", default: "2026-10-26" }
+      days: { description: "Days of history", default: "7" }
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - env:
+          FR24_API_KEY: ${{ secrets.FR24_API_KEY }}
+        run: node tools/route-stats.js --route "${{ inputs.route }}" --to "${{ inputs.to }}" --days "${{ inputs.days }}"

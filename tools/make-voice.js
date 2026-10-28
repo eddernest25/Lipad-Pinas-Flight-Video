@@ -78,6 +78,19 @@ function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-
   const r = sh('ffmpeg', ['-y', '-loglevel', 'error', ...inputs, '-filter_complex', filt, '-map', '[out]', '-ar', '44100', path.join(outDir, 'voice.wav')]);
   if (r.status !== 0) { console.error('::error title=Voice mix failed::' + (r.stderr || '').slice(0, 400)); process.exit(1); }
 
+  // ---- background sound bed (engine/cabin ambience), ducked under the voice
+  const BG = opt('bg', fs.existsSync(path.join(__dirname, '..', 'assets', 'bg-plane.mp3')) ? path.join(__dirname, '..', 'assets', 'bg-plane.mp3') : ''), BGLUFS = +opt('bg-lufs', -27);
+  if (BG && BG !== 'none' && fs.existsSync(BG)) {
+    const vo = path.join(outDir, 'voice.wav'), dry = path.join(outDir, 'voice-only.wav');
+    fs.renameSync(vo, dry);
+    const fc = `[0:a]aformat=sample_rates=44100:channel_layouts=stereo,asplit=2[v][sc];`
+      + `[1:a]aresample=44100,aformat=channel_layouts=stereo,loudnorm=I=${BGLUFS}:TP=-3:LRA=7,atrim=0:${VIDEO},apad=whole_dur=${VIDEO},atrim=0:${VIDEO},afade=t=in:d=1.5,afade=t=out:st=${(VIDEO - 2).toFixed(2)}:d=2[bg];`
+      + `[bg][sc]sidechaincompress=threshold=0.02:ratio=3:attack=30:release=500[bgd];`
+      + `[v][bgd]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.95,atrim=0:${VIDEO}[out]`;
+    const rb = sh('ffmpeg', ['-y', '-loglevel', 'error', '-i', dry, '-i', BG, '-filter_complex', fc, '-map', '[out]', '-ar', '44100', vo]);
+    if (rb.status !== 0) { console.error('::warning title=Background sound failed::' + (rb.stderr || '').replace(/[\r\n%]/g, ' ').slice(0, 300)); fs.renameSync(dry, vo); } else console.log('::notice title=Background sound::mixed ' + path.basename(BG) + ' at ' + BGLUFS + ' LUFS');
+  }
+
   // ---- captions: split into short chunks at punctuation / ~60 chars; time proportional to length inside each sentence
   const caps = [];
   for (const x of P) {

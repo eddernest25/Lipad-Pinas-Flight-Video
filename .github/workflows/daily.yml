@@ -1,0 +1,87 @@
+name: Daily flight video
+
+on:
+  schedule:
+    - cron: "0 22 * * *"    # 06:00 PHT every day; keeps the queue ~3 days ahead
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "true = plan + render + captions but do NOT post or record"
+        default: "false"
+      introspect:
+        description: "true = only print Buffer API metadata field names and stop"
+        default: "false"
+
+concurrency:
+  group: daily-video
+  cancel-in-progress: false
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Buffer API check
+        if: ${{ inputs.introspect == 'true' }}
+        run: node tools/buffer-post.js --introspect
+      - name: Decide target day
+        id: day
+        if: ${{ inputs.introspect != 'true' }}
+        run: |
+          LAST=$(node -p "const p=require('./data/history.json').posts;p[p.length-1].date")
+          TARGET=$(date -u -d "$LAST + 1 day" +%F)
+          TODAY=$(TZ=Asia/Manila date +%F); LIMIT=$(date -u -d "$TODAY + 3 days" +%F)
+          echo "last post $LAST, target $TARGET, queue limit $LIMIT"
+          if [[ "$TARGET" > "$LIMIT" ]]; then echo "queue already full"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "go=yes" >> "$GITHUB_OUTPUT"; echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "flightday=$(date -u -d 'yesterday' +%F)" >> "$GITHUB_OUTPUT"
+      - name: Pick route, render, caption, schedule
+        if: ${{ steps.day.outputs.go == 'yes' }}
+        env:
+          TARGET: ${{ steps.day.outputs.target }}
+          FLIGHTDAY: ${{ steps.day.outputs.flightday }}
+          DRY: ${{ inputs.dry }}
+        run: |
+          set -o pipefail
+          SKIP=""
+          for ATTEMPT in 1 2 3 4 5; do
+            PLAN=$(node tools/plan-next.js --skip "$SKIP") || { echo "no candidate left"; exit 1; }
+            STYLE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).style")
+            ROUTE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).route")
+            AIRL=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).airline")
+            echo "attempt $ATTEMPT: $STYLE $ROUTE $AIRL"
+            ARGS=(-f ref=main -f "inputs[airline]=$AIRL" -f "inputs[route]=$ROUTE" -f "inputs[date]=$FLIGHTDAY")
+            if [[ "$STYLE" == *music ]]; then ARGS+=(-f "inputs[style]=music"); else ARGS+=(-f "inputs[style]=voice" -f "inputs[voice_name]=en-US-Chirp3-HD-Aoede" -f "inputs[voice_gender]=FEMALE"); fi
+            STARTED=$(date -u +%FT%TZ)
+            gh api -X POST "repos/${{ github.repository }}/actions/workflows/render.yml/dispatches" "${ARGS[@]}"
+            sleep 25
+            RUN=$(gh run list --workflow render.yml --event workflow_dispatch --json databaseId,createdAt --jq "[.[]|select(.createdAt>=\"$STARTED\")]|last|.databaseId")
+            echo "render run $RUN"
+            if gh run watch "$RUN" --exit-status --interval 30 >/dev/null 2>&1; then OK=1; else OK=0; fi
+            if [ "$OK" = 1 ]; then break; fi
+            echo "render failed for $ROUTE:$AIRL (likely no matching flight) - trying next candidate"
+            SKIP="$SKIP,$ROUTE:$AIRL"; SKIP=${SKIP#,}
+            [ "$ATTEMPT" = 5 ] && { echo "giving up today"; exit 1; }
+          done
+          TAG=$(gh release list --limit 20 --json tagName,createdAt --jq '[.[]|select(.tagName|startswith("video-"))]|sort_by(.createdAt)|last|.tagName')
+          echo "release $TAG"
+          mkdir -p out && gh release download "$TAG" -p raw.json -p narration.json -D out
+          VIDEO="https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4"
+          node tools/make-caption.js out/raw.json out/caption.json
+          FLIGHT=$(node -p "require('./out/raw.json').meta.flight")
+          DUE="${TARGET}T07:00:00Z"   # 3:00 PM PHT
+          if [ "$DRY" = "true" ]; then node tools/buffer-post.js --dry --video "$VIDEO" --caption out/caption.json --due "$DUE"; echo "dry run: $VIDEO"; exit 0; fi
+          node tools/buffer-post.js --video "$VIDEO" --caption out/caption.json --due "$DUE"
+          FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao")
+          node tools/plan-next.js --record --date "$TARGET" --style "$STYLE" --flight "$FLIGHT" --airline "$AIRL" --from "$FROMI" --to "$TOI" --note "auto-scheduled $DUE"
+          git config user.name "lipad-pinas-bot"; git config user.email "bot@users.noreply.github.com"
+          git add data/history.json && git commit -m "Auto-schedule $TARGET: $FLIGHT $FROMI-$TOI ($STYLE)" && git push

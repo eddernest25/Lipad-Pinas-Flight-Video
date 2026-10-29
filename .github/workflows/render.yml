@@ -124,7 +124,8 @@ jobs:
             exit 0
           fi
           TAG="video-$(date -u +%Y%m%d-%H%M%S)"
-          gh release create "$TAG" out/video.mp4 out/narration.json --title "$TAG" --notes "Rendered from ${{ inputs.flight || inputs.raw_track }} ${{ inputs.date }}"
+          EXTRA=""; [ -f out/raw.json ] && EXTRA="out/raw.json"
+          gh release create "$TAG" out/video.mp4 out/narration.json $EXTRA --title "$TAG" --notes "Rendered from ${{ inputs.flight || inputs.raw_track }} ${{ inputs.date }}"
           echo "Video: https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4" | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: ${{ !inputs.stills }}

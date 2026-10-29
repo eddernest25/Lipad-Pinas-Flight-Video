@@ -74,6 +74,7 @@ if (args.includes('--music')) {
   const DOMAIR = ['CEB', 'PAL', 'GAP', 'APG'], domestic = M.fromCountry === M.toCountry;   // local: only real Philippine passenger carriers (route data also holds ferry/charter/business-jet legs)
   const oth = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2 && (!domestic || DOMAIR.includes(a.icao))).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
   const L = [`${M.fromCity} to ${M.toCity} is about ${nice(km50)} kilometers`, `Flight time is about ${spokenDur(five(mins))}`];
+  if (depT && arrT) L.push(`Took off from ${M.fromCity} at ${depT} and landed in ${M.toCity} at ${arrT}, local times`);
   if (oth.length) L.push(`Also flies non-stop on ${join(oth)}`);
   if (fare && fare.phpFrom) L.push(`One-way tickets start around ₱${nice(fare.phpFrom)}`); else if (fare) L.push(fare.usdLow ? `One-way tickets cost about $${fare.usdLow} to $${fare.usdHigh}, or ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}` : `One-way tickets cost about ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}`);
   if (M.fromCountry === M.toCountry) L.splice(2, 0, `Cruising altitude is about ${nice(ft)} feet at around ${nice(cruiseKmh)} kilometers per hour`);   // domestic: general flight facts instead of visa info

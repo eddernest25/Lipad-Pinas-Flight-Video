@@ -65,7 +65,7 @@ const facts = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, '
 const rs = (() => { try { return JSON.parse(fs.readFileSync(opt('route-stats', 'out/route-stats.json'), 'utf8')); } catch (e) { return null; } })();
 const entry = (facts.entry || {})[B.cc] || null, fare = (facts.fares || {})[`${M.from}-${M.to}`] || null;
 const mins = Math.round((M.takeoffUtc && M.landedUtc ? (new Date(M.landedUtc) - new Date(M.takeoffUtc)) / 60000 : D.meta.durationS / 60));
-const spokenDur = m => { const h = Math.floor(m / 60), r = m % 60; return `${h} hour${h === 1 ? '' : 's'}${r ? ` and ${r} minute${r === 1 ? '' : 's'}` : ''}`; };
+const spokenDur = m => { const h = Math.floor(m / 60), r = m % 60; if (!h) return `${r} minute${r === 1 ? '' : 's'}`; return `${h} hour${h === 1 ? '' : 's'}${r ? ` and ${r} minute${r === 1 ? '' : 's'}` : ''}`; };
 const five = m => Math.round(m / 5) * 5;
 const nice = n => new Intl.NumberFormat('en-US').format(n);
 const km50 = Math.round(distKm / 50) * 50;

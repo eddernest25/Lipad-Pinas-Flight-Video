@@ -75,6 +75,7 @@ if (args.includes('--music')) {
   const L = [`${M.fromCity} to ${M.toCity} is about ${nice(km50)} kilometers`, `Flight time is about ${spokenDur(five(mins))}`];
   if (oth.length) L.push(`Also flies non-stop on ${join(oth)}`);
   if (fare && fare.phpFrom) L.push(`One-way tickets start around ₱${nice(fare.phpFrom)}`); else if (fare) L.push(fare.usdLow ? `One-way tickets cost about $${fare.usdLow} to $${fare.usdHigh}, or ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}` : `One-way tickets cost about ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}`);
+  if (M.fromCountry === M.toCountry) L.splice(2, 0, `Cruising altitude is about ${nice(ft)} feet at around ${nice(cruiseKmh)} kilometers per hour`);   // domestic: general flight facts instead of visa info
   if (entry && entry.ofw) L.push(...entry.ofw);   // OFW-focused: no tourist visa / generic passport lines
   else if (entry) { L.push(`Visa: ${entry.visa.replace(/\.$/, '')}`); const rl = entry.rules.replace(/\.$/, ''), k = rl.lastIndexOf(', and ');
     if (rl.length > 90 && k > 20) { L.push(rl.slice(0, k)); L.push(rl.slice(k + 6).replace(/^./, c => c.toUpperCase())); } else L.push(rl); }

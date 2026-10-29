@@ -6,9 +6,9 @@ const fs = require('fs'), path = require('path'), { spawnSync } = require('child
 const args = process.argv.slice(2), opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : d; };
 const [inFile, outDir] = args.filter((a, i) => !a.startsWith('--') && !(args[i - 1] || '').startsWith('--'));
 const VIDEO = +opt('video-secs', 64), LUFS = +opt('lufs', -14);
-const dir = path.join(__dirname, '..', 'assets', 'music');
+const dir = path.join(__dirname, '..', 'assets', opt('dir', 'music'));   // music = international rotation, music-local = domestic rotation
 const all = fs.readdirSync(dir).filter(f => /\.(mp3|wav|m4a)$/i.test(f)).sort();
-if (!all.length) { console.error('::error title=No music::assets/music is empty'); process.exit(1); }
+if (!all.length) { console.error('::error title=No music::music folder is empty'); process.exit(1); }
 let track = opt('track', 'auto'); if (track === 'auto' || !all.includes(track)) track = all[(+opt('index', 0) % all.length + all.length) % all.length];
 console.log('::notice title=Music track::' + track + ' (' + all.length + ' tracks in rotation)');
 fs.mkdirSync(outDir, { recursive: true });

@@ -93,7 +93,8 @@ jobs:
           fi
           if [ "${{ inputs.style }}" = "music" ]; then
             node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}" --music
-            node tools/make-music.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --index "${{ github.run_number }}"
+            MDIR=music; [ "$(node -p "const m=require('./out/raw.json').meta; m.fromCountry===m.toCountry")" = "true" ] && MDIR=music-local
+            node tools/make-music.js out/narration.json out/voice --dir "$MDIR" --video-secs "${{ inputs.flight_secs }}" --index "${{ github.run_number }}"
           else
           node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}"
           if [ -n "${{ inputs.voice_dir }}" ]; then

@@ -1380,6 +1380,354 @@
 "from": "RKSI",
 "to": "RPVM",
 "airline": "JNA"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "VHHH",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "VHHH",
+"to": "RPLC",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "VHHH",
+"airline": "HKE"
+},
+{
+"type": "intl",
+"from": "VHHH",
+"to": "RPLC",
+"airline": "HKE"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "WSSS",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "WSSS",
+"to": "RPLC",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "WSSS",
+"airline": "TGW"
+},
+{
+"type": "intl",
+"from": "WSSS",
+"to": "RPLC",
+"airline": "TGW"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "WSSS",
+"airline": "JST"
+},
+{
+"type": "intl",
+"from": "WSSS",
+"to": "RPLC",
+"airline": "JST"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "RKSI",
+"airline": "JNA"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPLC",
+"airline": "JNA"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "RKSI",
+"airline": "JJA"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPLC",
+"airline": "JJA"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "RKSI",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPLC",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "RKSI",
+"airline": "KAL"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPLC",
+"airline": "KAL"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "RCTP",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RCTP",
+"to": "RPLC",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPLC",
+"to": "OMDB",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "OMDB",
+"to": "RPLC",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPMD",
+"to": "WSSS",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "WSSS",
+"to": "RPMD",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPMD",
+"to": "WSSS",
+"airline": "TGW"
+},
+{
+"type": "intl",
+"from": "WSSS",
+"to": "RPMD",
+"airline": "TGW"
+},
+{
+"type": "intl",
+"from": "RPMD",
+"to": "VHHH",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "VHHH",
+"to": "RPMD",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPMD",
+"to": "RKSI",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPMD",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPMD",
+"to": "RKSI",
+"airline": "JNA"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPMD",
+"airline": "JNA"
+},
+{
+"type": "intl",
+"from": "RPVK",
+"to": "RKSI",
+"airline": "JJA"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPVK",
+"airline": "JJA"
+},
+{
+"type": "intl",
+"from": "RPVK",
+"to": "RKSI",
+"airline": "JNA"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPVK",
+"airline": "JNA"
+},
+{
+"type": "intl",
+"from": "RPVK",
+"to": "RKSI",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPVK",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVK",
+"to": "VHHH",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "VHHH",
+"to": "RPVK",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVK",
+"to": "RCTP",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RCTP",
+"to": "RPVK",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVI",
+"to": "VHHH",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "VHHH",
+"to": "RPVI",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVI",
+"to": "WSSS",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "WSSS",
+"to": "RPVI",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVP",
+"to": "RKSI",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RKSI",
+"to": "RPVP",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVM",
+"to": "RJAA",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RJAA",
+"to": "RPVM",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVM",
+"to": "RJBB",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RJBB",
+"to": "RPVM",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVM",
+"to": "RCTP",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RCTP",
+"to": "RPVM",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVM",
+"to": "OMDB",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "OMDB",
+"to": "RPVM",
+"airline": "CEB"
+},
+{
+"type": "intl",
+"from": "RPVM",
+"to": "WMKK",
+"airline": "AXM"
+},
+{
+"type": "intl",
+"from": "WMKK",
+"to": "RPVM",
+"airline": "AXM"
 }
 ]
 }

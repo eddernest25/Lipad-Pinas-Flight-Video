@@ -35,7 +35,11 @@ const place = icao => ap[icao] || { name: icao, city: icao, cc: '', iata: icao }
     const f = d => d.toISOString().slice(0, 19) + 'Z';
     const j = await api('/flight-summary/full', Object.assign(flight ? { flights: flight } : { routes: routeOpt, airlines: airlineOpt }, { flight_datetime_from: f(from), flight_datetime_to: f(to), sort: 'asc', limit: 30 }));
     if (!j) return;
-    const list = rows(j).filter(x => x.datetime_landed || x.flight_ended !== false);
+    let list = rows(j).filter(x => x.datetime_landed || x.flight_ended !== false);
+    if (!flight && list.length > 2) {   // airline+route mode: skip anomalous flights (holding, go-arounds, diversions) - keep those within 0.8x-1.25x of the median duration
+      const dur = x => (new Date(x.datetime_landed) - new Date(x.datetime_takeoff)) / 60000, ds = list.map(dur).filter(v => v > 0).sort((p, q) => p - q), med = ds[Math.floor(ds.length / 2)];
+      const ok = list.filter(x => dur(x) >= 0.8 * med && dur(x) <= 1.25 * med); if (ok.length) { console.log(`median ${med.toFixed(0)} min; keeping ${ok.length}/${list.length} typical-duration flights`); list = ok; }
+    }
     console.log(`${list.length} completed flight(s) found for ${flight || routeOpt + ' ' + airlineOpt}:`);
     for (const x of list) console.log(' ', x.fr24_id, x.orig_icao, '->', x.dest_icao_actual || x.dest_icao, x.datetime_takeoff, x.reg || '', x.type || '');
     if (flag('list')) return;

@@ -71,7 +71,8 @@ const nice = n => new Intl.NumberFormat('en-US').format(n);
 const km50 = Math.round(distKm / 50) * 50;
 // ---- music mode (no voice): short general-info captions spread over the whole video
 if (args.includes('--music')) {
-  const oth = rs ? rs.airlines.filter(a => a.icao !== M.airline).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
+  const DOMAIR = ['CEB', 'PAL', 'GAP', 'APG'], domestic = M.fromCountry === M.toCountry;   // local: only real Philippine passenger carriers (route data also holds ferry/charter/business-jet legs)
+  const oth = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2 && (!domestic || DOMAIR.includes(a.icao))).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
   const L = [`${M.fromCity} to ${M.toCity} is about ${nice(km50)} kilometers`, `Flight time is about ${spokenDur(five(mins))}`];
   if (oth.length) L.push(`Also flies non-stop on ${join(oth)}`);
   if (fare && fare.phpFrom) L.push(`One-way tickets start around ₱${nice(fare.phpFrom)}`); else if (fare) L.push(fare.usdLow ? `One-way tickets cost about $${fare.usdLow} to $${fare.usdHigh}, or ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}` : `One-way tickets cost about ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}`);
@@ -88,7 +89,7 @@ if (args.includes('--music')) {
 S.push({ text: `Welcome aboard ${airline} flight ${flightSpoken}, from ${M.fromCity} to ${M.toCity}.` });
 S.push({ text: `Today's ${acName} took off from ${M.fromCity}${depT ? ` at ${depT} local time` : ''}, and climbed to its cruising altitude of about ${nice(ft)} feet.` });
 S.push({ text: `This flight covered about ${nice(km50)} kilometers in ${spokenDur(mins)}.${rs && rs.avgMin ? ` The average flight time on this route is about ${spokenDur(five(rs.avgMin))}.` : ''}` });
-const others = rs ? rs.airlines.filter(a => a.icao !== M.airline).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
+const others = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2 && (M.fromCountry !== M.toCountry || ['CEB','PAL','GAP','APG'].includes(a.icao))).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
 if (others.length) S.push({ text: `Besides ${airline}, you can fly ${M.fromCity} to ${M.toCity} non-stop on ${join(others)}.`, opt: 2 });
 if (fare) S.push({ text: fare.usdLow ? `One-way tickets on this route usually cost about ${fare.usdLow} to ${fare.usdHigh} U.S. dollars, or roughly ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.` : `One-way tickets on this route usually cost about ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.`, opt: 3 });
 if (entry) { S.push({ text: `Traveling to ${B.city}? ${entry.visa}`, opt: 4 }); S.push({ text: entry.rules, opt: 5 }); }

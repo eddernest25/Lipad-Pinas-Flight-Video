@@ -117,6 +117,7 @@ const server = http.createServer(async (req, res) => {
     const list = await page.evaluate(([f, a, b]) => window.tileList(f, a, b), [FPS, from0, to0]);
     const FREE = 100000, PRICE = 0.60, maxTiles = +opt('max-tiles', 20000);
     console.log(`\nThis video needs ${list.length} unique Google map tiles (billed per tile request).`);
+    console.log(`::notice title=Map tiles::${list.length} unique tile requests for this video`);
     console.log(`Google lists 100,000 free tile requests per month, then $0.60 per 1,000. This video alone would cost about $${Math.max(0, (list.length - FREE) * PRICE / 1000).toFixed(2)} if you had used up the free allowance.\n`);
     if (flag('count-tiles')) { await browser.close(); server.close(); return; }
     if (list.length > maxTiles && !flag('force')) { console.error(`Refusing to continue: ${list.length} tiles is more than --max-tiles ${maxTiles}. Re-run with --force or a higher --max-tiles if that is OK.`); process.exit(2); }

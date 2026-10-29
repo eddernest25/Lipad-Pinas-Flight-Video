@@ -27,6 +27,15 @@
    "from": "RPLL",
    "to": "OBBI",
    "note": "FB/YT/TikTok scheduled 10-30 3PM PHT"
+  },
+  {
+   "date": "2026-10-31",
+   "style": "local-music",
+   "flight": "5J4302",
+   "airline": "CEB",
+   "from": "RPVM",
+   "to": "RPLC",
+   "note": "FB/YT/TT scheduled 10-31 3PM PHT"
   }
  ]
 }

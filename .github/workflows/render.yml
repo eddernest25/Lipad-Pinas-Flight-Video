@@ -40,6 +40,9 @@ on:
       fps:
         description: "Render fps (output is always 30). Domestic flights auto-use 30."
         default: "15"
+      airline:
+        description: "Airline ICAO code (e.g. CEB). With a route and no flight number, picks a real completed flight of that airline on that route/date"
+        default: ""
       style:
         description: "voice = narrated (default); music = background music + general-info captions only (rotates assets/music)"
         default: "voice"
@@ -82,12 +85,12 @@ jobs:
           exec > >(tee out/run.log) 2>&1
           trap 'echo "::error title=Render failed::$(tail -n 14 out/run.log | tr "\n" " " | cut -c1-900)"' ERR
           RAW="${{ inputs.raw_track }}"
-          if [ -n "${{ inputs.flight }}" ]; then
-            node tools/fetch-fr24.js --flight "${{ inputs.flight }}" --date "${{ inputs.date }}" --route "${{ inputs.route }}" --out out/raw.json
+          if [ -n "${{ inputs.flight }}" ] || [ -n "${{ inputs.airline }}" ]; then
+            node tools/fetch-fr24.js --flight "${{ inputs.flight }}" --airline "${{ inputs.airline }}" --date "${{ inputs.date }}" --route "${{ inputs.route }}" --out out/raw.json
             RAW=out/raw.json
           fi
           node tools/process-track.js "$RAW" out/track.json --pacing uniform --dt 10 --video-secs "${{ inputs.flight_secs }}" --pad-secs 2
-          if [ -n "${{ inputs.flight }}" ]; then
+          if [ -n "${{ inputs.flight }}" ] || [ -n "${{ inputs.airline }}" ]; then
             FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao"); DAY=$(node -p "require('./out/raw.json').meta.date")
             node tools/route-stats.js --route "$FROMI-$TOI" --to "$DAY" --days 7 || echo "route stats unavailable"
           fi

@@ -11,7 +11,8 @@ const KEY = process.env.FR24_API_KEY;
 const BASE = process.env.FR24_BASE || 'https://fr24api.flightradar24.com/api';
 const flight = (opt('flight', '') || '').toUpperCase().replace(/\s+/g, ''), date = opt('date', ''), out = opt('out', 'out/raw.json');
 let id = opt('id', '');
-if (!id && (!flight || !/^\d{4}-\d\d-\d\d$/.test(date))) { console.error('need --flight PR127 --date YYYY-MM-DD (or --id)'); process.exit(2); }
+const airlineOpt = (opt('airline', '') || '').toUpperCase(), routeOpt = opt('route', '');
+if (!id && ((!flight && !(airlineOpt && routeOpt)) || !/^\d{4}-\d\d-\d\d$/.test(date))) { console.error('need --flight PR127 --date YYYY-MM-DD (or --id)'); process.exit(2); }
 if (!KEY) { console.error('FR24_API_KEY is not set'); process.exit(2); }
 
 async function api(p, params) {
@@ -32,10 +33,10 @@ const place = icao => ap[icao] || { name: icao, city: icao, cc: '', iata: icao }
     // look the flight up for a +/- 1 day UTC window around the date, then keep the one that actually took off on that date
     const d0 = new Date(date + 'T00:00:00Z'), from = new Date(d0 - 864e5), to = new Date(+d0 + 2 * 864e5 - 1000);
     const f = d => d.toISOString().slice(0, 19) + 'Z';
-    const j = await api('/flight-summary/full', { flights: flight, flight_datetime_from: f(from), flight_datetime_to: f(to), sort: 'asc', limit: 20 });
+    const j = await api('/flight-summary/full', Object.assign(flight ? { flights: flight } : { routes: routeOpt, airlines: airlineOpt }, { flight_datetime_from: f(from), flight_datetime_to: f(to), sort: 'asc', limit: 30 }));
     if (!j) return;
     const list = rows(j).filter(x => x.datetime_landed || x.flight_ended !== false);
-    console.log(`${list.length} completed flight(s) found for ${flight}:`);
+    console.log(`${list.length} completed flight(s) found for ${flight || routeOpt + ' ' + airlineOpt}:`);
     for (const x of list) console.log(' ', x.fr24_id, x.orig_icao, '->', x.dest_icao_actual || x.dest_icao, x.datetime_takeoff, x.reg || '', x.type || '');
     if (flag('list')) return;
     // prefer the one whose local takeoff date matches (PHT-agnostic: match UTC date first, then +8h date)

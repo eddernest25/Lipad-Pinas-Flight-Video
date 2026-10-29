@@ -1,0 +1,32 @@
+{
+ "_note": "Post log used by tools/plan-next.js. Style cycle: local-voice -> intl-music -> local-music -> intl-voice. Never repeat a route (either direction) or a flight; airline must differ from the last 2 posts.",
+ "posts": [
+  {
+   "date": "2026-10-28",
+   "style": "intl-voice",
+   "flight": "PR507",
+   "airline": "PAL",
+   "from": "RPLL",
+   "to": "WSSS",
+   "note": "posted FB; YT/TT scheduled 10-29"
+  },
+  {
+   "date": "2026-10-29",
+   "style": "local-voice",
+   "flight": "PR2853",
+   "airline": "GAP",
+   "from": "RPLL",
+   "to": "RPVM",
+   "note": "FB scheduled 10-29 3PM PHT"
+  },
+  {
+   "date": "2026-10-30",
+   "style": "intl-music",
+   "flight": "GF155",
+   "airline": "GFA",
+   "from": "RPLL",
+   "to": "OBBI",
+   "note": "FB/YT/TikTok scheduled 10-30 3PM PHT"
+  }
+ ]
+}

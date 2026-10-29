@@ -18,8 +18,8 @@ if (!KEY) { console.error('FR24_API_KEY is not set'); process.exit(2); }
 async function api(p, params) {
   const url = BASE + p + '?' + new URLSearchParams(params);
   if (flag('dry')) { console.log('GET', url); return null; }
-  const r = await fetch(url, { headers: { Accept: 'application/json', 'Accept-Version': 'v1', Authorization: 'Bearer ' + KEY } });
-  const txt = await r.text();
+  let r, txt;
+  for (let k = 0; k < 4; k++) { r = await fetch(url, { headers: { Accept: 'application/json', 'Accept-Version': 'v1', Authorization: 'Bearer ' + KEY } }); txt = await r.text(); if (r.status < 500) break; console.error(`FR24 ${r.status}, retrying (${k + 1}/4)`); await new Promise(z => setTimeout(z, 4000 * (k + 1))); }
   if (!r.ok) { console.error(`FR24 API ${r.status} for ${p}: ${txt.slice(0, 300)}`); process.exit(1); }
   return JSON.parse(txt);
 }

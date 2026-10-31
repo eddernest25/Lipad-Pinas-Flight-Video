@@ -36,6 +36,15 @@
    "from": "RPVM",
    "to": "RPLC",
    "note": "FB/YT/TT scheduled 10-31 3PM PHT"
+  },
+  {
+   "date": "2026-11-01",
+   "style": "intl-voice",
+   "flight": "SV871",
+   "airline": "SVA",
+   "from": "RPLL",
+   "to": "OEJN",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

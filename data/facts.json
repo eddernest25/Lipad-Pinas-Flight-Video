@@ -82,7 +82,7 @@
    "Isang eroplano, libu-libong pangarap. Saludo kami sa inyo, kabayan. 🇵🇭",
    "Malayo man ang lipad, nasa puso ang pamilya. Laban lang, kabayan. 💪"
   ],
-  "voice": "To every Filipino flying abroad for their family: your sacrifice is the reason a home back here has hope. Laban lang, kabayan."
+  "voice": "To every OFW flying for family: your sacrifice is the reason a home back here has hope. Keep going."
  },
  "scripts": {
   "capHookOfw": [
@@ -110,12 +110,12 @@
    "👇 Comment \"KABAYAN\" to send strength to an OFW."
   ],
   "voiceCloseOfw": [
-   "To every OFW flying for family: your sacrifice is the reason a home back here has hope. Laban lang, kabayan.",
-   "To every Filipino working far from home: you are the reason a family dreams bigger. Salamat, kabayan.",
-   "Every flight like this carries a promise to come home. Keep going, kabayan.",
-   "Behind every OFW is a family counting the days. Stay strong, kabayan.",
-   "You carry a family's hopes with you. That is real courage, kabayan.",
-   "Far from home, but never far from their hearts. Laban lang, kabayan."
+   "To every OFW flying for family: your sacrifice is the reason a home back here has hope. Keep going.",
+   "To every Filipino working far from home: you are the reason a family dreams bigger. Thank you.",
+   "Every flight like this carries a promise to come home. Keep going. You are not alone.",
+   "Behind every OFW is a family counting the days. Stay strong.",
+   "You carry a family's hopes with you. That is real courage.",
+   "Far from home, but never far from their hearts. Keep fighting."
   ],
   "capHookIntl": [
    "Ever wondered what the flight to {city} looks like from above? ✈️",

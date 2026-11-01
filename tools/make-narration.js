@@ -82,7 +82,7 @@ if (args.includes('--music')) {
   if (entry && entry.ofw) L.push(...entry.ofw);   // OFW-focused: no tourist visa / generic passport lines
   else if (entry) { L.push(`Visa: ${entry.visa.replace(/\.$/, '')}`); const rl = entry.rules.replace(/\.$/, ''), k = rl.lastIndexOf(', and ');
     if (rl.length > 90 && k > 20) { L.push(rl.slice(0, k)); L.push(rl.slice(k + 6).replace(/^./, c => c.toUpperCase())); } else L.push(rl); }
-  if (ofw) L.push('For every OFW flying for family: laban lang, kabayan.');
+  if (ofw) L.push('For every OFW flying for family: keep going.');
   const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
   let t = t0; const caps = L.map(text => { const d = usable * Math.max(text.length, 34) / tot, c = { s: +t.toFixed(2), e: +(t + d).toFixed(2), text }; t += d + GAP; return c; });
   fs.mkdirSync(path.dirname(outFile), { recursive: true });
@@ -110,7 +110,7 @@ if (ofw) {   // OFW destination: hook -> flight facts -> price (open loop paid o
   S.push({ text: `If you're heading abroad to work, use a licensed agency and complete your OEC and DMW requirements.`, opt: 4 });
   S.push({ text: `The plane touches down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
   S.push({ text: close });
-  S.push({ text: `Follow Lipad Pinas for your next flight.` });
+  S.push({ text: `Follow for your next flight.` });
 }
 // spread start times evenly by word count; the last line is anchored to the end of the video
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }

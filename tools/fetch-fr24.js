@@ -76,6 +76,15 @@ const place = icao => ap[icao] || { name: icao, city: icao, cc: '', iata: icao }
     fromIcao: s.orig_icao || '', toIcao: s.dest_icao_actual || s.dest_icao || '', takeoffUtc: s.datetime_takeoff || '', landedUtc: s.datetime_landed || '',
     source: 'Flightradar24 API (fr24_id ' + id + ')'
   };
+  // completeness guard: reject tracks that stop before the aircraft actually landed (signal loss / partial coverage)
+  {
+    const last = points[points.length - 1], endAbs = t0 + last.t, landedAbs = meta.landedUtc ? Math.floor(new Date(meta.landedUtc).getTime() / 1000) : 0;
+    const missMin = landedAbs ? (landedAbs - endAbs) / 60 : 0;
+    if ((landedAbs && missMin > 10) || last.alt > 1500) {
+      console.error(`INCOMPLETE TRACK: ends ${missMin.toFixed(0)} min before landing at alt ${last.alt} m (${meta.fromIcao} -> ${meta.toIcao}); refusing so the pipeline picks another flight`);
+      process.exit(1);
+    }
+  }
   fs.mkdirSync(path.dirname(out), { recursive: true });
   // airline logo (by ICAO airline code) from the open Jxck-S/airline-logos collection -> <out dir>/airline.png (optional; the video just omits it if missing)
   for (const code of [s.operating_as, s.painted_as].filter(Boolean)) {

@@ -21,10 +21,10 @@ if (ofw) lines.push('✅ Heading abroad to work? Use a licensed agency and make 
 else if (!dom && M.fromCountry === 'PH') lines.push('✅ Always check the official embassy or immigration site before you book.');
 const tag = s => '#' + String(s || '').replace(/[^A-Za-z0-9]/g, '');
 const tags = ['#LipadPinas', ...(ofw ? ['#OFW', '#Kabayan', '#BagongBayani'] : ['#Aviation', '#PinoyTravel']), tag(name), tag(city)].filter((x, i, a) => x.length > 1 && a.indexOf(x) === i);
-const parts = [hook, lines.join('\n')];
+const parts = [`✈️ ${lines[0]}`, hook, lines.slice(1).join('\n')].filter(Boolean);
 if (ofw) { parts.push(slot('capCloseOfw', SC.capCloseOfw)); parts.push(slot('capCta', SC.capCta)); }
 const body = parts.join('\n\n'), text = body + '\n\n' + tags.join(' ');
 const title = `${M.fromCity} to ${city} on ${name} | Lipad Pinas`;
 let variants = {}; try { variants = JSON.parse(fs.readFileSync(process.env.VARIANTS_OUT || path.join(__dirname, '..', 'out', 'variants.json'), 'utf8')); } catch (e) {}
-fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: text, youtube: { title: title.slice(0, 100), text: text + ' #Shorts' }, tiktok: { title: (hook + ' ' + lines[0] + ' ' + tags.join(' ')).slice(0, 150) }, tiktokText: text, variants }, null, 1));
+fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: text, youtube: { title: title.slice(0, 100), text: text + ' #Shorts' }, tiktok: { title: (lines[0] + ' · ' + hook + ' ' + tags.join(' ')).slice(0, 150) }, tiktokText: text, variants }, null, 1));
 console.log(text);

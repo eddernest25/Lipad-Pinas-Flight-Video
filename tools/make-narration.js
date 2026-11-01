@@ -105,7 +105,7 @@ if (ofw) {   // OFW destination: hook -> flight facts -> price (open loop paid o
   const { pick } = require('./variants'), close = pick('voiceCloseOfw', (facts.scripts || {}).voiceCloseOfw || [inspire], `${M.flight}${M.date}`, M.date).text;
   S.push({ text: `${spokenDur(mins)}. That's how long it takes an OFW to fly from ${M.fromCity} to ${M.toCity}. Stay until the end.` });
   S.push({ text: `This is ${airline} flight ${flightSpoken}, ${/^[AEIOU]/i.test(acName) ? 'an' : 'a'} ${acName}. It left ${M.fromCity}${depT ? ` at ${depT}` : ''} and climbed to ${nice(ft)} feet.` });
-  S.push({ text: `It flew about ${nice(km50)} kilometers non-stop.${fare ? ` Stay tuned, because I'll tell you what a ticket costs.` : ''}` });
+  S.push({ text: `It flew about ${nice(km50)} kilometers non-stop.${fare ? `` : ''}` });
   if (fare) S.push({ text: fare.phpFrom ? `One-way tickets start from around ${nice(fare.phpFrom)} pesos, depending on the date and airline. Every ticket is a story of saving and hard work.` : `One-way tickets cost about ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the date and airline. Every ticket is a story of saving and hard work.` });
   S.push({ text: `If you're heading abroad to work, use a licensed agency and complete your OEC and DMW requirements.`, opt: 4 });
   S.push({ text: `The plane touches down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });

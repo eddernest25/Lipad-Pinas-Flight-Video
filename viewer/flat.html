@@ -208,7 +208,7 @@ function stateAt(u) {
 function zoomAt(u) {                       // 3-stage zoom like the reference: close at departure -> regional cruise -> close at arrival
   const Z = CFG.zoomClose ?? 11, C = CFG.zoomCruise ?? 6.6, a = CFG.zoomOutEnd ?? .14, b = CFG.zoomInStart ?? .90;
   if (u < a) return lerp(Z, C, ease(u / a));
-  if (u > b) return lerp(C, Z + .6, ease((u - b) / (1 - b)));
+  if (u > b) { const e = CFG.zoomInEnd || 1, F = CFG.zoomFinal || (Z + .6); return lerp(C, F, ease(Math.min(1, (u - b) / (e - b)))); }
   return C;
 }
 

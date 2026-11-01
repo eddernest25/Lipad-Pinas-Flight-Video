@@ -29,7 +29,7 @@ const airlineFile = opt('airline-logo', ''), hasAirline = airlineFile && fs.exis
 const flagSvg = cc => { try { return 'data:image/svg+xml;base64,' + fs.readFileSync(path.join(__dirname, 'node_modules/flag-icons/flags/1x1', String(cc).toLowerCase() + '.svg')).toString('base64'); } catch (e) { return null; } };
 const cfg = {
   intro: INTRO, flight: FLIGHT, outro: OUTRO, tiles: KEY ? 'google' : 'vector',
-  zoomClose: +opt('zoom-close', 11), zoomCruise: +opt('zoom-cruise', 6.6), zoomOutEnd: +opt('zoom-out-end', .14), zoomInStart: +opt('zoom-in-start', .90),
+  zoomClose: +opt('zoom-close', 11), zoomCruise: +opt('zoom-cruise', 6.6), zoomOutEnd: +opt('zoom-out-end', .14), zoomInStart: +opt('zoom-in-start', .90), zoomInEnd: +opt('zoom-in-end', 1), zoomFinal: +opt('zoom-final', 0),
   airlineLogo: hasAirline ? '/airline.png' : '', logo: logoFile ? '/logo' + path.extname(logoFile) : '', logoPos: opt('logo-pos', 'bc'), maxTileZoom: +opt('max-tile-zoom', 19)
 };
 const track = JSON.parse(fs.readFileSync(trackFile, 'utf8'));

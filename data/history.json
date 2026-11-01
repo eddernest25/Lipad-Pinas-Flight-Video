@@ -51,6 +51,15 @@
     "capCta": "capCta5",
     "voiceCloseOfw": "voiceCloseOfw3"
    }
+  },
+  {
+   "date": "2026-11-02",
+   "style": "local-voice",
+   "flight": "Z2307",
+   "airline": "APG",
+   "from": "RPVI",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

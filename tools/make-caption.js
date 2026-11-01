@@ -9,7 +9,7 @@ const mins = M.takeoffUtc && M.landedUtc ? Math.round((new Date(M.landedUtc) - n
 const name = air[M.airline] || M.airline, dom = M.fromCountry === M.toCountry, B = M.toCountry, city = M.toCity;
 const fare = (facts.fares || {})[`${M.from}-${M.to}`], php = n => '₱' + n.toLocaleString('en-US');
 const ofw = !dom && M.fromCountry === 'PH' && (facts.ofwCountries || []).includes(B);
-const m5 = Math.round(mins / 5) * 5, dur = `${Math.floor(mins / 60)} hours${mins % 60 ? ' and ' + (mins % 60) + ' minutes' : ''}`, seed = `${M.flight}${M.date}`, fill = t => t.replace('{dur}', dur).replace(/\{city\}/g, city);
+const m5 = Math.round(mins / 5) * 5, dur = `about ${Math.floor(m5 / 60)} hours${m5 % 60 ? " and " + (m5 % 60) + " minutes" : ""}`, seed = `${M.flight}${M.date}`, fill = t => t.replace('{dur}', dur).replace(/\{city\}/g, city);
 const slot = (s, pool) => { const v = pick(s, pool, seed, M.date); return fill(v.text); };
 const hook = slot(ofw ? 'capHookOfw' : dom ? 'capHookDom' : 'capHookIntl', ofw ? SC.capHookOfw : dom ? SC.capHookDom : SC.capHookIntl);
 const lines = [`${name} · ${M.fromCity} → ${city}`];

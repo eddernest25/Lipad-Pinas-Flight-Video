@@ -8,7 +8,7 @@ const a = process.argv.slice(2), opt = (k, d) => { const i = a.indexOf('--' + k)
 const HF = path.join(__dirname, '..', 'data', 'history.json'), H = JSON.parse(fs.readFileSync(HF, 'utf8'));
 const CYCLE = ['local-voice', 'intl-music', 'local-music', 'intl-voice'];
 if (a.includes('--record')) {
-  H.posts.push({ date: opt('date'), style: opt('style'), flight: opt('flight'), airline: opt('airline'), from: opt('from'), to: opt('to'), note: opt('note', '') });
+  H.posts.push({ date: opt('date'), style: opt('style'), flight: opt('flight'), airline: opt('airline'), from: opt('from'), to: opt('to'), note: opt('note', ''), ...(opt('variants') ? { variants: JSON.parse(opt('variants')) } : {}) });
   fs.writeFileSync(HF, JSON.stringify(H, null, 1)); console.log('recorded'); process.exit(0);
 }
 const last = H.posts[H.posts.length - 1], style = CYCLE[(CYCLE.indexOf(last.style) + 1) % 4], type = style.startsWith('local') ? 'local' : 'intl';

@@ -9,6 +9,7 @@ const [inFile, outFile] = args.filter(a => !a.startsWith('--') && !args[args.ind
 const DT = +opt('dt', 30);
 const PACING = opt('pacing', 'places');   // 'places' = slow down near places (3D style) | 'uniform' = steady crawl, slower only at takeoff/landing (flat map style)
 const VIDEO_S = +opt('video-secs', 0), PAD_S = +opt('pad-secs', 2), PAD_REAL = +opt('pad-real', 45);  // exact timing: PAD_S video-seconds before liftoff and after touchdown, whole video = VIDEO_S
+const SLOW_FINAL = +opt('slow-final', 0), SLOW_WIN = +opt('slow-window', 480);   // last SLOW_FINAL video-seconds show only the last SLOW_WIN flight-seconds before touchdown (slow final approach over the city)
 const LIFT_ALT_M = +opt('lift-alt', 90);
 const MAX_KT = 700, GAP_S = 240, MAX_PLACES = +opt('places', 9), MIN_SEP_S = +opt('sep', 1500);
 
@@ -111,6 +112,14 @@ if (VIDEO_S && (liftI > 0 || downI < res.length - 1)) {            // pin the gr
   });
 } else res.forEach(p => { p.v = p.cv / cum; delete p.cv; });      // v in 0..1 = video progress through the flight
 
+if (VIDEO_S && SLOW_FINAL > 0 && SLOW_FINAL < VIDEO_S * 0.5) {
+  const tA = res[downI].t - SLOW_WIN, vF = 1 - SLOW_FINAL / VIDEO_S, iA = res.findIndex(p => p.t >= tA);
+  if (iA > 0 && iA < res.length - 1) {
+    const vA = res[iA].v, vN = res[res.length - 1].v;
+    res.forEach((p, i) => { p.v = i < iA ? (p.v / vA) * vF : vF + (1 - vF) * ((p.t - res[iA].t) / (res[res.length - 1].t - res[iA].t)); });
+    console.log(`slow final: last ${SLOW_FINAL}s of video = last ${SLOW_WIN}s of flight (from index ${iA})`);
+  }
+}
 const round = (x, d) => +x.toFixed(d);
 const out = {
   meta: { ...raw.meta, durationS: Bp.t, distanceKm: round(dist, 0), maxAltM: Math.max(...res.map(p => p.alt)), dt: DT },

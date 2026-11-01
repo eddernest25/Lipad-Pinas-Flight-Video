@@ -83,5 +83,55 @@
    "Malayo man ang lipad, nasa puso ang pamilya. Laban lang, kabayan. 💪"
   ],
   "voice": "To every Filipino flying abroad for their family: your sacrifice is the reason a home back here has hope. Laban lang, kabayan."
+ },
+ "scripts": {
+  "capHookOfw": [
+   "💙 Every OFW has a goodbye story. This is the flight of sacrifice to {city}, {dur} in the air. ✈️",
+   "💙 {dur} in the air, and a whole family on an OFW's mind. Next stop: {city}. ✈️",
+   "✈️ Every flight to {city} carries someone's dream. Here's how this one looked from above. 💙",
+   "💙 Behind every ticket to {city} is a family waiting back home. ✈️",
+   "🌏 {dur} to {city}. Imagine carrying your whole family's hopes on this flight. 💙",
+   "✈️ Some people fly for adventure. OFWs fly for family. This one's headed to {city}. 💙"
+  ],
+  "capCloseOfw": [
+   "Leaving home is never easy. But every flight carries a family's hope and a better tomorrow. We salute you, kabayan. 🇵🇭",
+   "Every sacrifice builds a home someone else will walk into with pride. We salute you, kabayan. 🇵🇭",
+   "Far from home, close to the heart. Thank you for everything you carry, kabayan. 🇵🇭",
+   "Your flight is someone's reason to keep believing. Laban lang, kabayan. 💪🇵🇭",
+   "One flight at a time, you're building a better future. Proud of you, kabayan. 🇵🇭",
+   "Home is where your heart is, and your heart is always with them. Salute to you, kabayan. 🇵🇭"
+  ],
+  "capCta": [
+   "👇 Comment \"LABAN\" if you're chasing a dream for your family, or tag an OFW you admire.",
+   "👇 Tag an OFW who deserves a salute today.",
+   "👇 Share this with someone who is flying for their family.",
+   "👇 Drop a 💙 for every OFW out there.",
+   "👇 Where did you or someone you love fly for work? Tell us below.",
+   "👇 Comment \"KABAYAN\" to send strength to an OFW."
+  ],
+  "voiceCloseOfw": [
+   "To every OFW flying for family: your sacrifice is the reason a home back here has hope. Laban lang, kabayan.",
+   "To every Filipino working far from home: you are the reason a family dreams bigger. Salamat, kabayan.",
+   "Every flight like this carries a promise to come home. Keep going, kabayan.",
+   "Behind every OFW is a family counting the days. Stay strong, kabayan.",
+   "You carry a family's hopes with you. That is real courage, kabayan.",
+   "Far from home, but never far from their hearts. Laban lang, kabayan."
+  ],
+  "capHookIntl": [
+   "Ever wondered what the flight to {city} looks like from above? ✈️",
+   "✈️ {dur} in the air. One destination: {city}. 🌏",
+   "Watch this flight to {city}, from takeoff to touchdown. ✈️",
+   "Buckle up. We're flying to {city}! 🌏",
+   "Where is this flight headed? {city}! ✈️",
+   "This is what {dur} in the air looks like. Next stop: {city}. 🌏"
+  ],
+  "capHookDom": [
+   "{city} is closer than you think. Watch the flight! ✈️",
+   "Ready for {city}? Tara, lipad tayo! 🌴",
+   "Weekend plans? {city} is just a short flight away. ✈️",
+   "Watch this flight to {city}, from takeoff to touchdown. 🇵🇭",
+   "Short flight, big adventure. Next stop: {city}! 🌴",
+   "Explore the Philippines one flight at a time. Today: {city}! 🇵🇭"
+  ]
  }
 }

@@ -100,6 +100,18 @@ if (entry) { S.push({ text: `Traveling to ${B.city}? ${entry.visa}`, opt: 4 }); 
 S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
 if (ofw && inspire) S.push({ text: inspire, opt: 3 });
 S.push({ text: `Follow us for more flights, travel tips, and Philippine aviation stories.` });
+if (ofw) {   // OFW destination: hook -> flight facts -> price (open loop paid off) -> practical tip -> tribute -> CTA
+  S.length = 0;
+  const { pick } = require('./variants'), close = pick('voiceCloseOfw', (facts.scripts || {}).voiceCloseOfw || [inspire], `${M.flight}${M.date}`, M.date).text;
+  S.push({ text: `${spokenDur(mins)}. That's how long it takes an OFW to fly from ${M.fromCity} to ${M.toCity}. Stay until the end.` });
+  S.push({ text: `This is ${airline} flight ${flightSpoken}, ${/^[AEIOU]/i.test(acName) ? 'an' : 'a'} ${acName}. It left ${M.fromCity}${depT ? ` at ${depT}` : ''} and climbed to ${nice(ft)} feet.` });
+  S.push({ text: `It flew about ${nice(km50)} kilometers non-stop.${fare ? ` Stay tuned, because I'll tell you what a ticket costs.` : ''}` });
+  if (fare) S.push({ text: fare.phpFrom ? `One-way tickets start from around ${nice(fare.phpFrom)} pesos, depending on the date and airline. Every ticket is a story of saving and hard work.` : `One-way tickets cost about ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the date and airline. Every ticket is a story of saving and hard work.` });
+  S.push({ text: `If you're heading abroad to work, use a licensed agency and complete your OEC and DMW requirements.`, opt: 4 });
+  S.push({ text: `The plane touches down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
+  S.push({ text: close });
+  S.push({ text: `Follow Lipad Pinas for your next flight.` });
+}
 // spread start times evenly by word count; the last line is anchored to the end of the video
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }
 // spoken form for the voice: no hyphens (TTS reads them as 'dash'), flight codes and acronyms spelled out

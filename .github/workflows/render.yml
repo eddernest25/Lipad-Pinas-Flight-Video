@@ -89,7 +89,7 @@ jobs:
             node tools/fetch-fr24.js --flight "${{ inputs.flight }}" --airline "${{ inputs.airline }}" --date "${{ inputs.date }}" --route "${{ inputs.route }}" --out out/raw.json
             RAW=out/raw.json
           fi
-          node tools/process-track.js "$RAW" out/track.json --pacing uniform --dt 10 --video-secs "${{ inputs.flight_secs }}" --pad-secs 2
+          node tools/process-track.js "$RAW" out/track.json --pacing uniform --dt 10 --video-secs "${{ inputs.flight_secs }}" --pad-secs 2 --slow-final 15
           if [ -n "${{ inputs.flight }}" ] || [ -n "${{ inputs.airline }}" ]; then
             FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao"); DAY=$(node -p "require('./out/raw.json').meta.date")
             node tools/route-stats.js --route "$FROMI-$TOI" --to "$DAY" --days 7 || echo "route stats unavailable"
@@ -108,7 +108,7 @@ jobs:
           fi
           ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=9.7; echo "domestic flight: closer zoom $ZC"; fi
           FPSV="${{ inputs.fps }}"; LSV="${{ inputs.label_scale }}"; if [ "$DOM" = "true" ]; then [ "$FPSV" = "15" ] && FPSV=30; [ "$LSV" = "1" ] && LSV=2; echo "domestic: fps $FPSV, label scale $LSV"; fi
-          ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-10)/${{ inputs.flight_secs }}}")   # final zoom-in starts 10 s before the video ends
+          ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-15)/${{ inputs.flight_secs }}}")   # final zoom-in starts 15 s before the video ends
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
             --fps "$FPSV" --label-scale "$LSV" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \

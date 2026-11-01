@@ -64,6 +64,7 @@ const S = [];
 const facts = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, 'data/facts.json'), 'utf8')); } catch (e) { return {}; } })();
 const rs = (() => { try { return JSON.parse(fs.readFileSync(opt('route-stats', 'out/route-stats.json'), 'utf8')); } catch (e) { return null; } })();
 const entry = (facts.entry || {})[B.cc] || null, fare = (facts.fares || {})[`${M.from}-${M.to}`] || null;
+const ofw = M.fromCountry === 'PH' && M.toCountry !== 'PH' && (facts.ofwCountries || []).includes(M.toCountry), inspire = (facts.inspire || {}).voice || '';
 const mins = Math.round((M.takeoffUtc && M.landedUtc ? (new Date(M.landedUtc) - new Date(M.takeoffUtc)) / 60000 : D.meta.durationS / 60));
 const spokenDur = m => { const h = Math.floor(m / 60), r = m % 60; if (!h) return `${r} minute${r === 1 ? '' : 's'}`; return `${h} hour${h === 1 ? '' : 's'}${r ? ` and ${r} minute${r === 1 ? '' : 's'}` : ''}`; };
 const five = m => Math.round(m / 5) * 5;
@@ -81,6 +82,7 @@ if (args.includes('--music')) {
   if (entry && entry.ofw) L.push(...entry.ofw);   // OFW-focused: no tourist visa / generic passport lines
   else if (entry) { L.push(`Visa: ${entry.visa.replace(/\.$/, '')}`); const rl = entry.rules.replace(/\.$/, ''), k = rl.lastIndexOf(', and ');
     if (rl.length > 90 && k > 20) { L.push(rl.slice(0, k)); L.push(rl.slice(k + 6).replace(/^./, c => c.toUpperCase())); } else L.push(rl); }
+  if (ofw) L.push('For every OFW flying for family: laban lang, kabayan.');
   const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
   let t = t0; const caps = L.map(text => { const d = usable * Math.max(text.length, 34) / tot, c = { s: +t.toFixed(2), e: +(t + d).toFixed(2), text }; t += d + GAP; return c; });
   fs.mkdirSync(path.dirname(outFile), { recursive: true });
@@ -92,9 +94,11 @@ S.push({ text: `Today's ${acName} took off from ${M.fromCity}${depT ? ` at ${dep
 S.push({ text: `This flight covered about ${nice(km50)} kilometers in ${spokenDur(mins)}.${rs && rs.avgMin ? ` The average flight time on this route is about ${spokenDur(five(rs.avgMin))}.` : ''}` });
 const others = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2 && (M.fromCountry !== M.toCountry || ['CEB','PAL','GAP','APG'].includes(a.icao))).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
 if (others.length) S.push({ text: `Besides ${airline}, you can fly ${M.fromCity} to ${M.toCity} non-stop on ${join(others)}.`, opt: 2 });
-if (fare) S.push({ text: fare.usdLow ? `One-way tickets on this route usually cost about ${fare.usdLow} to ${fare.usdHigh} U.S. dollars, or roughly ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.` : `One-way tickets on this route usually cost about ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.`, opt: 3 });
+if (fare && fare.phpFrom) S.push({ text: `One-way tickets on this route start from around ${nice(fare.phpFrom)} pesos, depending on the airline and how early you book.`, opt: 3 });
+else if (fare) S.push({ text: fare.usdLow ? `One-way tickets on this route usually cost about ${fare.usdLow} to ${fare.usdHigh} U.S. dollars, or roughly ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.` : `One-way tickets on this route usually cost about ${nice(fare.phpLow)} to ${nice(fare.phpHigh)} pesos, depending on the airline and how early you book.`, opt: 3 });
 if (entry) { S.push({ text: `Traveling to ${B.city}? ${entry.visa}`, opt: 4 }); S.push({ text: entry.rules, opt: 5 }); }
 S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
+if (ofw && inspire) S.push({ text: inspire, opt: 3 });
 S.push({ text: `Follow us for more flights, travel tips, and Philippine aviation stories.` });
 // spread start times evenly by word count; the last line is anchored to the end of the video
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }

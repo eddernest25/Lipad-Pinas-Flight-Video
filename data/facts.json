@@ -39,6 +39,49 @@
    "phpFrom": 31900,
    "source": "Trip.com PH: Gulf Air non-stop one-way from PHP 31,897 (Oct 29 2026) - 'from' price only",
    "checked": "2026-10-29"
+  },
+  "MNL-RUH": {
+   "phpFrom": 13900,
+   "source": "Kayak PH / Cheapflights PH 'from' prices (Nov 1 2026); other sites list ~PHP 9,000 to 22,000 - 'from' price only",
+   "checked": "2026-11-01"
+  },
+  "MNL-DXB": {
+   "phpFrom": 12900,
+   "source": "Kayak PH / Cheapflights PH 'from' prices (Nov 1 2026) - 'from' price only",
+   "checked": "2026-11-01"
+  },
+  "MNL-HKG": {
+   "phpFrom": 900,
+   "source": "HK Express PH 'from PHP 760-898' promo fares (Nov 1 2026) - promo 'from' price only",
+   "checked": "2026-11-01"
   }
+ },
+ "ofwCountries": [
+  "SA",
+  "AE",
+  "QA",
+  "KW",
+  "BH",
+  "OM",
+  "HK",
+  "TW",
+  "SG",
+  "JP",
+  "KR",
+  "IL",
+  "CA",
+  "US",
+  "IT",
+  "GB",
+  "AU",
+  "MY"
+ ],
+ "inspire": {
+  "caption": [
+   "Para sa bawat OFW na lumilipad para sa pamilya: bawat paalam ay may pangarap, at bawat uwi ay may yakap. 💙",
+   "Isang eroplano, libu-libong pangarap. Saludo kami sa inyo, kabayan. 🇵🇭",
+   "Malayo man ang lipad, nasa puso ang pamilya. Laban lang, kabayan. 💪"
+  ],
+  "voice": "To every Filipino flying abroad for their family: your sacrifice is the reason a home back here has hope. Laban lang, kabayan."
  }
 }

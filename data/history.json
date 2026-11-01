@@ -44,7 +44,13 @@
    "airline": "SVA",
    "from": "RPLL",
    "to": "OERK",
-   "note": "replaced SV871 (incomplete track); scheduled 11-01 3PM PHT"
+   "note": "replaced SV871 (incomplete track); scheduled 11-01 3PM PHT",
+   "variants": {
+    "capHookOfw": "capHookOfw2",
+    "capCloseOfw": "capCloseOfw1",
+    "capCta": "capCta5",
+    "voiceCloseOfw": "voiceCloseOfw5"
+   }
   }
  ]
 }

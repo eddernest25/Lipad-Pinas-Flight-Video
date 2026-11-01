@@ -40,11 +40,11 @@
   {
    "date": "2026-11-01",
    "style": "intl-voice",
-   "flight": "SV871",
+   "flight": "SV861",
    "airline": "SVA",
    "from": "RPLL",
-   "to": "OEJN",
-   "note": "auto-scheduled same-day"
+   "to": "OERK",
+   "note": "replaced SV871 (incomplete track); scheduled 11-01 3PM PHT"
   }
  ]
 }

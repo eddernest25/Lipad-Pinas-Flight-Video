@@ -60,6 +60,20 @@
    "from": "RPVI",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-03",
+   "style": "intl-music",
+   "flight": "EY441",
+   "airline": "ETD",
+   "from": "RPLL",
+   "to": "OMAA",
+   "note": "auto-scheduled same-day",
+   "variants": {
+    "capHookOfw": "capHookOfw1",
+    "capCloseOfw": "capCloseOfw5",
+    "capCta": "capCta4"
+   }
   }
  ]
 }

@@ -74,6 +74,15 @@
     "capCloseOfw": "capCloseOfw5",
     "capCta": "capCta4"
    }
+  },
+  {
+   "date": "2026-11-04",
+   "style": "local-music",
+   "flight": "5J1084",
+   "airline": "CEB",
+   "from": "RPMD",
+   "to": "RPLC",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

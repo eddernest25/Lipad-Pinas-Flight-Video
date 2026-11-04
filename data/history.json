@@ -83,6 +83,15 @@
    "from": "RPMD",
    "to": "RPLC",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-05",
+   "style": "intl-voice",
+   "flight": "QR935",
+   "airline": "QTR",
+   "from": "RPLL",
+   "to": "OTHH",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

@@ -92,6 +92,15 @@
    "from": "RPLL",
    "to": "OTHH",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-06",
+   "style": "local-voice",
+   "flight": "PR2196",
+   "airline": "PAL",
+   "from": "RPLL",
+   "to": "RPLI",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

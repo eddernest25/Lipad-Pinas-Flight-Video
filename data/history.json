@@ -101,6 +101,15 @@
    "from": "RPLL",
    "to": "RPLI",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-07",
+   "style": "intl-music",
+   "flight": "EK337",
+   "airline": "UAE",
+   "from": "RPLL",
+   "to": "OMDB",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

@@ -110,6 +110,15 @@
    "from": "RPLL",
    "to": "OMDB",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-08",
+   "style": "local-music",
+   "flight": "Z2782",
+   "airline": "APG",
+   "from": "RPVM",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

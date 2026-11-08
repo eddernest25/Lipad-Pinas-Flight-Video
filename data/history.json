@@ -119,6 +119,15 @@
    "from": "RPVM",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-09",
+   "style": "intl-voice",
+   "flight": "BR272",
+   "airline": "EVA",
+   "from": "RPLL",
+   "to": "RCTP",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

@@ -128,6 +128,15 @@
    "from": "RPLL",
    "to": "RCTP",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-10",
+   "style": "local-voice",
+   "flight": "PR2388",
+   "airline": "GAP",
+   "from": "RPVM",
+   "to": "RPVI",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

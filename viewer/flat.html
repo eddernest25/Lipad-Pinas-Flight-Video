@@ -189,7 +189,7 @@ window.initFlat = async function (cfg, track) {
   setFlag($('flagL'), m.fromCountry); setFlag($('flagR'), m.toCountry);
   if (m.fromCountry && m.fromCountry === m.toCountry) { $('flagR').style.display = 'none'; $('flagL').style.cssText += ';left:50%;right:auto;transform:translateX(-50%)'; }   // domestic: one flag in the middle
   const lg = $('logo'); lg.innerHTML = (logoImg ? `<img src="${cfg.logo}">` : `<div class="dot">LIPAD<br>PINAS</div>`) + `<div class="follow">Follow Us</div>`;
-  const pos = { tl: 'left:40px;top:40px', tr: 'right:40px;top:40px', bl: 'left:40px;bottom:70px', br: 'right:40px;bottom:70px', bc: 'left:425px;bottom:330px' }[cfg.logoPos || 'bc'];
+  const pos = { tl: 'left:40px;top:40px', tr: 'right:40px;top:40px', bl: 'left:40px;bottom:70px', br: 'right:40px;bottom:70px', bc: 'left:425px;bottom:' + (cfg.overview ? 450 : 330) + 'px' }[cfg.logoPos || 'bc'];
   lg.style.cssText += ';' + pos;
   await document.fonts.ready; return true;
 };
@@ -225,6 +225,31 @@ window.tileList = function (fps, from, to) {
   }
   return [...set];
 };
+
+// ------------------------------------------------------------ end-to-end overview strip (bottom of frame): whole route, progress trail, plane marker
+let OV = null;
+function ovSetup() {
+  const PH = CFG.overviewH || 400, padX = 70, padY = 60;
+  let la0 = 90, la1 = -90, lo0 = 1e9, lo1 = -1e9; P.forEach((p, i) => { la0 = Math.min(la0, p.lat); la1 = Math.max(la1, p.lat); lo0 = Math.min(lo0, lonU[i]); lo1 = Math.max(lo1, lonU[i]); });
+  let z = 8; for (; z > 0.5; z -= .05) { const w = Math.abs(mx(lo1, z) - mx(lo0, z)), h = Math.abs(my(la0, z) - my(la1, z)); if (w <= W - 2 * padX && h <= PH - 2 * padY) break; }
+  OV = { PH, z, top: H - PH, cx: (mx(lo0, z) + mx(lo1, z)) / 2, cy: (my(la0, z) + my(la1, z)) / 2 };
+}
+function drawOverview(s) {
+  if (!OV) ovSetup();
+  const { PH, z, top, cx, cy } = OV, ox = cx - W / 2, oy = cy - PH / 2, X = i => mx(lonU[i], z) - ox, Y = i => my(P[i].lat, z) - oy;
+  ctx.save(); ctx.beginPath(); ctx.rect(0, top, W, PH); ctx.clip(); ctx.translate(0, top);
+  drawVectorBase(z, ox, oy);
+  ctx.fillStyle = 'rgba(6,16,31,.18)'; ctx.fillRect(0, 0, W, PH);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); P.forEach((p, i) => i ? ctx.lineTo(X(i), Y(i)) : ctx.moveTo(X(0), Y(0))); ctx.setLineDash([2, 9]); ctx.lineWidth = 3.5; ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.stroke(); ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(X(0), Y(0)); for (let i = 1; i <= s.i; i++) ctx.lineTo(X(i), Y(i)); ctx.lineTo(mx(s.lon, z) - ox, my(s.lat, z) - oy); ctx.lineWidth = 5; ctx.strokeStyle = '#35e08a'; ctx.stroke();
+  const m = D.meta, last = P.length - 1;
+  for (const [i, nm] of [[0, m.fromCity], [last, m.toCity]]) { const x = X(i), y = Y(i); ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = '#e5322d'; ctx.stroke();
+    ctx.font = '800 30px Arial'; ctx.textAlign = i ? 'right' : 'left'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000'; ctx.lineWidth = 7; const tx = x + (i ? -16 : 16), ty = y - 16; ctx.strokeText(nm, tx, ty); ctx.fillStyle = '#fff'; ctx.fillText(nm, tx, ty); }
+  { const px = mx(s.lon, z) - ox, py = my(s.lat, z) - oy; ctx.save(); ctx.translate(px, py); ctx.rotate(s.hdg * Math.PI / 180); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 6; ctx.drawImage(planeImg, -26, -26, 52, 52); ctx.restore(); }
+  ctx.restore();
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, top - 3, W, 3);
+}
 
 // ------------------------------------------------------------ draw one frame
 window.setTime = async function (tv) {
@@ -272,6 +297,8 @@ window.setTime = async function (tv) {
     const r = Math.min((L + 4) / airImg.width, L / airImg.height) * .92, dw = airImg.width * r, dh = airImg.height * r;
     ctx.drawImage(airImg, bx + 5 + (L + 4 - dw) / 2, by + (th - dh) / 2, dw, dh); ctx.restore(); tx = bx + L + 18; }
   ctx.fillStyle = '#fff'; ctx.textBaseline = 'alphabetic'; ctx.fillText(tag, tx, by + 33);
+
+  if (CFG.overview) drawOverview(s);
 
   // narration captions (burned in): current chunk, wrapped, bottom edge at CFG.captionY
   if (CFG.captions && CFG.captions.length) {

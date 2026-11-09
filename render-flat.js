@@ -10,6 +10,7 @@
 //   --audio voice.wav  --captions captions.json  --caption-y 1340   narration track + burned-in captions
 //   --music file.mp3                               mixed under the video, faded out at the end
 //   --zoom-close 11 --zoom-cruise 6.6              camera zoom levels (Web Mercator); see flat.html zoomAt()
+//   --overview                                     bottom strip showing the whole route end-to-end (for long international flights)
 //   --stills 0,3,20      PNGs at those video-seconds, no video
 //   --from N --to M      frame range (previews)    --keep-frames
 const http = require('http'), https = require('https'), fs = require('fs'), path = require('path'), { spawnSync } = require('child_process');
@@ -30,7 +31,7 @@ const flagSvg = cc => { try { return 'data:image/svg+xml;base64,' + fs.readFileS
 const cfg = {
   intro: INTRO, flight: FLIGHT, outro: OUTRO, tiles: KEY ? 'google' : 'vector',
   zoomClose: +opt('zoom-close', 11), zoomCruise: +opt('zoom-cruise', 6.6), zoomOutEnd: +opt('zoom-out-end', .14), zoomInStart: +opt('zoom-in-start', .90), zoomInEnd: +opt('zoom-in-end', 1), zoomFinal: +opt('zoom-final', 0),
-  airlineLogo: hasAirline ? '/airline.png' : '', logo: logoFile ? '/logo' + path.extname(logoFile) : '', logoPos: opt('logo-pos', 'bc'), maxTileZoom: +opt('max-tile-zoom', 19)
+  airlineLogo: hasAirline ? '/airline.png' : '', logo: logoFile ? '/logo' + path.extname(logoFile) : '', logoPos: opt('logo-pos', 'bc'), maxTileZoom: +opt('max-tile-zoom', 19), overview: flag('overview')
 };
 const track = JSON.parse(fs.readFileSync(trackFile, 'utf8'));
 cfg.captions = opt('captions', '') ? JSON.parse(fs.readFileSync(opt('captions', ''), 'utf8')) : []; cfg.captionY = +opt('caption-y', 1340);

@@ -137,6 +137,15 @@
    "from": "RPVM",
    "to": "RPVI",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-09",
+   "style": "intl-voice",
+   "flight": "PR132",
+   "airline": "PAL",
+   "from": "RPLL",
+   "to": "KORD",
+   "note": "PAL inaugural MNL-ORD; special post 11-09 3:55PM CST"
   }
  ]
 }

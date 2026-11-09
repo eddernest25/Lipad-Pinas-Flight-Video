@@ -1,0 +1,26 @@
+{
+ "sentences": [
+  "History in the sky. {airline} has just landed its first nonstop flight from {from} to {to}.",
+  "This is flight {flight}, {an} {ac}, flying about {km} kilometers in {dur}, with no stops in between.",
+  "For Filipinos in the United States, that means a direct line home. No connecting flights, no long layovers, just one flight between two homes.",
+  "Think of the families in Chicago and across the Midwest, who have always had to connect through other cities to reach the Philippines.",
+  "A nonstop flight means more time with lola and lolo, more birthdays and Christmases at home, and an easier trip for parents and children who miss each other.",
+  "Filipinos are one of the largest Asian communities in the United States, and this flight is a bridge between them and home.",
+  "The plane touches down at {landing}. Welcome to Chicago.",
+  "Salamat, {airline}, for bringing home a little closer. Follow us for more flights and Philippine aviation stories."
+ ],
+ "caption": {
+  "text": "🎉 INAUGURAL FLIGHT! PAL's first nonstop {from} → {to}, {flight}, has landed at O'Hare.\n\n✈️ About {km} kilometers in {dur}, no stops.\n\n🇵🇭🇺🇸 For Filipinos in Chicago and across the Midwest, this means a direct line home: more time with lola and lolo, more birthdays and Christmases with family, and a shorter trip between two homes.\n\n👇 Who are you hoping to see on this flight? Tag them!",
+  "tags": [
+   "#LipadPinas",
+   "#InauguralFlight",
+   "#PhilippineAirlines",
+   "#Chicago",
+   "#FilipinoAmerican",
+   "#Kabayan",
+   "#PinoyTravel"
+  ],
+  "title": "PAL's First Nonstop Manila to Chicago Flight | Lipad Pinas",
+  "tiktokTitle": "🎉 PAL's first nonstop Manila → Chicago flight just landed! Direct line home for Filipinos in the USA 🇵🇭🇺🇸 #LipadPinas #InauguralFlight"
+ }
+}

@@ -25,6 +25,11 @@ const parts = [`✈️ ${lines[0]}`, hook, lines.slice(1).join('\n')].filter(Boo
 if (ofw) { parts.push(slot('capCloseOfw', SC.capCloseOfw)); parts.push(slot('capCta', SC.capCta)); }
 const body = parts.join('\n\n'), text = body + '\n\n' + tags.join(' ');
 const title = `${M.fromCity} to ${city} on ${name} | Lipad Pinas`;
+const sfile = path.join(__dirname, '..', 'data', 'specials', `${M.flight}-${M.date}.json`);
+if (fs.existsSync(sfile)) { const C = JSON.parse(fs.readFileSync(sfile, 'utf8')).caption;
+  if (C) { const f = x => x.replace(/\{airline\}/g, name).replace(/\{flight\}/g, M.flight).replace(/\{from\}/g, M.fromCity).replace(/\{to\}/g, city).replace(/\{km\}/g, require('util').format('%s', Math.round((P.length ? (function () { const r = Math.PI / 180, a = P[0], b = P[P.length - 1]; return 6371 * Math.acos(Math.min(1, Math.sin(a.lat * r) * Math.sin(b.lat * r) + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.cos((b.lon - a.lon) * r))); })() : 0) / 50) * 50).replace(/(\d)(\d{3})$/, '$1,$2')).replace(/\{dur\}/g, dur);
+    const tx = f(C.text) + '\n\n' + C.tags.join(' ');
+    fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: tx, youtube: { title: C.title, text: tx + ' #Shorts' }, tiktok: { title: f(C.tiktokTitle).slice(0, 150) }, tiktokText: tx, special: true }, null, 1)); console.log(tx); process.exit(0); } }
 let variants = {}; try { variants = JSON.parse(fs.readFileSync(process.env.VARIANTS_OUT || path.join(__dirname, '..', 'out', 'variants.json'), 'utf8')); } catch (e) {}
 fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: text, youtube: { title: title.slice(0, 100), text: text + ' #Shorts' }, tiktok: { title: (lines[0] + ' · ' + hook + ' ' + tags.join(' ')).slice(0, 150) }, tiktokText: text, variants }, null, 1));
 console.log(text);

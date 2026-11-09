@@ -111,6 +111,10 @@ if (ofw) {   // OFW destination: hook -> flight facts -> price (open loop paid o
   S.push({ text: close });
   S.push({ text: `Follow for your next flight.` });
 }
+// special story (e.g. an inaugural flight): data/specials/<flight>-<date>.json replaces the generated script
+{ const sf = path.join(root, 'data/specials', `${M.flight}-${M.date}.json`);
+  if (fs.existsSync(sf)) { const sp = JSON.parse(fs.readFileSync(sf, 'utf8')), fill = x => x.replace(/\{airline\}/g, airline).replace(/\{flight\}/g, flightSpoken).replace(/\{from\}/g, M.fromCity).replace(/\{to\}/g, M.toCity).replace(/\{an\}/g, /^[AEIOU]/i.test(acName) ? 'an' : 'a').replace(/\{ac\}/g, acName).replace(/\{km\}/g, nice(km50)).replace(/\{dur\}/g, spokenDur(mins)).replace(/\{landing\}/g, `${B.name}${arrT ? ` at ${arrT} local time` : ''}`);
+    S.length = 0; sp.sentences.forEach(x => S.push({ text: fill(x) })); console.log('using special story', sf); } }
 // spread start times evenly by word count; the last line is anchored to the end of the video
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }
 // spoken form for the voice: no hyphens (TTS reads them as 'dash'), flight codes and acronyms spelled out

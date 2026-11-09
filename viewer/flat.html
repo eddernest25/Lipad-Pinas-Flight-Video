@@ -243,6 +243,15 @@ function drawOverview(s) {
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); P.forEach((p, i) => i ? ctx.lineTo(X(i), Y(i)) : ctx.moveTo(X(0), Y(0))); ctx.setLineDash([2, 9]); ctx.lineWidth = 3.5; ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.stroke(); ctx.setLineDash([]);
   ctx.beginPath(); ctx.moveTo(X(0), Y(0)); for (let i = 1; i <= s.i; i++) ctx.lineTo(X(i), Y(i)); ctx.lineTo(mx(s.lon, z) - ox, my(s.lat, z) - oy); ctx.lineWidth = 5; ctx.strokeStyle = '#35e08a'; ctx.stroke();
+  const taken = []; const hitR = r => taken.some(q => r.x < q.x + q.w && r.x + r.w > q.x && r.y < q.y + q.h && r.y + r.h > q.y);
+  { const px = mx(s.lon, z) - ox, py = my(s.lat, z) - oy; taken.push({ x: px - 34, y: py - 34, w: 68, h: 68 }); }
+  { const last0 = P.length - 1; for (const [i, nm] of [[0, D.meta.fromCity], [last0, D.meta.toCity]]) { ctx.font = '800 30px Arial'; const w = ctx.measureText(nm).width, x = X(i), y = Y(i); taken.push({ x: i ? x - 16 - w : x + 16, y: y - 46, w, h: 40 }, { x: x - 12, y: y - 12, w: 24, h: 24 }); } }
+  { const cs = (CFG.overviewCountries || []).slice().sort((a, b) => b.cnt - a.cnt), fs = 22; ctx.font = '800 ' + fs + 'px Arial'; ctx.textAlign = 'center'; ctx.lineJoin = 'round'; ctx.letterSpacing = '1.5px';
+    for (const c of cs) { const x = X(c.mid), y = Y(c.mid), txt = c.n.toUpperCase(), w = ctx.measureText(txt).width + 6;
+      for (const dy of [-22, 38, -54, 70]) { const ty = y + dy, tx = clamp(x, w / 2 + 8, W - w / 2 - 8), r = { x: tx - w / 2, y: ty - fs, w, h: fs + 8 };
+        if (ty < 30 || ty > PH - 28 || hitR(r)) continue; taken.push(r);
+        ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(5,12,24,.9)'; ctx.strokeText(txt, tx, ty); ctx.fillStyle = '#ffe9a8'; ctx.fillText(txt, tx, ty); break; } }
+    ctx.letterSpacing = '0px'; ctx.textAlign = 'left'; }
   const m = D.meta, last = P.length - 1;
   for (const [i, nm] of [[0, m.fromCity], [last, m.toCity]]) { const x = X(i), y = Y(i); ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = '#e5322d'; ctx.stroke();
     ctx.font = '800 30px Arial'; ctx.textAlign = i ? 'right' : 'left'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000'; ctx.lineWidth = 7; const tx = x + (i ? -16 : 16), ty = y - 16; ctx.strokeText(nm, tx, ty); ctx.fillStyle = '#fff'; ctx.fillText(nm, tx, ty); }

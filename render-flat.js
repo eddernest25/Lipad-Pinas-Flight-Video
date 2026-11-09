@@ -34,7 +34,20 @@ const cfg = {
   airlineLogo: hasAirline ? '/airline.png' : '', logo: logoFile ? '/logo' + path.extname(logoFile) : '', logoPos: opt('logo-pos', 'bc'), maxTileZoom: +opt('max-tile-zoom', 19), overview: flag('overview')
 };
 const track = JSON.parse(fs.readFileSync(trackFile, 'utf8'));
+// countries the route passes over (for the overview strip labels): point-in-polygon on the track, ordered along the route, label anchored mid-crossing
+function routeCountries(pts) {
+  try {
+    const polys = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/countries-poly.json'), 'utf8')), hits = new Map();
+    const inRing = (r, x, y) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { const a = r[i], b = r[j]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; };
+    const inC = (c, x, y) => c.p.some(poly => inRing(poly[0], x, y) && !poly.slice(1).some(h => inRing(h, x, y)));
+    const bb = polys.map(c => { let a = 180, b = -180, d = 90, e = -90; c.p.forEach(poly => poly[0].forEach(([lo, la]) => { a = Math.min(a, lo); b = Math.max(b, lo); d = Math.min(d, la); e = Math.max(e, la); })); return [a, b, d, e]; });
+    pts.forEach((p, i) => { const lo = ((p.lon + 540) % 360) - 180;
+      for (let k = 0; k < polys.length; k++) { const q = bb[k]; if (lo < q[0] || lo > q[1] || p.lat < q[2] || p.lat > q[3]) continue; if (inC(polys[k], lo, p.lat)) { (hits.get(polys[k].n) || hits.set(polys[k].n, []).get(polys[k].n)).push(i); break; } } });
+    return [...hits].map(([n, ix]) => ({ n, a: ix[0], b: ix[ix.length - 1], mid: ix[(ix.length - 1) >> 1], cnt: ix.length })).filter(c => c.cnt >= Math.max(3, pts.length * 0.012)).sort((x, y) => x.a - y.a);
+  } catch (e) { console.error('routeCountries failed:', e.message); return []; }
+}
 cfg.captions = opt('captions', '') ? JSON.parse(fs.readFileSync(opt('captions', ''), 'utf8')) : []; cfg.captionY = +opt('caption-y', 1340);
+if (cfg.overview) cfg.overviewCountries = routeCountries(track.points);
 cfg.flagImages = {}; for (const cc of [track.meta.fromCountry, track.meta.toCountry]) { const f = cc && flagSvg(cc); if (f) cfg.flagImages[String(cc).toUpperCase()] = f; }
 
 // ---- Google Map Tiles API (2D): satellite + roadmap/labels layer, fetched server-side and streamed to the page (nothing is written to disk)

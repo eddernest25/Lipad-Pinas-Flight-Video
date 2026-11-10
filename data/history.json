@@ -146,6 +146,15 @@
    "from": "RPLL",
    "to": "KORD",
    "note": "PAL inaugural MNL-ORD; special post 11-09 3:55PM CST"
+  },
+  {
+   "date": "2026-11-11",
+   "style": "local-voice",
+   "flight": "5J980",
+   "airline": "CEB",
+   "from": "RPMD",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

@@ -1,0 +1,11 @@
+{
+ "sentences": [
+  {"text": "Uwi na! Philippine Airlines flight PR 133 is bringing passengers home, nonstop from Chicago to Manila.", "say": "Uwi na! Philippine Airlines flight P R one three three is bringing passengers home, nonstop from Chicago to Manila.", "want": 0.3},
+  {"text": "This is the return leg of the airline's first-ever Chicago route, flown by an Airbus A350-900.", "say": "This is the return leg of the airline's first ever Chicago route, flown by an Airbus A three fifty, nine hundred.", "want": 7.0},
+  {"text": "Why does it matter? Filipinos are one of the largest Asian communities in the United States, with more than four million people of Filipino descent.", "say": "Why does it matter? Filipinos are one of the largest Asian communities in the United States, with more than four million people of Filipino descent.", "want": 14.0},
+  {"text": "Many families in Chicago and across the Midwest used to connect through other cities just to reach the Philippines.", "say": "Many families in Chicago and across the Midwest used to connect through other cities just to reach the Philippines.", "want": 23.5},
+  {"text": "Now there is one flight. No layovers, no missed connections. More time with lola and lolo, and an easier trip home for the holidays.", "say": "Now there is one flight. No layovers, no missed connections. More time with lola and lolo, and an easier trip home for the holidays.", "want": 32.0},
+  {"text": "For nurses, teachers, engineers and workers abroad, and the families waiting for them, this route is more than a flight. It is a bridge between two homes.", "say": "For nurses, teachers, engineers and workers abroad, and the families waiting for them, this route is more than a flight. It is a bridge between two homes.", "want": 41.0},
+  {"text": "Welcome home, kabayan. Salamat, Philippine Airlines. Follow Lipad Pinas for more Philippine aviation stories.", "say": "Welcome home, kabayan. Salamat, Philippine Airlines. Follow Lipad Pinas for more Philippine aviation stories.", "want": 52.0}
+ ]
+}

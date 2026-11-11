@@ -155,6 +155,15 @@
    "from": "RPMD",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-11",
+   "style": "intl-voice",
+   "flight": "PR133",
+   "airline": "PAL",
+   "from": "KORD",
+   "to": "RPLL",
+   "note": "PAL inaugural return ORD-MNL; special post 11-11 8PM PHT"
   }
  ]
 }

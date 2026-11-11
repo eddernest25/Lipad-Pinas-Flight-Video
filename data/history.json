@@ -164,6 +164,15 @@
    "from": "KORD",
    "to": "RPLL",
    "note": "PAL inaugural return ORD-MNL; special post 11-11 8PM PHT"
+  },
+  {
+   "date": "2026-11-12",
+   "style": "local-voice",
+   "flight": "Z2604",
+   "airline": "APG",
+   "from": "RPVB",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

@@ -173,6 +173,15 @@
    "from": "RPVB",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-13",
+   "style": "intl-music",
+   "flight": "JL746",
+   "airline": "JAL",
+   "from": "RPLL",
+   "to": "RJAA",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

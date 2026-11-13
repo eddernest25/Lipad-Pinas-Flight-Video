@@ -182,6 +182,15 @@
    "from": "RPLL",
    "to": "RJAA",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-14",
+   "style": "local-music",
+   "flight": "PR2389",
+   "airline": "GAP",
+   "from": "RPVI",
+   "to": "RPVM",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

@@ -18,7 +18,7 @@ let S = JSON.parse(fs.readFileSync(inFile, 'utf8')).sentences;
 const used = { provider: null };
 
 async function google(text, file) {
-  const voice = { languageCode: 'en-US', name: VOICE || (GENDER === 'FEMALE' ? 'en-US-Neural2-F' : 'en-US-Neural2-D') };
+  const voice = { languageCode: ((VOICE.match(/^[a-z]{2,3}-[A-Z]{2}/) || ['en-US'])[0]), name: VOICE || (GENDER === 'FEMALE' ? 'en-US-Neural2-F' : 'en-US-Neural2-D') };
   const r = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key=' + KEY, { method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ input: { text }, voice, audioConfig: Object.assign({ audioEncoding: 'MP3', speakingRate: RATE, sampleRateHertz: 24000 }, /Chirp/.test(voice.name) ? {} : { pitch: PITCH }) }) });
   const j = await r.json().catch(() => ({}));
@@ -26,7 +26,7 @@ async function google(text, file) {
   fs.writeFileSync(file, Buffer.from(j.audioContent, 'base64'));
 }
 function edge(text, file) {
-  const v = VOICE || (GENDER === 'FEMALE' ? 'en-US-AriaNeural' : 'en-US-GuyNeural');
+  const gb = /^en-GB/.test(VOICE), v = (VOICE && !/Chirp|Neural2|Wavenet|Studio|News|Polyglot/.test(VOICE)) ? VOICE : gb ? (GENDER === 'FEMALE' ? 'en-GB-SoniaNeural' : 'en-GB-RyanNeural') : (GENDER === 'FEMALE' ? 'en-US-AriaNeural' : 'en-US-GuyNeural');
   const pct = Math.round((RATE - 1) * 100);
   const r = sh('edge-tts', ['--voice', v, '--rate=' + (pct >= 0 ? '+' : '') + pct + '%', '--pitch=+' + Math.max(0, PITCH * 2) + 'Hz', '--text', text, '--write-media', file]);
   if (r.status !== 0 || !fs.existsSync(file)) throw new Error('edge-tts failed: ' + (r.stderr || r.error || '').toString().slice(0, 200));

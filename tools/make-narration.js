@@ -81,12 +81,13 @@ if (GLOBAL) {
   const allAir = [airline, ...oth].filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 5);
   const dn = new Intl.DisplayNames('en', { type: 'region' }), skipC = [depC, arrC, M.fromCountry && dn.of(M.fromCountry), M.toCountry && dn.of(M.toCountry)].filter(Boolean).map(x => x.toLowerCase());
   const over = mid.filter(e => e.t === 'c' && !skipC.some(x => x.includes(e.n.toLowerCase()) || e.n.toLowerCase().includes(x))).map(the).slice(0, 3);
-  GL = { routeFacts, destFact, allAir, over };
+  const sup = (RF.superlatives || {})[pairKey], hook = sup ? sup.hook.replace('{from}', M.fromCity).replace('{to}', M.toCity) : '';
+  GL = { routeFacts, destFact, allAir, over, hook, label: sup ? sup.label : '' };
 }
 // ---- music mode (no voice): short general-info captions spread over the whole video
 if (args.includes('--music')) {
   if (GLOBAL) {
-    const avg = five(rs && rs.avgMin ? rs.avgMin : mins), L = [`${M.fromCity} to ${M.toCity}`, `Distance: about ${nice(km50)} kilometers`, `Average flight time: about ${spokenDur(avg)}`];
+    const avg = five(rs && rs.avgMin ? rs.avgMin : mins), L = [GL.hook || `${M.fromCity} to ${M.toCity}`, `Distance: about ${nice(km50)} kilometers`, `Average flight time: about ${spokenDur(avg)}`];
     if (GL.allAir.length > 1) L.push(`Non-stop flights by ${join(GL.allAir)}`); else L.push(`Operated by ${airline}`);
     L.push(...GL.routeFacts); if (GL.over.length) L.push(`Flying over ${join(GL.over)}`); if (GL.destFact) L.push(GL.destFact);
     const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
@@ -137,7 +138,7 @@ if (ofw) {   // OFW destination: hook -> flight facts -> price (open loop paid o
 if (GLOBAL) {
   S.length = 0;
   const avg = five(rs && rs.avgMin ? rs.avgMin : mins), an = /^[AEIOU]/i.test(acName) ? 'an' : 'a';
-  S.push({ text: `${M.fromCity} to ${M.toCity}. Here is why this route matters.` });
+  S.push({ text: GL.hook ? `${GL.hook} Here is why this route matters.` : `${M.fromCity} to ${M.toCity}. Here is why this route matters.` });
   S.push({ text: `This is ${airline} flight ${flightSpoken}, ${an} ${acName}, which took off from ${M.fromCity}${depT ? ` at ${depT} local time` : ''} and climbed to ${nice(ft)} feet.` });
   S.push({ text: `The route covers about ${nice(km50)} kilometers, and the average flight time is about ${spokenDur(avg)}.` });
   if (GL.allAir.length > 1) S.push({ text: `You can fly it non-stop with ${join(GL.allAir)}.`, opt: 2 }); else S.push({ text: `On this day it was operated by ${airline}.`, opt: 2 });

@@ -15,12 +15,16 @@ if (a.includes('--record')) {
 }
 const last = H.posts[H.posts.length - 1] || { style: CYCLE[CYCLE.length - 1] }, style = CYCLE[(CYCLE.indexOf(last.style) + 1) % CYCLE.length], type = style.startsWith('local') ? 'local' : 'intl';
 const key = (f, t) => `${f}-${t}`, pair = (f, t) => [f, t].sort().join('-');   // a route is directional (X->Y and Y->X are different videos)
-const used = new Set(H.posts.map(p => key(p.from, p.to))), recentPairs = new Set(H.posts.slice(-4).map(p => pair(p.from, p.to)));   // but the same city pair is not reused within 4 posts
+const used = new Set(H.posts.map(p => PAGE ? pair(p.from, p.to) : key(p.from, p.to))), recentPairs = new Set(H.posts.slice(-4).map(p => pair(p.from, p.to)));   // but the same city pair is not reused within 4 posts
 const recentAir = H.posts.slice(-2).map(p => p.airline), skip = new Set((opt('skip', '') || '').split(',').filter(Boolean));
 const uses = al => H.posts.filter(p => p.airline === al).length;
 const C = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', `candidates${SUF}.json`), 'utf8')).candidates
-  .filter(c => c.type === type && !used.has(key(c.from, c.to)) && !recentPairs.has(pair(c.from, c.to)) && !recentAir.includes(c.airline) && !skip.has(`${c.from}-${c.to}:${c.airline}`))
+  .filter(c => c.type === type && !used.has(PAGE ? pair(c.from, c.to) : key(c.from, c.to)) && !recentPairs.has(pair(c.from, c.to)) && !recentAir.includes(c.airline) && !skip.has(`${c.from}-${c.to}:${c.airline}`))
   .sort((x, y) => uses(x.airline) - uses(y.airline) || (x.to < y.to ? -1 : 1));
+if (PAGE) {   // Flight Viewer: a city pair is never reused (either direction); rotate categories so longest/shortest/busiest/significant routes are mixed
+  const CATS = ['popular', 'significance', 'longest', 'popular', 'shortest', 'significance'], want = CATS[H.posts.length % CATS.length];
+  C.splice(0, C.length, ...C.filter(c => c.cat === want), ...C.filter(c => c.cat !== want));
+}
 if (!C.length) { console.error('no candidate left that satisfies the rules'); process.exit(1); }
 const m = C[0];
-console.log(JSON.stringify({ style, music: style.endsWith('music'), route: `${m.from}-${m.to}`, airline: m.airline, from: m.from, to: m.to, alternatives: C.slice(1, 4).map(c => `${c.from}-${c.to}:${c.airline}`) }, null, 1));
+console.log(JSON.stringify({ style, music: style.endsWith('music'), route: `${m.from}-${m.to}`, airline: m.airline, cat: m.cat || '', from: m.from, to: m.to, alternatives: C.slice(1, 4).map(c => `${c.from}-${c.to}:${c.airline}`) }, null, 1));

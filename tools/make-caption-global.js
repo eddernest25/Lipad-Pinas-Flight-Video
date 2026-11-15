@@ -27,8 +27,12 @@ const CLOSES = [
 const CTAS = ['👇 Which route should we fly next? Tell us in the comments.', '👇 Where would you like to fly? Drop a city below.', '👇 Follow Flight Viewer for a new real flight every day.'];
 const tag = s => '#' + String(s || '').replace(/[^A-Za-z0-9]/g, '');
 const tags = ['#FlightViewer', '#Aviation', '#AvGeek', '#Flightradar', tag(name), tag(to)].filter((x, i, a) => x.length > 1 && a.indexOf(x) === i);
+const RF = (() => { try { return JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'route-facts-global.json'), 'utf8')); } catch (e) { return {}; } })();
+const sup = (RF.superlatives || {})[[M.fromIcao, M.toIcao].sort().join('-')];
+const supHook = sup ? sup.hook.replace('{from}', from).replace('{to}', to) : '';
+if (sup) tags.push(({ longest: '#LongestFlight', shortest: '#ShortestFlight', popular: '#BusiestRoute' })[sup.label] || '');
 const head = `✈️ ${name} · ${from} → ${to}`;
-const body = [head, choose('hook', HOOKS), choose('close', CLOSES), choose('cta', CTAS)].join('\n\n');
-const text = body + '\n\n' + tags.join(' '), title = `${from} to ${to} on ${name} | Flight Viewer`;
+const body = [supHook ? `🔥 ${supHook}` : '', head, supHook ? '' : choose('hook', HOOKS), choose('close', CLOSES), choose('cta', CTAS)].filter(Boolean).join('\n\n');
+const text = body + '\n\n' + tags.filter(Boolean).join(' '), title = `${from} to ${to} on ${name} | Flight Viewer`;
 fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: text, youtube: { title: title.slice(0, 100), text: text + ' #Shorts' }, tiktok: { title: (head + ' ' + tags.join(' ')).slice(0, 150) }, tiktokText: text, variants: {} }, null, 1));
 console.log(text);

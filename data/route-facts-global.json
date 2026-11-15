@@ -1,8 +1,8 @@
 {
- "_note": "Facts for the Flight Viewer (international) narration. Keep each line true and number-free so it stays accurate. pairs = unordered ICAO pair; airports = fact about the destination airport.",
+ "_note": "Facts for the Flight Viewer (international) narration/captions. pairs = unordered ICAO pair -> true, number-light lines. airports = destination airport fact. superlatives = unordered pair -> {label,hook}; hook uses {from}/{to} city names. Longest/shortest/busiest data: AirAdvisor (Sept 2026), OAG (2024/2025). Re-check before relying on rankings.",
  "pairs": {
   "EGLL-KJFK": [
-   "London to New York is one of the busiest long haul corridors in the world, with many flights every day.",
+   "London Heathrow and New York JFK is the busiest long haul international route, and the only one in the top ten that crosses an ocean.",
    "Supersonic Concorde once covered it in about three and a half hours before retiring in 2003."
   ],
   "EGLL-KLAX": [
@@ -85,6 +85,117 @@
   ],
   "KLAX-EHAM": [
    "It links Amsterdam with Los Angeles, connecting Europe to the American West Coast."
+  ],
+  "KJFK-WSSS": [
+   "Singapore Airlines flies it non-stop in both directions, close to nineteen hours in the air."
+  ],
+  "KEWR-WSSS": [
+   "It is the sister flight to Singapore Airlines' New York JFK service, and both rank at the very top of the world's longest flights."
+  ],
+  "EGLL-YPPH": [
+   "Qantas links London and Perth non-stop, connecting Britain with the west coast of Australia."
+  ],
+  "KDFW-YMML": [
+   "Qantas connects Texas with Melbourne non-stop, one of the longest routes in the world."
+  ],
+  "KJFK-NZAA": [
+   "It links New Zealand's biggest city with New York across the Pacific and the Americas."
+  ],
+  "NZAA-OMDB": [
+   "Emirates links Auckland with Dubai non-stop, among the longest flights in the world."
+  ],
+  "KLAX-WSSS": [
+   "It links the American West Coast with Singapore across the Pacific on an ultra long haul flight."
+  ],
+  "OBBI-OEDF": [
+   "The two cities are also joined by the King Fahd Causeway, a road bridge across the water."
+  ],
+  "OBBI-OTHH": [
+   "Bahrain and Qatar are neighbors across the Persian Gulf, so the flight is a short hop of under an hour."
+  ],
+  "OMDB-OOMS": [
+   "It links the United Arab Emirates and Oman on a short regional hop."
+  ],
+  "RCTP-VHHH": [
+   "Hong Kong and Taipei is the busiest international air route in the world by seat capacity, according to OAG's 2025 ranking."
+  ],
+  "HECA-OEJN": [
+   "Jeddah is the main gateway for pilgrims traveling to Mecca, which helps make this one of the busiest routes in the world."
+  ],
+  "WMKK-WSSS": [
+   "Malaysia and Singapore are close neighbors, and this short hop ranks among the busiest international routes anywhere."
+  ],
+  "RJAA-RKSI": [
+   "It links the Seoul area with Tokyo and was the second busiest international route in the world in 2024."
+  ],
+  "RJBB-RKSI": [
+   "Osaka is one of Japan's most popular destinations for Korean travelers."
+  ],
+  "WIII-WSSS": [
+   "Jakarta and Singapore link Indonesia's capital with one of Southeast Asia's biggest hubs."
+  ],
+  "OERK-OMDB": [
+   "Dubai and Riyadh link two of the biggest business centers in the Gulf."
+  ],
+  "VHHH-VTBS": [
+   "Bangkok and Hong Kong link two of Asia's biggest travel hubs."
+  ],
+  "RCTP-RJAA": [
+   "Tokyo and Taipei are close partners in business and tourism."
+  ],
+  "OMDB-VABB": [
+   "Dubai and Mumbai link the Gulf with one of India's biggest cities, home to a large Indian community in the United Arab Emirates."
+  ],
+  "OMDB-VIDP": [
+   "Delhi and Dubai are among the busiest air links between India and the Gulf."
+  ],
+  "NZAA-YSSY": [
+   "Sydney and Auckland is one of the busiest international routes in the Southern Hemisphere."
+  ],
+  "EGLL-EIDW": [
+   "London and Dublin is one of the busiest international routes in Europe."
+  ],
+  "EGLL-EHAM": [
+   "London and Amsterdam link two of Europe's biggest airport hubs."
+  ],
+  "RJTT-RKSS": [
+   "Seoul Gimpo and Tokyo Haneda connect two city airports, a popular route for business travelers."
+  ],
+  "VTBS-WSSS": [
+   "Singapore and Bangkok link two of Southeast Asia's busiest hubs."
+  ],
+  "VHHH-WSSS": [
+   "Singapore and Hong Kong link two of Asia's biggest financial centers."
+  ],
+  "CYYZ-KJFK": [
+   "Toronto and New York is one of the busiest air links between Canada and the United States."
+  ],
+  "KLAX-MMMX": [
+   "Los Angeles and Mexico City link the United States with one of the largest cities in the Americas."
+  ],
+  "SAEZ-SBGR": [
+   "Sao Paulo and Buenos Aires link two of South America's biggest cities."
+  ],
+  "SCEL-SPJC": [
+   "Lima and Santiago link the capitals of Peru and Chile."
+  ],
+  "MPTO-SKBO": [
+   "Bogota and Panama City connect South America to Copa Airlines' hub in Panama."
+  ],
+  "HAAB-HKJK": [
+   "Nairobi and Addis Ababa link two of East Africa's main hubs, home to Kenya Airways and Ethiopian Airlines."
+  ],
+  "EDDF-EGLL": [
+   "Frankfurt and London link two of Europe's biggest financial centers."
+  ],
+  "EGLL-LEMD": [
+   "Madrid and London link Spain's capital with the United Kingdom."
+  ],
+  "LEBL-LFPG": [
+   "Barcelona and Paris link two of Europe's most visited cities."
+  ],
+  "OMDB-OTHH": [
+   "Doha and Dubai link two of the Gulf's biggest transfer hubs."
   ]
  },
  "airports": {
@@ -109,6 +220,117 @@
   "FACT": "Cape Town International sits beneath the famous Table Mountain skyline.",
   "SBGR": "Sao Paulo Guarulhos is the largest airport in Brazil.",
   "CYYZ": "Toronto Pearson is the busiest airport in Canada.",
-  "CYVR": "Vancouver International is known for its Indigenous art and is Canada's gateway to Asia."
+  "CYVR": "Vancouver International is known for its Indigenous art and is Canada's gateway to Asia.",
+  "RCTP": "Taiwan Taoyuan International Airport is the main gateway to Taipei and Taiwan.",
+  "OEJN": "Jeddah's King Abdulaziz International Airport is the main gateway for pilgrims traveling to Mecca.",
+  "HECA": "Cairo International Airport is one of the busiest airports in Africa.",
+  "WMKK": "Kuala Lumpur International Airport is Malaysia's main hub.",
+  "RJAA": "Tokyo Narita is the main international gateway to Tokyo, about an hour by train from the city.",
+  "RJBB": "Osaka Kansai sits on an artificial island in Osaka Bay.",
+  "WIII": "Soekarno Hatta International Airport is Indonesia's busiest airport, serving Jakarta.",
+  "OERK": "King Khalid International Airport serves Riyadh, the capital of Saudi Arabia.",
+  "VTBS": "Suvarnabhumi Airport is Bangkok's main international airport.",
+  "VABB": "Mumbai's Chhatrapati Shivaji Maharaj International Airport is one of the busiest in India.",
+  "NZAA": "Auckland Airport is New Zealand's largest and busiest airport.",
+  "EIDW": "Dublin Airport is Ireland's busiest airport.",
+  "RKSS": "Gimpo was Seoul's main airport before Incheon opened in 2001.",
+  "MMMX": "Mexico City International is the busiest airport in Mexico.",
+  "SAEZ": "Buenos Aires Ezeiza is Argentina's main international airport.",
+  "SCEL": "Santiago's Arturo Merino Benitez International Airport is Chile's main gateway.",
+  "MPTO": "Tocumen International is the home hub of Copa Airlines.",
+  "SKBO": "El Dorado International Airport serves Bogota, one of the highest large cities in the world.",
+  "HAAB": "Addis Ababa Bole is the main hub of Ethiopian Airlines.",
+  "HKJK": "Jomo Kenyatta International Airport is the main hub for East Africa, serving Nairobi.",
+  "LEMD": "Madrid Barajas is the main hub for Spain.",
+  "LEBL": "Barcelona El Prat is one of the busiest airports in Spain.",
+  "OOMS": "Muscat International Airport is the main gateway to Oman.",
+  "OBBI": "Bahrain International Airport is the main airport for the island nation of Bahrain.",
+  "OEDF": "King Fahd International Airport in Dammam is one of the largest airports in the world by land area.",
+  "YPPH": "Perth Airport serves one of the most isolated major cities in the world.",
+  "YMML": "Melbourne Airport is the busiest airport in Australia after Sydney.",
+  "KDFW": "Dallas Fort Worth is one of the busiest airports in the world.",
+  "KEWR": "Newark Liberty International Airport serves the New York metropolitan area."
+ },
+ "superlatives": {
+  "KJFK-WSSS": {
+   "label": "longest",
+   "hook": "{from} to {to} is currently the world's longest scheduled non-stop flight."
+  },
+  "KEWR-WSSS": {
+   "label": "longest",
+   "hook": "{from} to {to} is one of the two longest non-stop flights in the world."
+  },
+  "EGLL-YPPH": {
+   "label": "longest",
+   "hook": "{from} to {to} is one of the ten longest non-stop flights in the world."
+  },
+  "KDFW-YMML": {
+   "label": "longest",
+   "hook": "{from} to {to} is one of the ten longest non-stop flights in the world."
+  },
+  "KJFK-NZAA": {
+   "label": "longest",
+   "hook": "{from} to {to} is one of the ten longest non-stop flights in the world."
+  },
+  "NZAA-OMDB": {
+   "label": "longest",
+   "hook": "{from} to {to} is one of the ten longest non-stop flights in the world."
+  },
+  "KLAX-WSSS": {
+   "label": "longest",
+   "hook": "{from} to {to} is one of the ten longest non-stop flights in the world."
+  },
+  "OBBI-OEDF": {
+   "label": "shortest",
+   "hook": "{from} to {to} is one of the shortest international flights in the world, only about ninety kilometers."
+  },
+  "OBBI-OTHH": {
+   "label": "shortest",
+   "hook": "{from} to {to} is one of the shortest international hops in the Gulf."
+  },
+  "OMDB-OOMS": {
+   "label": "shortest",
+   "hook": "{from} to {to} is a short international hop between the United Arab Emirates and Oman."
+  },
+  "RCTP-VHHH": {
+   "label": "popular",
+   "hook": "{from} to {to} is the world's busiest international air route."
+  },
+  "HECA-OEJN": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 2 busiest international air route in the world by seats."
+  },
+  "WMKK-WSSS": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 3 busiest international air route in the world by seats."
+  },
+  "RJAA-RKSI": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 4 busiest international air route in the world by seats."
+  },
+  "RJBB-RKSI": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 5 busiest international air route in the world by seats."
+  },
+  "WIII-WSSS": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 6 busiest international air route in the world by seats."
+  },
+  "OERK-OMDB": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 7 busiest international air route in the world by seats."
+  },
+  "VHHH-VTBS": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 8 busiest international air route in the world by seats."
+  },
+  "RCTP-RJAA": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 9 busiest international air route in the world by seats."
+  },
+  "EGLL-KJFK": {
+   "label": "popular",
+   "hook": "{from} to {to} is the number 10 busiest international air route in the world by seats."
+  }
  }
 }

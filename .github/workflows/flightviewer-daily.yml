@@ -53,7 +53,14 @@ jobs:
             AIRL=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).airline")
             echo "attempt $ATTEMPT: $STYLE $ROUTE $AIRL"
             ARGS=(-f ref=${{ github.ref_name }} -f "inputs[airline]=$AIRL" -f "inputs[route]=$ROUTE" -f "inputs[date]=$FLIGHTDAY" -f "inputs[logo_file]=$LOGO" -f "inputs[narration]=global")
-            if [[ "$STYLE" == *music ]]; then ARGS+=(-f "inputs[style]=music"); else ARGS+=(-f "inputs[style]=voice" -f "inputs[voice_name]=en-US-Chirp3-HD-Aoede" -f "inputs[voice_gender]=FEMALE"); fi
+            if [[ "$STYLE" == *music ]]; then ARGS+=(-f "inputs[style]=music"); else
+              # rotate Google English (US) Chirp3 HD voices by number of Flight Viewer posts so far
+              VOICES=(en-US-Chirp3-HD-Aoede:FEMALE en-US-Chirp3-HD-Charon:MALE en-US-Chirp3-HD-Kore:FEMALE en-US-Chirp3-HD-Puck:MALE en-US-Chirp3-HD-Leda:FEMALE en-US-Chirp3-HD-Fenrir:MALE en-US-Chirp3-HD-Zephyr:FEMALE en-US-Chirp3-HD-Orus:MALE)
+              NPOSTS=$(node -p "require('./data/history-flightviewer.json').posts.length")
+              VPICK=${VOICES[$(( (NPOSTS + ATTEMPT - 1) % ${#VOICES[@]} ))]}; VNAME=${VPICK%%:*}; VGEN=${VPICK##*:}
+              echo "voice: $VNAME ($VGEN)"
+              ARGS+=(-f "inputs[style]=voice" -f "inputs[voice_name]=$VNAME" -f "inputs[voice_gender]=$VGEN" -f "inputs[bg_file]=assets/flightviewer-bg.mp3")
+            fi
             STARTED=$(date -u +%FT%TZ)
             gh api -X POST "repos/${{ github.repository }}/actions/workflows/render.yml/dispatches" "${ARGS[@]}"
             sleep 25
@@ -74,6 +81,6 @@ jobs:
           if [ "$DRY" = "true" ]; then node tools/buffer-post.js --page flightviewer --dry --video "$VIDEO" --caption out/caption.json --due "$DUE"; echo "dry run: $VIDEO"; exit 0; fi
           node tools/buffer-post.js --page flightviewer --video "$VIDEO" --caption out/caption.json --due "$DUE"
           FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao")
-          node tools/plan-next.js --page flightviewer --record --date "$TARGET" --style "$STYLE" --flight "$FLIGHT" --airline "$AIRL" --from "$FROMI" --to "$TOI" --note "auto-scheduled $DUE"
+          node tools/plan-next.js --page flightviewer --record --date "$TARGET" --style "$STYLE" --flight "$FLIGHT" --airline "$AIRL" --from "$FROMI" --to "$TOI" --note "auto-scheduled $DUE${VNAME:+ voice $VNAME}"
           git config user.name "flightviewer-bot"; git config user.email "bot@users.noreply.github.com"
           git add data/history-flightviewer.json && git commit -m "Flight Viewer $TARGET: $FLIGHT $FROMI-$TOI ($STYLE)" && git push

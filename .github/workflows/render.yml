@@ -118,7 +118,12 @@ jobs:
           fi
           node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }} ${{ inputs.bg_file && format('--bg "{0}"', inputs.bg_file) || '' }}
           fi
-          ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=9.7; echo "domestic flight: closer zoom $ZC"; fi
+          ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry")
+          if [ "${{ inputs.narration }}" = "global" ] && [ "$DOM" != "true" ]; then   # Flight Viewer only: a SHORT international hop gets the same close zoom as a domestic flight so places and names stay readable
+            SHKM=$(node -p "const p=require('./out/track.json').points,r=Math.PI/180,a=p[0],b=p[p.length-1];Math.round(6371*Math.acos(Math.min(1,Math.sin(a.lat*r)*Math.sin(b.lat*r)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.cos((b.lon-a.lon)*r))))")
+            if [ "$SHKM" -lt 1500 ]; then DOM=true; echo "short international hop ($SHKM km): close zoom"; fi
+          fi
+          if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=9.7; echo "domestic flight: closer zoom $ZC"; fi
           FPSV="${{ inputs.fps }}"; LSV="${{ inputs.label_scale }}"; if [ "$DOM" = "true" ]; then [ "$FPSV" = "15" ] && FPSV=30; [ "$LSV" = "1" ] && LSV=2; echo "domestic: fps $FPSV, label scale $LSV"; fi
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-20)/${{ inputs.flight_secs }}}")   # final zoom-in starts 20 s before the video ends (slow, gradual); fully zoomed in 8 s before the end
           LOGO="${{ inputs.logo_file }}"; case "$LOGO" in http*) curl -fsSL -o out/logo-custom.png "$LOGO" && LOGO=out/logo-custom.png ;; esac   # logo_file may be a public image URL

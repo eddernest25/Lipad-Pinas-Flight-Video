@@ -3,7 +3,7 @@ name: Flight Viewer daily video
 # Posts ONE worldwide flight video to the Flight Viewer Facebook page via its own Buffer account.
 # Manual only for now: dry defaults to "true" (plans + renders + captions, posts nothing, records nothing).
 # Needs repo secret BUFFER_API_KEY_FLIGHTVIEWER (plus the existing render secrets).
-# NOTE: set logo_file (a Flight Viewer logo in the repo) and review the narration before running with dry=false.
+# NOTE: review the narration (still Philippines-flavoured in voice videos) before running with dry=false.
 on:
   workflow_dispatch:
     inputs:
@@ -11,8 +11,8 @@ on:
         description: "true = plan + render + captions but do NOT post or record"
         default: "true"
       logo_file:
-        description: "Logo image in the repo"
-        default: "assets/logo.png"
+        description: "Logo: repo path or public image URL (default = Flight Viewer profile logo)"
+        default: "https://d8j0ntlcm91z4.cloudfront.net/user_3GDyB9CBU8cUPZRYk1KDgs9JiA9/hf_20261115_020419_2a89c71b-682f-4eb5-8b67-23d52e7222ee.png"
       post_hour_utc:
         description: "Hour (UTC, 0-23) to publish on the target day"
         default: "14"

@@ -13,7 +13,7 @@ on:
         description: "Optional ICAO route to list alternatives if the flight number is not found, e.g. RPLL-WSSS"
         default: ""
       logo_file:
-        description: "Logo image in the repo (default assets/logo.png = Lipad Pinas)"
+        description: "Logo: a repo path or a public image URL (default assets/logo.png = Lipad Pinas)"
         default: "assets/logo.png"
       logo_pos:
         description: "Lipad Pinas logo position: bc (lower middle) tl tr bl br"
@@ -112,11 +112,12 @@ jobs:
           ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=9.7; echo "domestic flight: closer zoom $ZC"; fi
           FPSV="${{ inputs.fps }}"; LSV="${{ inputs.label_scale }}"; if [ "$DOM" = "true" ]; then [ "$FPSV" = "15" ] && FPSV=30; [ "$LSV" = "1" ] && LSV=2; echo "domestic: fps $FPSV, label scale $LSV"; fi
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-20)/${{ inputs.flight_secs }}}")   # final zoom-in starts 20 s before the video ends (slow, gradual); fully zoomed in 8 s before the end
+          LOGO="${{ inputs.logo_file }}"; case "$LOGO" in http*) curl -fsSL -o out/logo-custom.png "$LOGO" && LOGO=out/logo-custom.png ;; esac   # logo_file may be a public image URL
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
             --fps "$FPSV" --label-scale "$LSV" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
             --zoom-close 12 --zoom-cruise "$ZC" --zoom-out-end .16 --zoom-in-start $ZIN --zoom-final 13.8 --zoom-in-end $(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-8)/${{ inputs.flight_secs }}}") \
-            --logo "${{ inputs.logo_file }}" --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000 ${{ inputs.stills && format('--stills "{0}"', inputs.stills) || '' }}
+            --logo "$LOGO" --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000 ${{ inputs.stills && format('--stills "{0}"', inputs.stills) || '' }}
       - name: Publish video (public release link)
         env:
           GH_TOKEN: ${{ github.token }}

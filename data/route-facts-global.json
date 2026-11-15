@@ -285,7 +285,7 @@
   },
   "OBBI-OEDF": {
    "label": "shortest",
-   "hook": "{from} to {to} is one of the shortest international flights in the world, only about ninety kilometers."
+   "hook": "{from} to {to} is one of the shortest international flights in the world, only about ninety kilometers, or roughly fifty-five miles."
   },
   "OBBI-OTHH": {
    "label": "shortest",

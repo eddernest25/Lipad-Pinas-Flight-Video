@@ -12,6 +12,18 @@
     "hook": "hook1",
     "cta": "cta3"
    }
+  },
+  {
+   "date": "2026-11-16",
+   "style": "intl-music",
+   "flight": "BA180",
+   "airline": "BAW",
+   "from": "KJFK",
+   "to": "EGLL",
+   "note": "auto-scheduled 2026-11-16T13:00:00Z",
+   "variants": {
+    "cta": "cta2"
+   }
   }
  ]
 }

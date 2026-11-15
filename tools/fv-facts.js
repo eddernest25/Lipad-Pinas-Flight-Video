@@ -7,7 +7,8 @@ function special(M) {
   const key = [M.fromIcao, M.toIcao].sort().join('-');
   const ina = INA.find(e => e.from === M.fromIcao && e.to === M.toIcao && (!e.airline || e.airline === M.airline) && Math.abs(day(M.date) - day(e.date)) <= 1);
   const sup = (RF.superlatives || {})[key], fill = t => t.replace('{from}', M.fromCity).replace('{to}', M.toCity);
-  return { key, label: ina ? 'inaugural' : sup ? sup.label : '', hook: ina ? fill(ina.hook) : sup ? fill(sup.hook) : '',
+  const busy = (rd('candidates-flightviewer.json') || { candidates: [] }).candidates.some(c => c.cat === 'popular' && [c.from, c.to].sort().join('-') === key) || (sup && sup.label === 'popular');
+  return { busy: !!busy, key, label: ina ? 'inaugural' : sup ? sup.label : '', hook: ina ? fill(ina.hook) : sup ? fill(sup.hook) : '',
     facts: [...(ina ? ina.facts : []), ...((RF.pairs || {})[key] || [])], destFact: (RF.airports || {})[M.toIcao] || '' };
 }
 module.exports = { special };

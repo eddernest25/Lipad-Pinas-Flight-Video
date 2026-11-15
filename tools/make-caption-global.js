@@ -76,8 +76,9 @@ const tags = [tag(from), tag(to), tag(name), '#Aviation', '#AvGeek', '#Flightrad
 const SP = require('./fv-facts').special(M), supHook = SP.hook;
 if (SP.label) tags.push(({ longest: '#LongestFlight', shortest: '#ShortestFlight', popular: '#BusiestRoute', inaugural: '#InauguralFlight' })[SP.label] || '');
 const head = `✈️ ${name} · ${from} → ${to}`;
+let busyLine = ''; try { busyLine = JSON.parse(fs.readFileSync(path.join(path.dirname(process.argv[2]), 'narration.json'), 'utf8')).busyLine || ''; } catch (e) {}
 const factLine = SP.facts[0] || SP.destFact || '';   // a true fact about the route (or destination airport) makes every caption different
-const body = [supHook ? `${SP.label === 'inaugural' ? '🎉' : '🔥'} ${supHook}` : '', head, supHook ? '' : pick('hook', HOOKS), factLine, pick('close', CLOSES), pick('cta', CTAS)].filter(Boolean).join('\n\n');
+const body = [supHook ? `${SP.label === 'inaugural' ? '🎉' : '🔥'} ${supHook}` : '', head, supHook ? '' : pick('hook', HOOKS), busyLine, factLine, pick('close', CLOSES), pick('cta', CTAS)].filter(Boolean).join('\n\n');
 const text = body + '\n\n' + tags.filter(Boolean).join(' ');
 const TITLES = { inaugural: `Inaugural Flight: ${from} to ${to} on ${name}`, longest: `One of the World's Longest Flights: ${from} to ${to} on ${name}`, shortest: `A Short International Hop: ${from} to ${to} on ${name}`, popular: `One of the World's Busiest Routes: ${from} to ${to} on ${name}` };
 const title = (TITLES[SP.label] || `${from} to ${to} on ${name}`) + ' | Flight Viewer';

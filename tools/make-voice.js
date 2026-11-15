@@ -18,7 +18,7 @@ let S = JSON.parse(fs.readFileSync(inFile, 'utf8')).sentences;
 const used = { provider: null };
 
 async function google(text, file) {
-  const voice = { languageCode: 'en-US', name: VOICE || (GENDER === 'FEMALE' ? 'en-US-Neural2-F' : 'en-US-Neural2-D') };
+  const voice = { languageCode: ((VOICE.match(/^[a-z]{2,3}-[A-Z]{2}/) || ['en-US'])[0]), name: VOICE || (GENDER === 'FEMALE' ? 'en-US-Neural2-F' : 'en-US-Neural2-D') };
   const r = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key=' + KEY, { method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ input: { text }, voice, audioConfig: Object.assign({ audioEncoding: 'MP3', speakingRate: RATE, sampleRateHertz: 24000 }, /Chirp/.test(voice.name) ? {} : { pitch: PITCH }) }) });
   const j = await r.json().catch(() => ({}));
@@ -26,7 +26,7 @@ async function google(text, file) {
   fs.writeFileSync(file, Buffer.from(j.audioContent, 'base64'));
 }
 function edge(text, file) {
-  const v = VOICE || (GENDER === 'FEMALE' ? 'en-US-AriaNeural' : 'en-US-GuyNeural');
+  const gb = /^en-GB/.test(VOICE), v = (VOICE && !/Chirp|Neural2|Wavenet|Studio|News|Polyglot/.test(VOICE)) ? VOICE : gb ? (GENDER === 'FEMALE' ? 'en-GB-SoniaNeural' : 'en-GB-RyanNeural') : (GENDER === 'FEMALE' ? 'en-US-AriaNeural' : 'en-US-GuyNeural');
   const pct = Math.round((RATE - 1) * 100);
   const r = sh('edge-tts', ['--voice', v, '--rate=' + (pct >= 0 ? '+' : '') + pct + '%', '--pitch=+' + Math.max(0, PITCH * 2) + 'Hz', '--text', text, '--write-media', file]);
   if (r.status !== 0 || !fs.existsSync(file)) throw new Error('edge-tts failed: ' + (r.stderr || r.error || '').toString().slice(0, 200));
@@ -87,7 +87,7 @@ function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-
       + `[1:a]aresample=44100,aformat=channel_layouts=stereo,loudnorm=I=${BGLUFS}:TP=-3:LRA=7,atrim=0:${VIDEO},apad=whole_dur=${VIDEO},atrim=0:${VIDEO},afade=t=in:d=1.5,afade=t=out:st=${(VIDEO - 2).toFixed(2)}:d=2[bg];`
       + `[bg][sc]sidechaincompress=threshold=0.02:ratio=3:attack=30:release=500[bgd];`
       + `[v][bgd]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.95,atrim=0:${VIDEO}[out]`;
-    const rb = sh('ffmpeg', ['-y', '-loglevel', 'error', '-i', dry, '-i', BG, '-filter_complex', fc, '-map', '[out]', '-ar', '44100', vo]);
+    const rb = sh('ffmpeg', ['-y', '-loglevel', 'error', '-i', dry, '-stream_loop', '-1', '-i', BG, '-filter_complex', fc, '-map', '[out]', '-ar', '44100', vo]);
     if (rb.status !== 0) { console.error('::warning title=Background sound failed::' + (rb.stderr || '').replace(/[\r\n%]/g, ' ').slice(0, 300)); fs.renameSync(dry, vo); } else console.log('::notice title=Background sound::mixed ' + path.basename(BG) + ' at ' + BGLUFS + ' LUFS');
   }
 

@@ -12,6 +12,18 @@ on:
       route:
         description: "Optional ICAO route to list alternatives if the flight number is not found, e.g. RPLL-WSSS"
         default: ""
+      bg_file:
+        description: "Background sound bed under the narration (repo path). Blank = default assets/bg-plane.mp3"
+        default: ""
+      overview:
+        description: "off (default) or auto = bottom strip with the whole route + faster opening zoom-out for flights over 4000 km"
+        default: "off"
+      narration:
+        description: "Narration/caption script: ph (Lipad Pinas, default) or global (English, route significance, Flight Viewer)"
+        default: "ph"
+      logo_file:
+        description: "Logo: a repo path or a public image URL (default assets/logo.png = Lipad Pinas)"
+        default: "assets/logo.png"
       logo_pos:
         description: "Lipad Pinas logo position: bc (lower middle) tl tr bl br"
         default: "bc"
@@ -95,25 +107,31 @@ jobs:
             node tools/route-stats.js --route "$FROMI-$TOI" --to "$DAY" --days 7 || echo "route stats unavailable"
           fi
           if [ "${{ inputs.style }}" = "music" ]; then
-            node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}" --music
+            node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}" --music ${{ inputs.narration == 'global' && '--global' || '' }}
             MDIR=music; [ "$(node -p "const m=require('./out/raw.json').meta; m.fromCountry===m.toCountry")" = "true" ] && MDIR=music-local
             node tools/make-music.js out/narration.json out/voice --dir "$MDIR" --video-secs "${{ inputs.flight_secs }}" --index "${{ github.run_number }}"
           else
-          node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}"
+          node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}" ${{ inputs.narration == 'global' && '--global' || '' }}
           if [ -n "${{ inputs.voice_dir }}" ]; then
             if [ -f "${{ inputs.voice_dir }}/urls.txt" ]; then while read -r i u; do curl -fsSL -o "${{ inputs.voice_dir }}/s$i.mp3" "$u"; done < "${{ inputs.voice_dir }}/urls.txt"; fi
             [ -f "${{ inputs.voice_dir }}/narration.json" ] && cp "${{ inputs.voice_dir }}/narration.json" out/narration.json
           fi
-          node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }}
+          node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }} ${{ inputs.bg_file && format('--bg "{0}"', inputs.bg_file) || '' }}
           fi
           ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry"); if [ "$DOM" = "true" ] && [ "$ZC" = "6.4" ]; then ZC=9.7; echo "domestic flight: closer zoom $ZC"; fi
           FPSV="${{ inputs.fps }}"; LSV="${{ inputs.label_scale }}"; if [ "$DOM" = "true" ]; then [ "$FPSV" = "15" ] && FPSV=30; [ "$LSV" = "1" ] && LSV=2; echo "domestic: fps $FPSV, label scale $LSV"; fi
           ZIN=$(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-20)/${{ inputs.flight_secs }}}")   # final zoom-in starts 20 s before the video ends (slow, gradual); fully zoomed in 8 s before the end
+          LOGO="${{ inputs.logo_file }}"; case "$LOGO" in http*) curl -fsSL -o out/logo-custom.png "$LOGO" && LOGO=out/logo-custom.png ;; esac   # logo_file may be a public image URL
+          OVL=""; ZOE=.16
+          if [ "${{ inputs.overview }}" = "auto" ]; then
+            OVKM=$(node -p "const p=require('./out/track.json').points,r=Math.PI/180,a=p[0],b=p[p.length-1];Math.round(6371*Math.acos(Math.min(1,Math.sin(a.lat*r)*Math.sin(b.lat*r)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.cos((b.lon-a.lon)*r))))")
+            if [ "$OVKM" -gt 4000 ]; then OVL="--overview --caption-y 1250"; ZOE=.06; [ "$ZC" = "6.4" ] && ZC=5.8; echo "long flight ($OVKM km): end-to-end overview map + fast opening zoom-out"; fi
+          fi
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \
             --fps "$FPSV" --label-scale "$LSV" --out-fps 30 --intro 0 --flight "${{ inputs.flight_secs }}" --outro 0 \
-            --zoom-close 12 --zoom-cruise "$ZC" --zoom-out-end .16 --zoom-in-start $ZIN --zoom-final 13.8 --zoom-in-end $(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-8)/${{ inputs.flight_secs }}}") \
-            --logo assets/logo.png --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000 ${{ inputs.stills && format('--stills "{0}"', inputs.stills) || '' }}
+            $OVL --zoom-close 12 --zoom-cruise "$ZC" --zoom-out-end $ZOE --zoom-in-start $ZIN --zoom-final 13.8 --zoom-in-end $(awk "BEGIN{printf \"%.4f\", (${{ inputs.flight_secs }}-8)/${{ inputs.flight_secs }}}") \
+            --logo "$LOGO" --logo-pos "${{ inputs.logo_pos }}" $AIRLOGO --audio out/voice/voice.wav --captions out/voice/captions.json --max-tiles 8000 ${{ inputs.stills && format('--stills "{0}"', inputs.stills) || '' }}
       - name: Publish video (public release link)
         env:
           GH_TOKEN: ${{ github.token }}

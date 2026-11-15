@@ -1,0 +1,115 @@
+{
+ "_note": "Inaugural (first-day) flights for the Flight Viewer page. Dates/frequencies come from airline and trade-press announcements (Aviation Week, Simple Flying, Forbes, Russia Tourism News, Nov 2026) and can change: re-verify before relying. The planner posts an entry when the flight day is within one day of 'date' and a completed flight exists in Flightradar24; otherwise it falls back to the normal pool.",
+ "entries": [
+  {
+   "date": "2026-11-20",
+   "airline": "IGO",
+   "from": "VABB",
+   "to": "HTDA",
+   "hook": "Inaugural flight: IndiGo has launched {from} to {to}, and it is the only Indian airline flying this route non-stop.",
+   "facts": [
+    "The new service flies daily between India and Tanzania."
+   ]
+  },
+  {
+   "date": "2026-11-28",
+   "airline": "ANZ",
+   "from": "NZCH",
+   "to": "RJAA",
+   "hook": "Inaugural flight: Air New Zealand has launched {from} to {to}.",
+   "facts": [
+    "It operates three times a week between Christchurch and Tokyo Narita."
+   ]
+  },
+  {
+   "date": "2026-11-30",
+   "airline": "KZR",
+   "from": "UAAA",
+   "to": "RJAA",
+   "hook": "Inaugural flight: Air Astana has launched {from} to {to}.",
+   "facts": [
+    "It operates twice a week between Kazakhstan and Japan."
+   ]
+  },
+  {
+   "date": "2026-11-30",
+   "airline": "ANZ",
+   "from": "NZCH",
+   "to": "YPPH",
+   "hook": "Inaugural flight: Air New Zealand has launched {from} to {to}.",
+   "facts": [
+    "It operates three times a week between New Zealand and Western Australia."
+   ]
+  },
+  {
+   "date": "2026-12-11",
+   "airline": "UAL",
+   "from": "KSFO",
+   "to": "RJCC",
+   "hook": "Inaugural flight: United Airlines has launched {from} to {to}.",
+   "facts": [
+    "It flies the Boeing 787-9 three times a week."
+   ]
+  },
+  {
+   "date": "2026-12-29",
+   "airline": "QFA",
+   "from": "YSSY",
+   "to": "KLAS",
+   "hook": "Inaugural flight: Qantas has launched {from} to {to}, a new link between Australia and Las Vegas.",
+   "facts": [
+    "It is a long haul flight of about fourteen hours."
+   ]
+  },
+  {
+   "date": "2027-03-27",
+   "airline": "UAL",
+   "from": "KLAX",
+   "to": "RJBB",
+   "hook": "Inaugural flight: United Airlines has launched {from} to {to}.",
+   "facts": [
+    "It flies the Boeing 787-9 daily."
+   ]
+  },
+  {
+   "date": "2027-03-27",
+   "airline": "UAL",
+   "from": "KSFO",
+   "to": "ROAH",
+   "hook": "Inaugural flight: United Airlines has launched {from} to {to}.",
+   "facts": [
+    "It flies the Boeing 777-200ER three times a week."
+   ]
+  },
+  {
+   "date": "2027-03-27",
+   "airline": "DAL",
+   "from": "KAUS",
+   "to": "LFPG",
+   "hook": "Inaugural flight: Delta Air Lines has launched {from} to {to}.",
+   "facts": [
+    "It flies the Airbus A330-900neo daily."
+   ]
+  },
+  {
+   "date": "2027-03-28",
+   "airline": "DAL",
+   "from": "KLAX",
+   "to": "RPLL",
+   "hook": "Inaugural flight: Delta Air Lines has launched {from} to {to}.",
+   "facts": [
+    "It flies the Airbus A350-900, three times a week at first."
+   ]
+  },
+  {
+   "date": "2027-05-13",
+   "airline": "ASA",
+   "from": "PANC",
+   "to": "RJAA",
+   "hook": "Inaugural flight: Alaska Airlines has launched {from} to {to}.",
+   "facts": [
+    "It flies the Boeing 737 MAX 8."
+   ]
+  }
+ ]
+}

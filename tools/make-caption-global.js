@@ -26,7 +26,7 @@ const CLOSES = [
 ];
 const CTAS = ['👇 Which route should we fly next? Tell us in the comments.', '👇 Where would you like to fly? Drop a city below.', '👇 Follow Flight Viewer for a new real flight every day.'];
 const tag = s => '#' + String(s || '').replace(/[^A-Za-z0-9]/g, '');
-const tags = ['#FlightViewer', tag(from), tag(to), tag(name), '#Aviation', '#AvGeek', '#Flightradar'].filter((x, i, a) => x.length > 1 && a.indexOf(x) === i);
+const tags = [tag(from), tag(to), tag(name), '#Aviation', '#AvGeek', '#Flightradar'].filter((x, i, a) => x.length > 1 && a.indexOf(x) === i);
 const SP = require('./fv-facts').special(M), sup = SP.label ? SP : null, supHook = SP.hook;
 if (sup) tags.push(({ longest: '#LongestFlight', shortest: '#ShortestFlight', popular: '#BusiestRoute', inaugural: '#InauguralFlight' })[sup.label] || '');
 const head = `✈️ ${name} · ${from} → ${to}`;

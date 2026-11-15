@@ -1,0 +1,79 @@
+name: Flight Viewer daily video
+
+# Posts ONE worldwide flight video to the Flight Viewer Facebook page via its own Buffer account.
+# Manual only for now: dry defaults to "true" (plans + renders + captions, posts nothing, records nothing).
+# Needs repo secret BUFFER_API_KEY_FLIGHTVIEWER (plus the existing render secrets).
+# NOTE: set logo_file (a Flight Viewer logo in the repo) and review the narration before running with dry=false.
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "true = plan + render + captions but do NOT post or record"
+        default: "true"
+      logo_file:
+        description: "Logo image in the repo"
+        default: "assets/logo.png"
+      post_hour_utc:
+        description: "Hour (UTC, 0-23) to publish on the target day"
+        default: "14"
+
+concurrency:
+  group: flightviewer-daily
+  cancel-in-progress: false
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUFFER_API_KEY_FLIGHTVIEWER: ${{ secrets.BUFFER_API_KEY_FLIGHTVIEWER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Plan, render, caption, schedule
+        env:
+          DRY: ${{ inputs.dry }}
+          LOGO: ${{ inputs.logo_file }}
+          HOUR: ${{ inputs.post_hour_utc }}
+        run: |
+          set -o pipefail
+          TARGET=$(date -u +%F); FLIGHTDAY=$(date -u -d 'yesterday' +%F)
+          LASTP=$(node -p "const p=require('./data/history-flightviewer.json').posts;p.length?p[p.length-1].date:''")
+          if [[ -n "$LASTP" && ! "$LASTP" < "$TARGET" ]]; then echo "already posted/scheduled for $LASTP"; exit 0; fi
+          SKIP=""
+          for ATTEMPT in 1 2 3 4 5; do
+            PLAN=$(node tools/plan-next.js --page flightviewer --skip "$SKIP") || { echo "no candidate left"; exit 1; }
+            STYLE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).style")
+            ROUTE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).route")
+            AIRL=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).airline")
+            echo "attempt $ATTEMPT: $STYLE $ROUTE $AIRL"
+            ARGS=(-f ref=${{ github.ref_name }} -f "inputs[airline]=$AIRL" -f "inputs[route]=$ROUTE" -f "inputs[date]=$FLIGHTDAY" -f "inputs[logo_file]=$LOGO")
+            if [[ "$STYLE" == *music ]]; then ARGS+=(-f "inputs[style]=music"); else ARGS+=(-f "inputs[style]=voice" -f "inputs[voice_name]=en-US-Chirp3-HD-Aoede" -f "inputs[voice_gender]=FEMALE"); fi
+            STARTED=$(date -u +%FT%TZ)
+            gh api -X POST "repos/${{ github.repository }}/actions/workflows/render.yml/dispatches" "${ARGS[@]}"
+            sleep 25
+            RUN=$(gh run list --workflow render.yml --event workflow_dispatch --json databaseId,createdAt --jq "[.[]|select(.createdAt>=\"$STARTED\")]|last|.databaseId")
+            echo "render run $RUN"
+            if gh run watch "$RUN" --exit-status --interval 30 >/dev/null 2>&1; then break; fi
+            echo "render failed for $ROUTE:$AIRL (likely no matching flight) - trying next candidate"
+            SKIP="$SKIP,$ROUTE:$AIRL"; SKIP=${SKIP#,}
+            [ "$ATTEMPT" = 5 ] && { echo "giving up today"; exit 1; }
+          done
+          TAG=$(gh release list --limit 20 --json tagName,createdAt --jq '[.[]|select(.tagName|startswith("video-"))]|sort_by(.createdAt)|last|.tagName')
+          echo "release $TAG"
+          mkdir -p out && gh release download "$TAG" -p raw.json -p narration.json -D out
+          VIDEO="https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4"
+          node tools/make-caption-global.js out/raw.json out/caption.json
+          FLIGHT=$(node -p "require('./out/raw.json').meta.flight")
+          DUE=$(printf '%sT%02d:00:00Z' "$TARGET" "$((10#$HOUR))")
+          if [ "$DRY" = "true" ]; then node tools/buffer-post.js --page flightviewer --dry --video "$VIDEO" --caption out/caption.json --due "$DUE"; echo "dry run: $VIDEO"; exit 0; fi
+          node tools/buffer-post.js --page flightviewer --video "$VIDEO" --caption out/caption.json --due "$DUE"
+          FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao")
+          node tools/plan-next.js --page flightviewer --record --date "$TARGET" --style "$STYLE" --flight "$FLIGHT" --airline "$AIRL" --from "$FROMI" --to "$TOI" --note "auto-scheduled $DUE"
+          git config user.name "flightviewer-bot"; git config user.email "bot@users.noreply.github.com"
+          git add data/history-flightviewer.json && git commit -m "Flight Viewer $TARGET: $FLIGHT $FROMI-$TOI ($STYLE)" && git push

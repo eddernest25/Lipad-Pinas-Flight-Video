@@ -5,18 +5,20 @@
 // Rules: style cycle local-voice -> intl-music -> local-music -> intl-voice; no repeated route (each direction counts separately, but the same city pair is not reused within 4 posts) or flight; airline differs from the last 2 posts. Local = any Philippine airport to any other; international includes flights back to the Philippines.
 const fs = require('fs'), path = require('path');
 const a = process.argv.slice(2), opt = (k, d) => { const i = a.indexOf('--' + k); return i >= 0 ? a[i + 1] : d; };
-const HF = path.join(__dirname, '..', 'data', 'history.json'), H = JSON.parse(fs.readFileSync(HF, 'utf8'));
-const CYCLE = ['local-voice', 'intl-music', 'local-music', 'intl-voice'];
+// --page <name> (e.g. flightviewer) uses data/history-<name>.json + data/candidates-<name>.json and a voice/music cycle; no --page = Lipad Pinas, unchanged.
+const PAGE = opt('page', ''), SUF = PAGE ? '-' + PAGE : '';
+const HF = path.join(__dirname, '..', 'data', `history${SUF}.json`), H = fs.existsSync(HF) ? JSON.parse(fs.readFileSync(HF, 'utf8')) : { posts: [] };
+const CYCLE = PAGE ? ['intl-voice', 'intl-music'] : ['local-voice', 'intl-music', 'local-music', 'intl-voice'];
 if (a.includes('--record')) {
   H.posts.push({ date: opt('date'), style: opt('style'), flight: opt('flight'), airline: opt('airline'), from: opt('from'), to: opt('to'), note: opt('note', ''), ...(opt('variants') ? { variants: JSON.parse(opt('variants')) } : {}) });
   fs.writeFileSync(HF, JSON.stringify(H, null, 1)); console.log('recorded'); process.exit(0);
 }
-const last = H.posts[H.posts.length - 1], style = CYCLE[(CYCLE.indexOf(last.style) + 1) % 4], type = style.startsWith('local') ? 'local' : 'intl';
+const last = H.posts[H.posts.length - 1] || { style: CYCLE[CYCLE.length - 1] }, style = CYCLE[(CYCLE.indexOf(last.style) + 1) % CYCLE.length], type = style.startsWith('local') ? 'local' : 'intl';
 const key = (f, t) => `${f}-${t}`, pair = (f, t) => [f, t].sort().join('-');   // a route is directional (X->Y and Y->X are different videos)
 const used = new Set(H.posts.map(p => key(p.from, p.to))), recentPairs = new Set(H.posts.slice(-4).map(p => pair(p.from, p.to)));   // but the same city pair is not reused within 4 posts
 const recentAir = H.posts.slice(-2).map(p => p.airline), skip = new Set((opt('skip', '') || '').split(',').filter(Boolean));
 const uses = al => H.posts.filter(p => p.airline === al).length;
-const C = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'candidates.json'), 'utf8')).candidates
+const C = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', `candidates${SUF}.json`), 'utf8')).candidates
   .filter(c => c.type === type && !used.has(key(c.from, c.to)) && !recentPairs.has(pair(c.from, c.to)) && !recentAir.includes(c.airline) && !skip.has(`${c.from}-${c.to}:${c.airline}`))
   .sort((x, y) => uses(x.airline) - uses(y.airline) || (x.to < y.to ? -1 : 1));
 if (!C.length) { console.error('no candidate left that satisfies the rules'); process.exit(1); }

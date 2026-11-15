@@ -1,0 +1,197 @@
+{
+ "_note": "Global route pool for the Flight Viewer page (ICAO airports + airline). Only usable if Flightradar24 has a completed flight for that airline on the route/date; the render workflow checks that. Edit freely.",
+ "candidates": [
+  {
+   "type": "intl",
+   "from": "EGLL",
+   "to": "KJFK",
+   "airline": "BAW"
+  },
+  {
+   "type": "intl",
+   "from": "KJFK",
+   "to": "EGLL",
+   "airline": "BAW"
+  },
+  {
+   "type": "intl",
+   "from": "EGLL",
+   "to": "KLAX",
+   "airline": "BAW"
+  },
+  {
+   "type": "intl",
+   "from": "EGLL",
+   "to": "KJFK",
+   "airline": "VIR"
+  },
+  {
+   "type": "intl",
+   "from": "OMDB",
+   "to": "EGLL",
+   "airline": "UAE"
+  },
+  {
+   "type": "intl",
+   "from": "EGLL",
+   "to": "OMDB",
+   "airline": "UAE"
+  },
+  {
+   "type": "intl",
+   "from": "OMDB",
+   "to": "YSSY",
+   "airline": "UAE"
+  },
+  {
+   "type": "intl",
+   "from": "WSSS",
+   "to": "EGLL",
+   "airline": "SIA"
+  },
+  {
+   "type": "intl",
+   "from": "EGLL",
+   "to": "WSSS",
+   "airline": "SIA"
+  },
+  {
+   "type": "intl",
+   "from": "WSSS",
+   "to": "YSSY",
+   "airline": "SIA"
+  },
+  {
+   "type": "intl",
+   "from": "YSSY",
+   "to": "KLAX",
+   "airline": "QFA"
+  },
+  {
+   "type": "intl",
+   "from": "YSSY",
+   "to": "WSSS",
+   "airline": "QFA"
+  },
+  {
+   "type": "intl",
+   "from": "RJTT",
+   "to": "KLAX",
+   "airline": "ANA"
+  },
+  {
+   "type": "intl",
+   "from": "RJTT",
+   "to": "KJFK",
+   "airline": "JAL"
+  },
+  {
+   "type": "intl",
+   "from": "OTHH",
+   "to": "KJFK",
+   "airline": "QTR"
+  },
+  {
+   "type": "intl",
+   "from": "OTHH",
+   "to": "EGLL",
+   "airline": "QTR"
+  },
+  {
+   "type": "intl",
+   "from": "VHHH",
+   "to": "EGLL",
+   "airline": "CPA"
+  },
+  {
+   "type": "intl",
+   "from": "LFPG",
+   "to": "KJFK",
+   "airline": "AFR"
+  },
+  {
+   "type": "intl",
+   "from": "EDDF",
+   "to": "KJFK",
+   "airline": "DLH"
+  },
+  {
+   "type": "intl",
+   "from": "EDDF",
+   "to": "KORD",
+   "airline": "DLH"
+  },
+  {
+   "type": "intl",
+   "from": "OMAA",
+   "to": "KJFK",
+   "airline": "ETD"
+  },
+  {
+   "type": "intl",
+   "from": "RKSI",
+   "to": "KLAX",
+   "airline": "KAL"
+  },
+  {
+   "type": "intl",
+   "from": "KSFO",
+   "to": "RJTT",
+   "airline": "UAL"
+  },
+  {
+   "type": "intl",
+   "from": "LTFM",
+   "to": "KJFK",
+   "airline": "THY"
+  },
+  {
+   "type": "intl",
+   "from": "LTFM",
+   "to": "EGLL",
+   "airline": "THY"
+  },
+  {
+   "type": "intl",
+   "from": "EHAM",
+   "to": "KJFK",
+   "airline": "KLM"
+  },
+  {
+   "type": "intl",
+   "from": "EHAM",
+   "to": "KLAX",
+   "airline": "KLM"
+  },
+  {
+   "type": "intl",
+   "from": "VIDP",
+   "to": "EGLL",
+   "airline": "AIC"
+  },
+  {
+   "type": "intl",
+   "from": "FACT",
+   "to": "EGLL",
+   "airline": "BAW"
+  },
+  {
+   "type": "intl",
+   "from": "SBGR",
+   "to": "LFPG",
+   "airline": "AFR"
+  },
+  {
+   "type": "intl",
+   "from": "CYYZ",
+   "to": "EGLL",
+   "airline": "ACA"
+  },
+  {
+   "type": "intl",
+   "from": "CYVR",
+   "to": "RJTT",
+   "airline": "ACA"
+  }
+ ]
+}

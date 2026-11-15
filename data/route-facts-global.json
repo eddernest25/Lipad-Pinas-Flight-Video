@@ -1,0 +1,114 @@
+{
+ "_note": "Facts for the Flight Viewer (international) narration. Keep each line true and number-free so it stays accurate. pairs = unordered ICAO pair; airports = fact about the destination airport.",
+ "pairs": {
+  "EGLL-KJFK": [
+   "London to New York is one of the busiest long haul corridors in the world, with many flights every day.",
+   "Supersonic Concorde once covered it in about three and a half hours before retiring in 2003."
+  ],
+  "EGLL-KLAX": [
+   "This route links the United Kingdom's biggest airport with the heart of the American entertainment industry."
+  ],
+  "EGLL-OMDB": [
+   "This route connects Europe with Dubai, one of the world's great transfer hubs between Europe, Asia and Africa."
+  ],
+  "OMDB-YSSY": [
+   "It is one of the key links between the Gulf and Australia, crossing the Indian Ocean on a very long flight."
+  ],
+  "EGLL-WSSS": [
+   "It is a classic leg of the Kangaroo Route, the historic air link between Britain and Australia."
+  ],
+  "WSSS-YSSY": [
+   "It links two of the busiest gateways in Asia Pacific, and Singapore is a major transfer point for Australia."
+  ],
+  "KLAX-YSSY": [
+   "This trans Pacific route crosses the International Date Line, so the calendar date jumps during the flight."
+  ],
+  "KLAX-RJTT": [
+   "This trans Pacific route links two giant Pacific coast economies, Southern California and Japan."
+  ],
+  "KJFK-RJTT": [
+   "It connects two of the largest metropolitan areas on Earth, New York and Tokyo."
+  ],
+  "KJFK-OTHH": [
+   "It links New York with Qatar's Gulf hub on a long flight across the Atlantic and Europe."
+  ],
+  "EGLL-OTHH": [
+   "It links London with Doha, a major hub connecting Europe to Asia, Africa and Australia."
+  ],
+  "EGLL-VHHH": [
+   "It is a classic Europe to Asia route, linking London with one of the world's great financial centers."
+  ],
+  "KJFK-LFPG": [
+   "It links two of the world's most visited cities across the North Atlantic."
+  ],
+  "EDDF-KJFK": [
+   "It connects Frankfurt, a major European financial center, with New York across the North Atlantic."
+  ],
+  "EDDF-KORD": [
+   "It links Frankfurt with Chicago, one of the biggest hubs in the United States."
+  ],
+  "KJFK-OMAA": [
+   "Abu Dhabi offers United States border preclearance, so travelers heading to America clear immigration before they fly."
+  ],
+  "KLAX-RKSI": [
+   "It links Seoul with Los Angeles, home to one of the largest Korean communities outside Korea."
+  ],
+  "KSFO-RJTT": [
+   "It links Silicon Valley's gateway with the heart of Tokyo across the North Pacific."
+  ],
+  "KJFK-LTFM": [
+   "It links New York with Istanbul, a city that sits on two continents."
+  ],
+  "EGLL-LTFM": [
+   "It links London with Istanbul, a city that sits on both Europe and Asia."
+  ],
+  "EHAM-KJFK": [
+   "Amsterdam is home to KLM, founded in 1919 and the oldest airline still flying under its original name."
+  ],
+  "EHAM-KLAX": [
+   "It links Amsterdam with Los Angeles, a long transatlantic and continental flight on the KLM network."
+  ],
+  "EGLL-VIDP": [
+   "It links London with Delhi, one of the busiest air corridors between Europe and South Asia."
+  ],
+  "EGLL-FACT": [
+   "It links London with Cape Town, one of the longest running air links between Britain and southern Africa."
+  ],
+  "LFPG-SBGR": [
+   "It crosses the Atlantic between Paris and Sao Paulo, linking Europe with South America's largest city."
+  ],
+  "CYYZ-EGLL": [
+   "It links Toronto with London, one of the busiest air links between Canada and Europe."
+  ],
+  "CYVR-RJTT": [
+   "It links Vancouver, Canada's gateway to Asia, with Tokyo across the North Pacific."
+  ],
+  "KLAX-EHAM": [
+   "It links Amsterdam with Los Angeles, connecting Europe to the American West Coast."
+  ]
+ },
+ "airports": {
+  "EGLL": "London Heathrow is one of the busiest international airports in the world.",
+  "KJFK": "John F Kennedy International Airport is one of the main international gateways to the United States.",
+  "KLAX": "Los Angeles International is one of the busiest airports in the United States.",
+  "OMDB": "Dubai International has long ranked among the world's busiest airports for international passengers.",
+  "YSSY": "Sydney Airport is one of the oldest continuously operating airports in the world.",
+  "WSSS": "Singapore Changi has been named the world's best airport many times.",
+  "RJTT": "Tokyo Haneda sits on Tokyo Bay, very close to the center of the city.",
+  "OTHH": "Hamad International Airport opened in 2014 and is the home hub of Qatar Airways.",
+  "VHHH": "Hong Kong International Airport was built on an artificial island at Chek Lap Kok.",
+  "LFPG": "Paris Charles de Gaulle is one of the busiest airports in Europe.",
+  "EDDF": "Frankfurt Airport is Lufthansa's main hub and one of the busiest in Europe.",
+  "KORD": "Chicago O'Hare is a major hub for both United and American Airlines.",
+  "OMAA": "Zayed International Airport is the home hub of Etihad Airways.",
+  "RKSI": "Seoul Incheon was built on reclaimed land between islands and opened in 2001.",
+  "KSFO": "San Francisco International sits right on the edge of San Francisco Bay.",
+  "LTFM": "Istanbul Airport opened in 2018 and is the main hub of Turkish Airlines.",
+  "EHAM": "Amsterdam Schiphol sits below sea level.",
+  "VIDP": "Delhi's Indira Gandhi International is the busiest airport in India.",
+  "FACT": "Cape Town International sits beneath the famous Table Mountain skyline.",
+  "SBGR": "Sao Paulo Guarulhos is the largest airport in Brazil.",
+  "CYYZ": "Toronto Pearson is the busiest airport in Canada.",
+  "CYVR": "Vancouver International is known for its Indigenous art and is Canada's gateway to Asia."
+ }
+}

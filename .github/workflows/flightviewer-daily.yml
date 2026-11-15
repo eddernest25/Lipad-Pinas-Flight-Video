@@ -3,7 +3,7 @@ name: Flight Viewer daily video
 # Posts ONE worldwide flight video to the Flight Viewer Facebook page via its own Buffer account.
 # Manual only for now: dry defaults to "true" (plans + renders + captions, posts nothing, records nothing).
 # Needs repo secret BUFFER_API_KEY_FLIGHTVIEWER (plus the existing render secrets).
-# NOTE: review the narration (still Philippines-flavoured in voice videos) before running with dry=false.
+# Uses the English global narration/captions (render.yml narration=global).
 on:
   workflow_dispatch:
     inputs:
@@ -52,7 +52,7 @@ jobs:
             ROUTE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).route")
             AIRL=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).airline")
             echo "attempt $ATTEMPT: $STYLE $ROUTE $AIRL"
-            ARGS=(-f ref=${{ github.ref_name }} -f "inputs[airline]=$AIRL" -f "inputs[route]=$ROUTE" -f "inputs[date]=$FLIGHTDAY" -f "inputs[logo_file]=$LOGO")
+            ARGS=(-f ref=${{ github.ref_name }} -f "inputs[airline]=$AIRL" -f "inputs[route]=$ROUTE" -f "inputs[date]=$FLIGHTDAY" -f "inputs[logo_file]=$LOGO" -f "inputs[narration]=global")
             if [[ "$STYLE" == *music ]]; then ARGS+=(-f "inputs[style]=music"); else ARGS+=(-f "inputs[style]=voice" -f "inputs[voice_name]=en-US-Chirp3-HD-Aoede" -f "inputs[voice_gender]=FEMALE"); fi
             STARTED=$(date -u +%FT%TZ)
             gh api -X POST "repos/${{ github.repository }}/actions/workflows/render.yml/dispatches" "${ARGS[@]}"

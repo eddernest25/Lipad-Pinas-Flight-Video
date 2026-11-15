@@ -70,8 +70,31 @@ const spokenDur = m => { const h = Math.floor(m / 60), r = m % 60; if (!h) retur
 const five = m => Math.round(m / 5) * 5;
 const nice = n => new Intl.NumberFormat('en-US').format(n);
 const km50 = Math.round(distKm / 50) * 50;
+// ---- GLOBAL mode (--global): English-only script for the international Flight Viewer page, no Philippines/OFW content.
+// Lines: route headline, distance, average flight time, airlines flying it non-stop, significance of the route, countries overflown, destination fact.
+const GLOBAL = args.includes('--global');
+let GL = null;
+if (GLOBAL) {
+  const RF = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, 'data/route-facts-global.json'), 'utf8')); } catch (e) { return { pairs: {}, airports: {} }; } })();
+  const pairKey = [M.fromIcao, M.toIcao].sort().join('-'), routeFacts = RF.pairs[pairKey] || [], destFact = (RF.airports || {})[M.toIcao] || '';
+  const oth = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
+  const allAir = [airline, ...oth].filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 5);
+  const dn = new Intl.DisplayNames('en', { type: 'region' }), skipC = [depC, arrC, M.fromCountry && dn.of(M.fromCountry), M.toCountry && dn.of(M.toCountry)].filter(Boolean).map(x => x.toLowerCase());
+  const over = mid.filter(e => e.t === 'c' && !skipC.some(x => x.includes(e.n.toLowerCase()) || e.n.toLowerCase().includes(x))).map(the).slice(0, 3);
+  GL = { routeFacts, destFact, allAir, over };
+}
 // ---- music mode (no voice): short general-info captions spread over the whole video
 if (args.includes('--music')) {
+  if (GLOBAL) {
+    const avg = five(rs && rs.avgMin ? rs.avgMin : mins), L = [`${M.fromCity} to ${M.toCity}`, `Distance: about ${nice(km50)} kilometers`, `Average flight time: about ${spokenDur(avg)}`];
+    if (GL.allAir.length > 1) L.push(`Non-stop flights by ${join(GL.allAir)}`); else L.push(`Operated by ${airline}`);
+    L.push(...GL.routeFacts); if (GL.over.length) L.push(`Flying over ${join(GL.over)}`); if (GL.destFact) L.push(GL.destFact);
+    const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
+    let t = t0; const caps = L.map(text => { const d = usable * Math.max(text.length, 34) / tot, c = { s: +t.toFixed(2), e: +(t + d).toFixed(2), text }; t += d + GAP; return c; });
+    fs.mkdirSync(path.dirname(outFile), { recursive: true });
+    fs.writeFileSync(outFile, JSON.stringify({ mode: 'music', captions: caps, sentences: [] }, null, 1));
+    console.log(caps.map(c => `[${c.s}-${c.e}s] ${c.text}`).join('\n')); process.exit(0);
+  }
   const DOMAIR = ['CEB', 'PAL', 'GAP', 'APG'], domestic = M.fromCountry === M.toCountry;   // local: only real Philippine passenger carriers (route data also holds ferry/charter/business-jet legs)
   const oth = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2 && (!domestic || DOMAIR.includes(a.icao))).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
   const L = [`${M.fromCity} to ${M.toCity} is about ${nice(km50)} kilometers`, `Average flight time is about ${spokenDur(five(rs && rs.avgMin ? rs.avgMin : mins))}`];
@@ -110,6 +133,19 @@ if (ofw) {   // OFW destination: hook -> flight facts -> price (open loop paid o
   S.push({ text: `The plane touches down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
   S.push({ text: close });
   S.push({ text: `Follow for your next flight.` });
+}
+if (GLOBAL) {
+  S.length = 0;
+  const avg = five(rs && rs.avgMin ? rs.avgMin : mins), an = /^[AEIOU]/i.test(acName) ? 'an' : 'a';
+  S.push({ text: `${M.fromCity} to ${M.toCity}. Here is why this route matters.` });
+  S.push({ text: `This is ${airline} flight ${flightSpoken}, ${an} ${acName}, which took off from ${M.fromCity}${depT ? ` at ${depT} local time` : ''} and climbed to ${nice(ft)} feet.` });
+  S.push({ text: `The route covers about ${nice(km50)} kilometers, and the average flight time is about ${spokenDur(avg)}.` });
+  if (GL.allAir.length > 1) S.push({ text: `You can fly it non-stop with ${join(GL.allAir)}.`, opt: 2 }); else S.push({ text: `On this day it was operated by ${airline}.`, opt: 2 });
+  GL.routeFacts.forEach((f, i) => S.push({ text: f, opt: i ? 4 : 1 }));
+  if (GL.over.length) S.push({ text: `Along the way it passes over ${join(GL.over)}.`, opt: 5 });
+  if (GL.destFact) S.push({ text: GL.destFact, opt: 3 });
+  S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
+  S.push({ text: `Follow Flight Viewer for a new real flight every day.` });
 }
 // spread start times evenly by word count; the last line is anchored to the end of the video
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }

@@ -1,0 +1,20 @@
+name: Flight Viewer Buffer admin
+on:
+  workflow_dispatch:
+    inputs:
+      args:
+        description: "buffer-admin.js arguments, e.g. --schema | --list | --delete <postId>"
+        default: "--schema"
+permissions:
+  contents: read
+jobs:
+  admin:
+    runs-on: ubuntu-latest
+    env:
+      BUFFER_API_KEY_FLIGHTVIEWER: ${{ secrets.BUFFER_API_KEY_FLIGHTVIEWER }}
+      ARGS: ${{ inputs.args }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node tools/buffer-admin.js $ARGS

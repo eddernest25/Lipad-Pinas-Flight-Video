@@ -7,7 +7,7 @@ const fs = require('fs'), a = process.argv.slice(2), opt = k => { const i = a.in
 // --page flightviewer posts to the Flight Viewer Facebook page with its own Buffer account (secret BUFFER_API_KEY_FLIGHTVIEWER); default = Lipad Pinas.
 const PAGE = opt('page') || 'lipadpinas';
 const PAGES = { lipadpinas: { env: 'BUFFER_API_KEY', ch: { facebook: '6a5901cd80cc80cdcac67cd2', youtube: '6ae245b12f1f5ed648009c3c', tiktok: '6ae249392f1f5ed648010d76' } },
-  flightviewer: { env: 'BUFFER_API_KEY_FLIGHTVIEWER', ch: { facebook: '6af90e5562b70b94b037172e' } } };
+  flightviewer: { env: 'BUFFER_API_KEY_FLIGHTVIEWER', ch: { facebook: '6af90e5562b70b94b037172e', youtube: '6af92e99ece6dfde5fcc465d' } } };
 if (!PAGES[PAGE]) { console.error('unknown --page ' + PAGE); process.exit(2); }
 const KEY = process.env[PAGES[PAGE].env], CH = PAGES[PAGE].ch;
 const gql = async (query, variables) => {

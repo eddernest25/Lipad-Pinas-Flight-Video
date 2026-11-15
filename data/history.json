@@ -200,6 +200,15 @@
    "from": "RPLL",
    "to": "RJTT",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-16",
+   "style": "local-voice",
+   "flight": "5J332",
+   "airline": "CEB",
+   "from": "RPVK",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

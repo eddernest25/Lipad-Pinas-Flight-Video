@@ -2,7 +2,7 @@
  "_note": "Facts for the Flight Viewer (international) narration/captions. pairs = unordered ICAO pair -> true, number-light lines. airports = destination airport fact. superlatives = unordered pair -> {label,hook}; hook uses {from}/{to} city names. Longest/shortest/busiest data: AirAdvisor (Sept 2026), OAG (2024/2025). Re-check before relying on rankings.",
  "pairs": {
   "EGLL-KJFK": [
-   "London Heathrow and New York JFK is the busiest long haul international route, and the only one in the top ten that crosses an ocean.",
+   "London Heathrow and New York JFK form the busiest long haul international route, and the only one in the top ten that crosses an ocean.",
    "Supersonic Concorde once covered it in about three and a half hours before retiring in 2003."
   ],
   "EGLL-KLAX": [
@@ -150,10 +150,10 @@
    "Delhi and Dubai are among the busiest air links between India and the Gulf."
   ],
   "NZAA-YSSY": [
-   "Sydney and Auckland is one of the busiest international routes in the Southern Hemisphere."
+   "Sydney and Auckland form one of the busiest international routes in the Southern Hemisphere."
   ],
   "EGLL-EIDW": [
-   "London and Dublin is one of the busiest international routes in Europe."
+   "London and Dublin form one of the busiest international routes in Europe."
   ],
   "EGLL-EHAM": [
    "London and Amsterdam link two of Europe's biggest airport hubs."

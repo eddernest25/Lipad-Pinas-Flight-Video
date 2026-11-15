@@ -87,7 +87,7 @@ function test(text, file) { const n = text.split(/\s+/).length; sh('ffmpeg', ['-
       + `[1:a]aresample=44100,aformat=channel_layouts=stereo,loudnorm=I=${BGLUFS}:TP=-3:LRA=7,atrim=0:${VIDEO},apad=whole_dur=${VIDEO},atrim=0:${VIDEO},afade=t=in:d=1.5,afade=t=out:st=${(VIDEO - 2).toFixed(2)}:d=2[bg];`
       + `[bg][sc]sidechaincompress=threshold=0.02:ratio=3:attack=30:release=500[bgd];`
       + `[v][bgd]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.95,atrim=0:${VIDEO}[out]`;
-    const rb = sh('ffmpeg', ['-y', '-loglevel', 'error', '-i', dry, '-i', BG, '-filter_complex', fc, '-map', '[out]', '-ar', '44100', vo]);
+    const rb = sh('ffmpeg', ['-y', '-loglevel', 'error', '-i', dry, '-stream_loop', '-1', '-i', BG, '-filter_complex', fc, '-map', '[out]', '-ar', '44100', vo]);
     if (rb.status !== 0) { console.error('::warning title=Background sound failed::' + (rb.stderr || '').replace(/[\r\n%]/g, ' ').slice(0, 300)); fs.renameSync(dry, vo); } else console.log('::notice title=Background sound::mixed ' + path.basename(BG) + ' at ' + BGLUFS + ' LUFS');
   }
 

@@ -1,0 +1,32 @@
+name: Flight Viewer replace scheduled post
+# Replaces one scheduled Flight Viewer post with a re-rendered video: creates the new post(s), then deletes the old one.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag of the new video (video-YYYYMMDD-HHMMSS)"
+      old_post_id:
+        description: "Buffer post id to delete after the new one is scheduled"
+      due:
+        description: "Publish time UTC, e.g. 2026-11-15T13:00:00Z"
+permissions:
+  contents: write
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUFFER_API_KEY_FLIGHTVIEWER: ${{ secrets.BUFFER_API_KEY_FLIGHTVIEWER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: |
+          set -e
+          mkdir -p out && gh release download "${{ inputs.tag }}" -p raw.json -p narration.json -D out
+          node tools/make-caption-global.js out/raw.json out/caption.json
+          node tools/buffer-post.js --page flightviewer --video "https://github.com/${{ github.repository }}/releases/download/${{ inputs.tag }}/video.mp4" --caption out/caption.json --due "${{ inputs.due }}"
+          node tools/buffer-admin.js --delete "${{ inputs.old_post_id }}"
+          node -e "const fs=require('fs'),f='data/history-flightviewer.json',H=JSON.parse(fs.readFileSync(f));const p=H.posts[H.posts.length-1];p.variants=JSON.parse(fs.readFileSync('out/caption.json')).variants;p.note+=' (re-rendered '+'${{ inputs.tag }}'+')';fs.writeFileSync(f,JSON.stringify(H,null,1))"
+          git config user.name "flightviewer-bot"; git config user.email "bot@users.noreply.github.com"
+          git add data/history-flightviewer.json && git commit -m "Flight Viewer: replaced scheduled post with ${{ inputs.tag }}" && git push

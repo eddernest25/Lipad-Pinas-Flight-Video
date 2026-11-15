@@ -79,18 +79,20 @@ let GL = null;
 if (GLOBAL) {
   const SP = require('./fv-facts').special(M), routeFacts = SP.facts, destFact = SP.destFact;
   const VET = FV.vetted(M), seen = rs ? [...new Set(rs.airlines.map(a => FV.brand(a.icao)))] : [];
-  const oth = [...VET].filter(c => c !== airlineIcao && (!rs || seen.includes(c))).map(c => airlines[c] || c);   // vetted airlines that also showed up in the recent flight data
-  const onlyAirline = !!(rs && rs.flights > 0 && seen.length && seen.every(c => c === airlineIcao) && [...VET].every(c => c === airlineIcao));   // nobody else flew it in 7 days of data and no other vetted carrier exists
-  const allAir = [airline, ...oth].filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 5);
+  const oth = FV.others(M, airlineIcao, airlines);   // vetted non-stop passenger airlines (never cargo/positioning flights)
+  const onlyAirline = !oth.length && !!(rs && rs.flights > 0 && seen.length && seen.every(c => c === airlineIcao) && [...VET].every(c => c === airlineIcao));
+  const busyInfo = SP.busy ? FV.busy(M) : null, busyLine = busyInfo ? `${SP.label === 'popular' ? 'About' : 'This is one of the busiest routes in the world: about'} ${busyInfo.daily} flights a day operate from ${busyInfo.from} to ${busyInfo.to}, across all airlines.` : '';
+  const allAir = [airline, ...oth.slice(0, 5)];
   const hook = SP.hook;
   let nPosts = 0; try { nPosts = JSON.parse(fs.readFileSync(path.join(root, 'data/history-flightviewer.json'), 'utf8')).posts.length; } catch (e) {}
-  GL = { routeFacts, destFact, allAir, onlyAirline, hook, label: SP.label, nPosts };
+  GL = { busyLine, routeFacts, destFact, allAir, onlyAirline, hook, label: SP.label, nPosts };
 }
 // ---- music mode (no voice): short general-info captions spread over the whole video
 if (args.includes('--music')) {
   if (GLOBAL) {
     const avg = five(rs && rs.avgMin ? rs.avgMin : mins), L = [GL.hook || `${M.fromCity} to ${M.toCity}`, `Distance: about ${nice(km50)} kilometers (${nice(mi50)} miles)`, `Average flight time: about ${spokenDur(avg)}`];
-    if (GL.allAir.length > 1) L.push(`Non-stop flights by ${join(GL.allAir)}`); else if (GL.onlyAirline) L.push(`Only ${airline} flies this route non-stop (recent flight data)`);
+    if (GL.busyLine) L.push(GL.busyLine);
+    if (GL.allAir.length > 1) L.push(`Other airlines flying it non-stop: ${join(GL.allAir.slice(1))}`); else if (GL.onlyAirline) L.push(`Only ${airline} flies this route non-stop (recent flight data)`);
     L.push(...GL.routeFacts); if (GL.destFact) L.push(GL.destFact);
     const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
     let t = t0; const caps = L.map(text => { const d = usable * Math.max(text.length, 34) / tot, c = { s: +t.toFixed(2), e: +(t + d).toFixed(2), text }; t += d + GAP; return c; });
@@ -144,8 +146,9 @@ if (GLOBAL) {
   S.push({ text: GL.hook ? GL.hook : `Today we are tracking a real flight from ${M.fromCity} to ${M.toCity}.` });
   S.push({ text: `This is ${airline} flight ${flightSpoken}, ${an} ${acName}, which took off from ${M.fromCity}${depT ? ` at ${depT} local time` : ''} and climbed to ${nice(ft)} feet.` });
   S.push({ text: `This flight covered about ${nice(km50)} kilometers, or ${nice(mi50)} miles, and the average flight time on this route is about ${spokenDur(avg)}.` });
-  if (GL.allAir.length > 1) S.push({ text: `You can fly it non-stop with ${join(GL.allAir)}.`, opt: 2 });
+  if (GL.allAir.length > 1) S.push({ text: `Besides ${airline}, you can also fly it non-stop with ${join(GL.allAir.slice(1))}.`, opt: 2 });
   else if (GL.onlyAirline) S.push({ text: `As far as recent flight data shows, ${airline} is the only airline flying this route non-stop.`, opt: 2 });
+  if (GL.busyLine) S.push({ text: GL.busyLine, opt: 1 });
   GL.routeFacts.forEach((f, i) => S.push({ text: f, opt: i ? 4 : 1 }));
   if (GL.destFact) S.push({ text: GL.destFact, opt: 3 });
   S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });

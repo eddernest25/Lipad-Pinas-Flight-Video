@@ -1,0 +1,393 @@
+{
+ "_note": "Per pair (sorted ICAO): daily = average scheduled non-stop flights per day in ONE direction (from 'dir' airport), all passenger airlines combined; weekly figure from FlightConnections schedule data (last updated Nov 2026), daily=weekly/7. airlines = non-stop passenger airlines from the same source with tag-on/fifth-freedom sectors removed. CYYZ-KJFK omitted (source listed only Delta, clearly incomplete). Re-verify periodically.",
+ "EDDF-EGLL": {
+  "dir": "EDDF",
+  "weekly": 95,
+  "daily": 14,
+  "airlines": [
+   "British Airways",
+   "Lufthansa",
+   "Lufthansa City Airlines"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "EGLL-EHAM": {
+  "dir": "EGLL",
+  "weekly": 110,
+  "daily": 16,
+  "airlines": [
+   "British Airways",
+   "KLM"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "EGLL-EIDW": {
+  "dir": "EGLL",
+  "weekly": 113,
+  "daily": 16,
+  "airlines": [
+   "Aer Lingus",
+   "British Airways"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "EGLL-KJFK": {
+  "dir": "EGLL",
+  "weekly": 131,
+  "daily": 19,
+  "airlines": [
+   "American Airlines",
+   "British Airways",
+   "Delta Air Lines",
+   "JetBlue",
+   "Virgin Atlantic"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "EGLL-LEMD": {
+  "dir": "EGLL",
+  "weekly": 101,
+  "daily": 14,
+  "airlines": [
+   "British Airways",
+   "Iberia"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "HAAB-HKJK": {
+  "dir": "HAAB",
+  "weekly": 19,
+  "daily": 3,
+  "airlines": [
+   "Ethiopian Airlines",
+   "Kenya Airways"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "HECA-OEJN": {
+  "dir": "HECA",
+  "weekly": 137,
+  "daily": 20,
+  "airlines": [
+   "Air Arabia Egypt",
+   "Air Cairo",
+   "Almasria Universal Airlines",
+   "EgyptAir",
+   "flyadeal",
+   "flynas",
+   "Nesma Airlines",
+   "Nile Air",
+   "Saudia"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "KLAX-MMMX": {
+  "dir": "KLAX",
+  "weekly": 63,
+  "daily": 9,
+  "airlines": [
+   "Aeromexico",
+   "American Airlines",
+   "Delta Air Lines",
+   "Viva Aerobus",
+   "Volaris"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "LEBL-LFPG": {
+  "dir": "LEBL",
+  "weekly": 55,
+  "daily": 8,
+  "airlines": [
+   "Air France",
+   "Vueling"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "MPTO-SKBO": {
+  "dir": "MPTO",
+  "weekly": 94,
+  "daily": 13,
+  "airlines": [
+   "Avianca",
+   "Copa Airlines"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "NZAA-YSSY": {
+  "dir": "NZAA",
+  "weekly": 83,
+  "daily": 12,
+  "airlines": [
+   "Air New Zealand",
+   "Jetstar",
+   "Qantas"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "OBBI-OEDF": {
+  "dir": "OBBI",
+  "weekly": 28,
+  "daily": 4,
+  "airlines": [
+   "Gulf Air"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "OBBI-OTHH": {
+  "dir": "OBBI",
+  "weekly": 50,
+  "daily": 7,
+  "airlines": [
+   "Gulf Air",
+   "Qatar Airways"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "OERK-OMDB": {
+  "dir": "OERK",
+  "weekly": 83,
+  "daily": 12,
+  "airlines": [
+   "Emirates",
+   "flyadeal",
+   "flydubai",
+   "flynas",
+   "Riyadh Air",
+   "Saudia"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "OMDB-OOMS": {
+  "dir": "OMDB",
+  "weekly": 65,
+  "daily": 9,
+  "airlines": [
+   "Emirates",
+   "flydubai",
+   "Oman Air"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "OMDB-OTHH": {
+  "dir": "OMDB",
+  "weekly": 70,
+  "daily": 10,
+  "airlines": [
+   "flydubai",
+   "Qatar Airways"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "OMDB-VABB": {
+  "dir": "OMDB",
+  "weekly": 101,
+  "daily": 14,
+  "airlines": [
+   "Air India",
+   "Emirates",
+   "flydubai",
+   "IndiGo",
+   "SpiceJet"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "OMDB-VIDP": {
+  "dir": "OMDB",
+  "weekly": 89,
+  "daily": 13,
+  "airlines": [
+   "Air India",
+   "Emirates",
+   "flydubai",
+   "IndiGo",
+   "SpiceJet"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "RCTP-RJAA": {
+  "dir": "RCTP",
+  "weekly": 149,
+  "daily": 21,
+  "airlines": [
+   "Cathay Pacific",
+   "China Airlines",
+   "EVA Air",
+   "Japan Airlines",
+   "Jetstar",
+   "Peach",
+   "Scoot",
+   "Starlux Airlines",
+   "Thai Lion Air",
+   "Tigerair"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "RCTP-VHHH": {
+  "dir": "RCTP",
+  "weekly": 240,
+  "daily": 34,
+  "airlines": [
+   "Cathay Pacific",
+   "China Airlines",
+   "EVA Air",
+   "Greater Bay Airlines",
+   "Hong Kong Airlines",
+   "HK Express",
+   "Starlux Airlines"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "RJAA-RKSI": {
+  "dir": "RJAA",
+  "weekly": 284,
+  "daily": 41,
+  "airlines": [
+   "Air Busan",
+   "Air Premia",
+   "Air Seoul",
+   "Asiana Airlines",
+   "Eastar Jet",
+   "Jeju Air",
+   "Jin Air",
+   "Korean Air",
+   "Parata Air",
+   "Peach",
+   "T'way Air",
+   "ZIPAIR"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "RJBB-RKSI": {
+  "dir": "RJBB",
+  "weekly": 274,
+  "daily": 39,
+  "airlines": [
+   "Air Busan",
+   "Air Seoul",
+   "Asiana Airlines",
+   "Eastar Jet",
+   "Jeju Air",
+   "Jin Air",
+   "Korean Air",
+   "Parata Air",
+   "Peach",
+   "T'way Air"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "RJTT-RKSS": {
+  "dir": "RJTT",
+  "weekly": 84,
+  "daily": 12,
+  "airlines": [
+   "ANA",
+   "Asiana Airlines",
+   "Japan Airlines",
+   "Korean Air"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "SAEZ-SBGR": {
+  "dir": "SAEZ",
+  "weekly": 35,
+  "daily": 5,
+  "airlines": [
+   "LATAM",
+   "Gol"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "VHHH-VTBS": {
+  "dir": "VHHH",
+  "weekly": 149,
+  "daily": 21,
+  "airlines": [
+   "Cathay Pacific",
+   "Greater Bay Airlines",
+   "Hong Kong Airlines",
+   "HK Express",
+   "Thai Airways"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "VHHH-WSSS": {
+  "dir": "VHHH",
+  "weekly": 95,
+  "daily": 14,
+  "airlines": [
+   "Cathay Pacific",
+   "Scoot",
+   "Singapore Airlines"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "VTBS-WSSS": {
+  "dir": "VTBS",
+  "weekly": 119,
+  "daily": 17,
+  "airlines": [
+   "Scoot",
+   "Singapore Airlines",
+   "Thai Airways"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "WIII-WSSS": {
+  "dir": "WIII",
+  "weekly": 214,
+  "daily": 31,
+  "airlines": [
+   "Batik Air",
+   "Citilink",
+   "Garuda Indonesia",
+   "Pelita Air",
+   "Scoot",
+   "Singapore Airlines",
+   "TransNusa"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ },
+ "WMKK-WSSS": {
+  "dir": "WMKK",
+  "weekly": 254,
+  "daily": 36,
+  "airlines": [
+   "AirAsia",
+   "Batik Air",
+   "Malaysia Airlines",
+   "Scoot",
+   "Singapore Airlines"
+  ],
+  "asOf": "2026-11",
+  "source": "FlightConnections"
+ }
+}

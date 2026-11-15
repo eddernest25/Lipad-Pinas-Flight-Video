@@ -19,4 +19,18 @@ function vetted(M) {
   const key = [M.fromIcao, M.toIcao].sort().join('-'), C = (rd('candidates-flightviewer.json') || { candidates: [] }).candidates;
   return new Set(C.filter(c => [c.from, c.to].sort().join('-') === key).map(c => c.airline));
 }
-module.exports = { special, brand, vetted };
+// Other airlines flying the pair non-stop (never includes the operating airline) + busiest-route daily flight count.
+const norm = n => String(n || '').toLowerCase().replace(/airlines?|airways|air lines|international|royal dutch|air$/g, '').replace(/[^a-z0-9]/g, ''), ALIAS = { ana: 'allnippon', egyptair: 'egyptair', aeromexico: 'aeromexico' };
+const nn = n => { const x = norm(n); return ALIAS[x] || x; };
+function others(M, selfIcao, airlinesMap) {
+  const key = [M.fromIcao, M.toIcao].sort().join('-'), RA = (rd('route-airlines.json') || {})[key], self = nn(airlinesMap[selfIcao] || selfIcao);
+  const names = RA ? RA.airlines : [...vetted(M)].map(c => airlinesMap[c] || c);
+  return names.filter((n, i, a) => nn(n) !== self && a.findIndex(x => nn(x) === nn(n)) === i);
+}
+function busy(M) {   // { daily, from, to } | null  (daily = scheduled flights per day in the stated direction, all airlines)
+  const key = [M.fromIcao, M.toIcao].sort().join('-'), RA = (rd('route-airlines.json') || {})[key];
+  if (!RA || !RA.daily) return null;
+  const fromCity = RA.dir === M.fromIcao ? M.fromCity : M.toCity, toCity = RA.dir === M.fromIcao ? M.toCity : M.fromCity;
+  return { daily: RA.daily, from: fromCity, to: toCity };
+}
+module.exports = { special, brand, vetted, others, busy };

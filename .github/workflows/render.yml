@@ -125,7 +125,7 @@ jobs:
           OVL=""; ZOE=.16
           if [ "${{ inputs.overview }}" = "auto" ]; then
             OVKM=$(node -p "const p=require('./out/track.json').points,r=Math.PI/180,a=p[0],b=p[p.length-1];Math.round(6371*Math.acos(Math.min(1,Math.sin(a.lat*r)*Math.sin(b.lat*r)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.cos((b.lon-a.lon)*r))))")
-            if [ "$OVKM" -gt 4000 ]; then OVL="--overview"; ZOE=.06; [ "$ZC" = "6.4" ] && ZC=5.8; echo "long flight ($OVKM km): end-to-end overview map + fast opening zoom-out"; fi
+            if [ "$OVKM" -gt 4000 ]; then OVL="--overview --caption-y 1250"; ZOE=.06; [ "$ZC" = "6.4" ] && ZC=5.8; echo "long flight ($OVKM km): end-to-end overview map + fast opening zoom-out"; fi
           fi
           AIRLOGO=""; [ -f out/airline.png ] && AIRLOGO="--airline-logo out/airline.png"
           node render-flat.js --track out/track.json --out out/video.mp4 \

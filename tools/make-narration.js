@@ -89,7 +89,7 @@ if (args.includes('--music')) {
   if (GLOBAL) {
     const avg = five(rs && rs.avgMin ? rs.avgMin : mins), L = [GL.hook || `${M.fromCity} to ${M.toCity}`, `Distance: about ${nice(km50)} kilometers`, `Average flight time: about ${spokenDur(avg)}`];
     if (GL.allAir.length > 1) L.push(`Non-stop flights by ${join(GL.allAir)}`); else L.push(`Operated by ${airline}`);
-    L.push(...GL.routeFacts); if (GL.over.length) L.push(`Flying over ${join(GL.over)}`); if (GL.destFact) L.push(GL.destFact);
+    L.push(...GL.routeFacts); if (GL.destFact) L.push(GL.destFact);
     const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
     let t = t0; const caps = L.map(text => { const d = usable * Math.max(text.length, 34) / tot, c = { s: +t.toFixed(2), e: +(t + d).toFixed(2), text }; t += d + GAP; return c; });
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
@@ -138,12 +138,11 @@ if (ofw) {   // OFW destination: hook -> flight facts -> price (open loop paid o
 if (GLOBAL) {
   S.length = 0;
   const avg = five(rs && rs.avgMin ? rs.avgMin : mins), an = /^[AEIOU]/i.test(acName) ? 'an' : 'a';
-  S.push({ text: GL.hook ? `${GL.hook} Here is why this route matters.` : `${M.fromCity} to ${M.toCity}. Here is why this route matters.` });
+  S.push({ text: GL.hook ? GL.hook : `Today we are tracking a real flight from ${M.fromCity} to ${M.toCity}.` });
   S.push({ text: `This is ${airline} flight ${flightSpoken}, ${an} ${acName}, which took off from ${M.fromCity}${depT ? ` at ${depT} local time` : ''} and climbed to ${nice(ft)} feet.` });
   S.push({ text: `This flight covered about ${nice(km50)} kilometers, and the average flight time on this route is about ${spokenDur(avg)}.` });
-  if (GL.allAir.length > 1) S.push({ text: `You can fly it non-stop with ${join(GL.allAir)}.`, opt: 2 }); else S.push({ text: `On this day it was operated by ${airline}.`, opt: 2 });
+  if (GL.allAir.length > 1) S.push({ text: `You can fly it non-stop with ${join(GL.allAir)}.`, opt: 2 });
   GL.routeFacts.forEach((f, i) => S.push({ text: f, opt: i ? 4 : 1 }));
-  if (GL.over.length) S.push({ text: `Along the way it passes over ${join(GL.over)}.`, opt: 5 });
   if (GL.destFact) S.push({ text: GL.destFact, opt: 3 });
   S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
   S.push({ text: `Follow Flight Viewer for a new real flight every day.` });

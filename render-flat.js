@@ -43,7 +43,12 @@ function routeCountries(pts) {
     const bb = polys.map(c => { let a = 180, b = -180, d = 90, e = -90; c.p.forEach(poly => poly[0].forEach(([lo, la]) => { a = Math.min(a, lo); b = Math.max(b, lo); d = Math.min(d, la); e = Math.max(e, la); })); return [a, b, d, e]; });
     pts.forEach((p, i) => { const lo = ((p.lon + 540) % 360) - 180;
       for (let k = 0; k < polys.length; k++) { const q = bb[k]; if (lo < q[0] || lo > q[1] || p.lat < q[2] || p.lat > q[3]) continue; if (inC(polys[k], lo, p.lat)) { (hits.get(polys[k].n) || hits.set(polys[k].n, []).get(polys[k].n)).push(i); break; } } });
-    return [...hits].map(([n, ix]) => ({ n, a: ix[0], b: ix[ix.length - 1], mid: ix[(ix.length - 1) >> 1], cnt: ix.length })).filter(c => c.cnt >= Math.max(3, pts.length * 0.012)).sort((x, y) => x.a - y.a);
+    return [...hits].map(([n, ix]) => {
+      // split into contiguous runs (a country can be crossed twice, e.g. Alaska then the lower 48); anchor the label on the run at the departure/arrival end, else the longest run
+      const runs = []; ix.forEach(i => { const r = runs[runs.length - 1]; if (r && i - r[r.length - 1] <= 40) r.push(i); else runs.push([i]); });
+      let run = runs.reduce((x, y) => y.length > x.length ? y : x); if (ix[ix.length - 1] >= pts.length - 61) run = runs[runs.length - 1]; else if (ix[0] <= 60) run = runs[0];
+      return { n: n.replace('United States of America', 'United States'), a: ix[0], b: ix[ix.length - 1], mid: run[(run.length - 1) >> 1], cnt: ix.length };
+    }).filter(c => c.cnt >= Math.max(3, pts.length * 0.012)).sort((x, y) => x.a - y.a);
   } catch (e) { console.error('routeCountries failed:', e.message); return []; }
 }
 cfg.captions = opt('captions', '') ? JSON.parse(fs.readFileSync(opt('captions', ''), 'utf8')) : []; cfg.captionY = +opt('caption-y', 1340);

@@ -81,6 +81,6 @@ jobs:
           if [ "$DRY" = "true" ]; then node tools/buffer-post.js --page flightviewer --dry --video "$VIDEO" --caption out/caption.json --due "$DUE"; echo "dry run: $VIDEO"; exit 0; fi
           node tools/buffer-post.js --page flightviewer --video "$VIDEO" --caption out/caption.json --due "$DUE"
           FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao")
-          node tools/plan-next.js --page flightviewer --record --date "$TARGET" --style "$STYLE" --flight "$FLIGHT" --airline "$AIRL" --from "$FROMI" --to "$TOI" --note "auto-scheduled $DUE${VNAME:+ voice $VNAME}"
+          node tools/plan-next.js --page flightviewer --record --date "$TARGET" --style "$STYLE" --flight "$FLIGHT" --airline "$AIRL" --from "$FROMI" --to "$TOI" --note "auto-scheduled $DUE${VNAME:+ voice $VNAME}" --variants "$(node -p "JSON.stringify(require('./out/caption.json').variants)")"
           git config user.name "flightviewer-bot"; git config user.email "bot@users.noreply.github.com"
           git add data/history-flightviewer.json && git commit -m "Flight Viewer $TARGET: $FLIGHT $FROMI-$TOI ($STYLE)" && git push

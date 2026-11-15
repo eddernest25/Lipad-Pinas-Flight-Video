@@ -16,7 +16,8 @@ const MD = JSON.parse(fs.readFileSync(path.join(root, 'viewer/mapdata.json'), 'u
 
 const AC = { A320: 'Airbus A320', A20N: 'Airbus A320neo', A321: 'Airbus A321', A21N: 'Airbus A321neo', A319: 'Airbus A319', A332: 'Airbus A330-200', A333: 'Airbus A330-300', A338: 'Airbus A330-800neo', A339: 'Airbus A330-900neo', A343: 'Airbus A340-300', A359: 'Airbus A350-900', A35K: 'Airbus A350-1000', A388: 'Airbus A380', BCS3: 'Airbus A220-300', B737: 'Boeing 737', B738: 'Boeing 737-800', B739: 'Boeing 737-900', B38M: 'Boeing 737 MAX 8', B772: 'Boeing 777-200', B77L: 'Boeing 777-200LR', B77W: 'Boeing 777-300ER', B788: 'Boeing 787-8', B789: 'Boeing 787-9', B78X: 'Boeing 787-10', B744: 'Boeing 747-400', B748: 'Boeing 747-8', B763: 'Boeing 767-300', DH8D: 'Dash 8 Q400', AT76: 'ATR 72-600', AT72: 'ATR 72' };
 const acName = AC[M.aircraft] || M.aircraft || 'aircraft';
-const airline = airlines[M.airline] || M.airline || 'the airline';
+const FV = process.argv.includes('--global') ? require('./fv-facts') : null, airlineIcao = FV ? FV.brand(M.airline) : M.airline;
+const airline = airlines[airlineIcao] || airlineIcao || 'the airline';
 const flightSpoken = (M.flight || '').replace(/^([A-Z0-9]{2})(\d+)$/, (m, a, n) => `${a} ${n}`).replace(/\b0+/g, '');
 const ICAO = icao => airports[icao];
 const byIata = Object.values(airports).reduce((o, a) => (a.iata && (o[a.iata] = a), o), {});
@@ -77,23 +78,19 @@ const mi50 = Math.round(Math.round(D.meta.distanceKm / 50) * 50 * 0.621371 / 50)
 let GL = null;
 if (GLOBAL) {
   const SP = require('./fv-facts').special(M), routeFacts = SP.facts, destFact = SP.destFact;
-  const oth = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
-  const onlyAirline = !!(rs && rs.flights > 0 && rs.airlines.length && rs.airlines.every(a => a.icao === M.airline));   // no other airline flew this route non-stop in the last 7 days of Flightradar24 data
+  const VET = FV.vetted(M), seen = rs ? [...new Set(rs.airlines.map(a => FV.brand(a.icao)))] : [];
+  const oth = [...VET].filter(c => c !== airlineIcao && (!rs || seen.includes(c))).map(c => airlines[c] || c);   // vetted airlines that also showed up in the recent flight data
+  const onlyAirline = !!(rs && rs.flights > 0 && seen.length && seen.every(c => c === airlineIcao) && [...VET].every(c => c === airlineIcao));   // nobody else flew it in 7 days of data and no other vetted carrier exists
   const allAir = [airline, ...oth].filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 5);
   const hook = SP.hook;
   let nPosts = 0; try { nPosts = JSON.parse(fs.readFileSync(path.join(root, 'data/history-flightviewer.json'), 'utf8')).posts.length; } catch (e) {}
-  // busiest-route info: real flight count from the last 7 days of Flightradar24 data (never an invented number)
-  let busyLine = '';
-  if (SP.busy && rs && rs.flights >= 7) { const n = rs.flights, capped = n >= 300, nn = capped ? 300 : (n >= 30 ? Math.round(n / 5) * 5 : n), per = Math.max(1, Math.round(n / (rs.days || 7)));
-    busyLine = `${SP.label === 'popular' ? '' : "This is one of the world's busiest routes. "}In the past seven days, Flightradar24 counted ${capped ? 'more than ' : n >= 30 ? 'about ' : ''}${nn} flights from ${M.fromCity} to ${M.toCity}${capped ? '' : `, roughly ${per} a day`}.`; }
-  GL = { busyLine, routeFacts, destFact, allAir, onlyAirline, hook, label: SP.label, nPosts };
+  GL = { routeFacts, destFact, allAir, onlyAirline, hook, label: SP.label, nPosts };
 }
 // ---- music mode (no voice): short general-info captions spread over the whole video
 if (args.includes('--music')) {
   if (GLOBAL) {
     const avg = five(rs && rs.avgMin ? rs.avgMin : mins), L = [GL.hook || `${M.fromCity} to ${M.toCity}`, `Distance: about ${nice(km50)} kilometers (${nice(mi50)} miles)`, `Average flight time: about ${spokenDur(avg)}`];
     if (GL.allAir.length > 1) L.push(`Non-stop flights by ${join(GL.allAir)}`); else if (GL.onlyAirline) L.push(`Only ${airline} flies this route non-stop (recent flight data)`);
-    if (GL.busyLine) L.push(GL.busyLine);
     L.push(...GL.routeFacts); if (GL.destFact) L.push(GL.destFact);
     const t0 = 2.5, t1 = VIDEO - 2.5, GAP = 0.6, tot = L.reduce((n, x) => n + Math.max(x.length, 34), 0), usable = t1 - t0 - GAP * (L.length - 1);
     let t = t0; const caps = L.map(text => { const d = usable * Math.max(text.length, 34) / tot, c = { s: +t.toFixed(2), e: +(t + d).toFixed(2), text }; t += d + GAP; return c; });
@@ -149,7 +146,6 @@ if (GLOBAL) {
   S.push({ text: `This flight covered about ${nice(km50)} kilometers, or ${nice(mi50)} miles, and the average flight time on this route is about ${spokenDur(avg)}.` });
   if (GL.allAir.length > 1) S.push({ text: `You can fly it non-stop with ${join(GL.allAir)}.`, opt: 2 });
   else if (GL.onlyAirline) S.push({ text: `As far as recent flight data shows, ${airline} is the only airline flying this route non-stop.`, opt: 2 });
-  if (GL.busyLine) S.push({ text: GL.busyLine, opt: 1 });
   GL.routeFacts.forEach((f, i) => S.push({ text: f, opt: i ? 4 : 1 }));
   if (GL.destFact) S.push({ text: GL.destFact, opt: 3 });
   S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
@@ -172,6 +168,6 @@ const spoken = t => t
 for (const s of S) s.say = spoken(s.text);
 for (const s of S) s.text = s.text.replace(/\s+/g, ' ').replace(/ ,/g, ',');
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
-fs.writeFileSync(outFile, JSON.stringify({ sentences: S, ...(GL && GL.busyLine ? { busyLine: GL.busyLine } : {}) }, null, 1));
+fs.writeFileSync(outFile, JSON.stringify({ sentences: S }, null, 1));
 console.log(S.map(s => `[${s.want}s] ${s.text}`).join('\n'));
 console.log('words:', S.reduce((n, s) => n + s.text.split(/\s+/).length, 0));

@@ -11,4 +11,12 @@ function special(M) {
   return { busy: !!busy, key, label: ina ? 'inaugural' : sup ? sup.label : '', hook: ina ? fill(ina.hook) : sup ? fill(sup.hook) : '',
     facts: [...(ina ? ina.facts : []), ...((RF.pairs || {})[key] || [])], destFact: (RF.airports || {})[M.toIcao] || '' };
 }
-module.exports = { special };
+// Regional operators fly under a mainline brand (the brand is what passengers see and what the page names)
+const BRAND = { EDV: 'DAL', SKW: 'UAL', RPA: 'UAL', ASH: 'AAL', ENY: 'AAL', PDT: 'AAL', PSA: 'AAL', JIA: 'AAL', GJS: 'UAL', CPZ: 'UAL', QXE: 'ASA', SCX: 'SCX', JZA: 'ACA', ASQ: 'DAL' };
+const brand = c => BRAND[c] || c;
+// Airlines we have vetted as flying a pair non-stop (curated candidate list, either direction). Anything else seen in flight data (cargo, positioning, charters) is NOT announced as a way to fly the route.
+function vetted(M) {
+  const key = [M.fromIcao, M.toIcao].sort().join('-'), C = (rd('candidates-flightviewer.json') || { candidates: [] }).candidates;
+  return new Set(C.filter(c => [c.from, c.to].sort().join('-') === key).map(c => c.airline));
+}
+module.exports = { special, brand, vetted };

@@ -8,7 +8,7 @@ const fs = require('fs'), path = require('path');
 const R = JSON.parse(fs.readFileSync(process.argv[2], 'utf8')), M = R.meta, P = R.points || [];
 const root = path.join(__dirname, '..');
 const air = JSON.parse(fs.readFileSync(path.join(root, 'data', 'airlines.json'), 'utf8'));
-const name = air[M.airline] || M.airline, from = M.fromCity, to = M.toCity;
+const FVF = require('./fv-facts'), AL = FVF.brand(M.airline), name = air[AL] || AL, from = M.fromCity, to = M.toCity;
 const mins = M.takeoffUtc && M.landedUtc ? Math.round((new Date(M.landedUtc) - new Date(M.takeoffUtc)) / 60000) : Math.round((P[P.length - 1]?.t || 0) / 60);
 const m5 = Math.round(mins / 5) * 5, hh = Math.floor(m5 / 60), mm = m5 % 60;
 const durShort = (hh ? `${hh} hour${hh > 1 ? 's' : ''}` : '') + (hh && mm ? ' and ' : '') + (mm ? `${mm} minutes` : '');   // e.g. "3 hours and 30 minutes"
@@ -76,9 +76,8 @@ const tags = [tag(from), tag(to), tag(name), '#Aviation', '#AvGeek', '#Flightrad
 const SP = require('./fv-facts').special(M), supHook = SP.hook;
 if (SP.label) tags.push(({ longest: '#LongestFlight', shortest: '#ShortestFlight', popular: '#BusiestRoute', inaugural: '#InauguralFlight' })[SP.label] || '');
 const head = `✈️ ${name} · ${from} → ${to}`;
-let busyLine = ''; try { busyLine = JSON.parse(fs.readFileSync(path.join(path.dirname(process.argv[2]), 'narration.json'), 'utf8')).busyLine || ''; } catch (e) {}
 const factLine = SP.facts[0] || SP.destFact || '';   // a true fact about the route (or destination airport) makes every caption different
-const body = [supHook ? `${SP.label === 'inaugural' ? '🎉' : '🔥'} ${supHook}` : '', head, supHook ? '' : pick('hook', HOOKS), busyLine, factLine, pick('close', CLOSES), pick('cta', CTAS)].filter(Boolean).join('\n\n');
+const body = [supHook ? `${SP.label === 'inaugural' ? '🎉' : '🔥'} ${supHook}` : '', head, supHook ? '' : pick('hook', HOOKS), factLine, pick('close', CLOSES), pick('cta', CTAS)].filter(Boolean).join('\n\n');
 const text = body + '\n\n' + tags.filter(Boolean).join(' ');
 const TITLES = { inaugural: `Inaugural Flight: ${from} to ${to} on ${name}`, longest: `One of the World's Longest Flights: ${from} to ${to} on ${name}`, shortest: `A Short International Hop: ${from} to ${to} on ${name}`, popular: `One of the World's Busiest Routes: ${from} to ${to} on ${name}` };
 const title = (TITLES[SP.label] || `${from} to ${to} on ${name}`) + ' | Flight Viewer';

@@ -297,15 +297,15 @@
   },
   "RCTP-VHHH": {
    "label": "popular",
-   "hook": "{from} to {to} is the world's busiest international air route."
+   "hook": "{from} to {to} is the world's busiest international air route. In 2025 it had about 6.8 million scheduled seats, according to OAG."
   },
   "HECA-OEJN": {
    "label": "popular",
-   "hook": "{from} to {to} is the number 2 busiest international air route in the world by seats."
+   "hook": "{from} to {to} is the number 2 busiest international air route in the world by seats. In 2025 it had about 5.8 million scheduled seats, according to OAG."
   },
   "WMKK-WSSS": {
    "label": "popular",
-   "hook": "{from} to {to} is the number 3 busiest international air route in the world by seats."
+   "hook": "{from} to {to} is the number 3 busiest international air route in the world by seats. In 2025 it had about 5.6 million scheduled seats, according to OAG."
   },
   "RJAA-RKSI": {
    "label": "popular",

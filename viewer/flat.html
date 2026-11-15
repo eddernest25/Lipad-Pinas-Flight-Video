@@ -18,7 +18,8 @@
   #logo .dot { width:120px; height:120px; margin:0 auto; border-radius:50%; background:radial-gradient(circle at 35% 30%,#3aa0ff,#173a8c); border:4px solid #fff; box-shadow:0 6px 18px rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; line-height:1.1; }
   #logo .follow { margin-top:-12px; display:inline-block; background:#e5322d; border-radius:10px; padding:5px 16px; font-weight:700; font-size:22px; box-shadow:0 3px 10px rgba(0,0,0,.4); }
   #logo img { width:150px; height:150px; border-radius:50%; box-shadow:0 6px 18px rgba(0,0,0,.55); object-fit:cover; }
-  #attr { left:12px; right:12px; bottom:8px; font:500 11px/1.2 Arial,sans-serif; color:rgba(255,255,255,.5); text-shadow:0 1px 2px rgba(0,0,0,.7); }
+  #attr { left:12px; right:12px; bottom:8px; font:500 15px/1.2 Arial,sans-serif; color:rgba(255,255,255,.85); text-shadow:0 1px 3px #000; }
+  body.ov #attr { font:500 11px/1.2 Arial,sans-serif; color:rgba(255,255,255,.5); text-shadow:0 1px 2px rgba(0,0,0,.7); }
 </style>
 </head>
 <body>
@@ -229,6 +230,7 @@ window.tileList = function (fps, from, to) {
 // ------------------------------------------------------------ end-to-end overview strip (bottom of frame): whole route, progress trail, plane marker
 let OV = null;
 function ovSetup() {
+  document.body.classList.add('ov');
   const PH = CFG.overviewH || 400, padX = 70, padY = 60;
   let la0 = 90, la1 = -90, lo0 = 1e9, lo1 = -1e9; P.forEach((p, i) => { la0 = Math.min(la0, p.lat); la1 = Math.max(la1, p.lat); lo0 = Math.min(lo0, lonU[i]); lo1 = Math.max(lo1, lonU[i]); });
   let z = 8; for (; z > 0.5; z -= .05) { const w = Math.abs(mx(lo1, z) - mx(lo0, z)), h = Math.abs(my(la0, z) - my(la1, z)); if (w <= W - 2 * padX && h <= PH - 2 * padY) break; }

@@ -87,7 +87,7 @@
    "It links Amsterdam with Los Angeles, connecting Europe to the American West Coast."
   ],
   "KJFK-WSSS": [
-   "Singapore Airlines flies it non-stop in both directions, close to nineteen hours in the air."
+   "Singapore Airlines flies it non-stop in both directions, a journey of well over seventeen hours."
   ],
   "KEWR-WSSS": [
    "It is the sister flight to Singapore Airlines' New York JFK service, and both rank at the very top of the world's longest flights."
@@ -196,6 +196,9 @@
   ],
   "OMDB-OTHH": [
    "Doha and Dubai link two of the Gulf's biggest transfer hubs."
+  ],
+  "WSSS-KJFK": [
+   "Singapore Airlines flies it non-stop in both directions, a journey of well over seventeen hours."
   ]
  },
  "airports": {

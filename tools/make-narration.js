@@ -140,7 +140,7 @@ if (GLOBAL) {
   const avg = five(rs && rs.avgMin ? rs.avgMin : mins), an = /^[AEIOU]/i.test(acName) ? 'an' : 'a';
   S.push({ text: GL.hook ? `${GL.hook} Here is why this route matters.` : `${M.fromCity} to ${M.toCity}. Here is why this route matters.` });
   S.push({ text: `This is ${airline} flight ${flightSpoken}, ${an} ${acName}, which took off from ${M.fromCity}${depT ? ` at ${depT} local time` : ''} and climbed to ${nice(ft)} feet.` });
-  S.push({ text: `The route covers about ${nice(km50)} kilometers, and the average flight time is about ${spokenDur(avg)}.` });
+  S.push({ text: `This flight covered about ${nice(km50)} kilometers, and the average flight time on this route is about ${spokenDur(avg)}.` });
   if (GL.allAir.length > 1) S.push({ text: `You can fly it non-stop with ${join(GL.allAir)}.`, opt: 2 }); else S.push({ text: `On this day it was operated by ${airline}.`, opt: 2 });
   GL.routeFacts.forEach((f, i) => S.push({ text: f, opt: i ? 4 : 1 }));
   if (GL.over.length) S.push({ text: `Along the way it passes over ${join(GL.over)}.`, opt: 5 });

@@ -47,7 +47,7 @@ jobs:
           if [[ -n "$LASTP" && ! "$LASTP" < "$TARGET" ]]; then echo "already posted/scheduled for $LASTP"; exit 0; fi
           SKIP=""
           for ATTEMPT in 1 2 3 4 5; do
-            PLAN=$(node tools/plan-next.js --page flightviewer --skip "$SKIP") || { echo "no candidate left"; exit 1; }
+            PLAN=$(node tools/plan-next.js --page flightviewer --flightday "$FLIGHTDAY" --skip "$SKIP") || { echo "no candidate left"; exit 1; }
             STYLE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).style")
             ROUTE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).route")
             AIRL=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).airline")

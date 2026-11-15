@@ -25,6 +25,13 @@ if (PAGE) {   // Flight Viewer: a city pair is never reused (either direction); 
   const CATS = ['popular', 'significance', 'longest', 'popular', 'shortest', 'significance'], want = CATS[H.posts.length % CATS.length];
   C.splice(0, C.length, ...C.filter(c => c.cat === want), ...C.filter(c => c.cat !== want));
 }
+if (PAGE && opt('flightday', '')) {   // Flight Viewer: an inaugural flight within a day of the flight day jumps the queue (still never a repeated city pair)
+  const day = d => Math.floor(Date.parse(d + 'T00:00:00Z') / 864e5), fd = day(opt('flightday', ''));
+  let INA = []; try { INA = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'inaugural-flightviewer.json'), 'utf8')).entries; } catch (e) {}
+  const ins = INA.filter(e => Math.abs(fd - day(e.date)) <= 1 && !used.has(pair(e.from, e.to)) && !skip.has(`${e.from}-${e.to}:${e.airline}`)).sort((x, y) => Math.abs(fd - day(x.date)) - Math.abs(fd - day(y.date)))
+    .map(e => ({ type: 'intl', cat: 'inaugural', from: e.from, to: e.to, airline: e.airline }));
+  C.unshift(...ins);
+}
 if (!C.length) { console.error('no candidate left that satisfies the rules'); process.exit(1); }
 const m = C[0];
 console.log(JSON.stringify({ style, music: style.endsWith('music'), route: `${m.from}-${m.to}`, airline: m.airline, cat: m.cat || '', from: m.from, to: m.to, alternatives: C.slice(1, 4).map(c => `${c.from}-${c.to}:${c.airline}`) }, null, 1));

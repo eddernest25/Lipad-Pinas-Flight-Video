@@ -7,11 +7,10 @@
    "airline": "DAL",
    "from": "KJFK",
    "to": "CYYZ",
-   "note": "auto-scheduled 2026-11-15T13:00:00Z voice en-GB-Chirp3-HD-Charon",
+   "note": "auto-scheduled 2026-11-15T13:00:00Z voice en-GB-Chirp3-HD-Charon (re-rendered video-20261115-045337)",
    "variants": {
-    "hook": "hook8",
-    "close": "close8",
-    "cta": "cta6"
+    "hook": "hook1",
+    "cta": "cta3"
    }
   }
  ]

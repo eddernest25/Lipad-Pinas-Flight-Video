@@ -10,7 +10,8 @@ const root = path.join(__dirname, '..');
 const air = JSON.parse(fs.readFileSync(path.join(root, 'data', 'airlines.json'), 'utf8'));
 const name = air[M.airline] || M.airline, from = M.fromCity, to = M.toCity;
 const mins = M.takeoffUtc && M.landedUtc ? Math.round((new Date(M.landedUtc) - new Date(M.takeoffUtc)) / 60000) : Math.round((P[P.length - 1]?.t || 0) / 60);
-const m5 = Math.round(mins / 5) * 5, dur = `about ${Math.floor(m5 / 60)} hours${m5 % 60 ? ' and ' + (m5 % 60) + ' minutes' : ''}`, durShort = m5 < 60 ? `${m5} minutes` : dur;
+const m5 = Math.round(mins / 5) * 5, hh = Math.floor(m5 / 60), mm = m5 % 60;
+const durShort = (hh ? `${hh} hour${hh > 1 ? 's' : ''}` : '') + (hh && mm ? ' and ' : '') + (mm ? `${mm} minutes` : '');   // e.g. "3 hours and 30 minutes"
 const hav = (a, b) => { const r = Math.PI / 180, dp = (b.lat - a.lat) * r, dl = (b.lon - a.lon) * r, h = Math.sin(dp / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dl / 2) ** 2; return 12742 * Math.asin(Math.sqrt(h)); };
 let kmFlown = 0; for (let i = 1; i < P.length; i++) kmFlown += hav(P[i - 1], P[i]);
 const nice = n => new Intl.NumberFormat('en-US').format(n), km = nice(Math.round(kmFlown / 50) * 50), mi = nice(Math.round(kmFlown * 0.621371 / 50) * 50), hasDist = kmFlown > 100;
@@ -33,7 +34,7 @@ const HOOKS = [
   L(`Ever wondered what ${durShort} in the air looks like on a map? This is ${name} from ${from} to ${to}.`),
   L(`Tracked from takeoff to touchdown: ${name}, ${from} to ${to}.`),
   L(`${from} to ${to} without a single stop. Watch every minute of the real flight.`),
-  L(`Would you take a ${durShort} flight to ${to}? Here is how ${name} does it.`),
+  L(`Would you take a flight to ${to} that lasts ${durShort}? Here is how ${name} does it.`),
   L(`${hasDist ? `${km} kilometers (${mi} miles)` : 'A long way'} from ${from} to ${to}. This is what it looks like from above.`, hasDist),
   L(`Think ${durShort} is long? Watch ${name} cross ${km} kilometers from ${from} to ${to}.`, hasDist && long),
   L(`How far is ${to} from ${from}? About ${km} kilometers, or ${durShort} on ${name}.`, hasDist),

@@ -1,1 +1,18 @@
-{"posts":[]}
+{
+ "posts": [
+  {
+   "date": "2026-11-15",
+   "style": "intl-voice",
+   "flight": "DL5007",
+   "airline": "DAL",
+   "from": "KJFK",
+   "to": "CYYZ",
+   "note": "auto-scheduled 2026-11-15T13:00:00Z voice en-GB-Chirp3-HD-Charon",
+   "variants": {
+    "hook": "hook8",
+    "close": "close8",
+    "cta": "cta6"
+   }
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+name: Flight Viewer post now (Facebook only)
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag of the video (video-YYYYMMDD-HHMMSS)"
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUFFER_API_KEY_FLIGHTVIEWER: ${{ secrets.BUFFER_API_KEY_FLIGHTVIEWER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: |
+          set -e
+          mkdir -p out && gh release download "${{ inputs.tag }}" -p raw.json -p narration.json -D out
+          node tools/make-caption-global.js out/raw.json out/caption.json
+          node tools/buffer-post.js --page flightviewer --only facebook --now --video "https://github.com/${{ github.repository }}/releases/download/${{ inputs.tag }}/video.mp4" --caption out/caption.json

@@ -33,8 +33,8 @@ const gql = async (query, variables) => {
   const M = 'mutation($input: CreatePostInput!){createPost(input:$input){... on PostActionSuccess{post{id dueAt}} ... on MutationError{message}}}';
   let bad = 0;
   for (const [k, p] of Object.entries(posts)) {
-    if (!CH[k]) continue;   // this page has no such channel
-    const input = { channelId: CH[k], text: p.text, schedulingType: 'automatic', mode: 'customScheduled', dueAt: due, assets: [{ video: { url: video } }], metadata: p.metadata };
+    if (!CH[k] || (opt('only') && opt('only') !== k)) continue;   // this page has no such channel
+    const input = { channelId: CH[k], text: p.text, schedulingType: 'automatic', ...(a.includes('--now') ? { mode: 'shareNow' } : { mode: 'customScheduled', dueAt: due }), assets: [{ video: { url: video } }], metadata: p.metadata };
     if (a.includes('--dry')) { console.log(k, JSON.stringify(input).slice(0, 300)); continue; }
     const j = await gql(M, { input }), r = j.data?.createPost;
     if (r?.post) console.log(k, 'scheduled', r.post.id, r.post.dueAt); else { bad++; console.error(k, 'FAILED', JSON.stringify(r || j.errors || j).slice(0, 500)); }

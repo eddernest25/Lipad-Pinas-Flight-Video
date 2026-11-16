@@ -15,12 +15,12 @@
   },
   {
    "date": "2026-11-16",
-   "style": "intl-music",
+   "style": "intl-voice",
    "flight": "BA180",
    "airline": "BAW",
    "from": "KJFK",
    "to": "EGLL",
-   "note": "auto-scheduled 2026-11-16T13:00:00Z (re-rendered video-20261116-002615)",
+   "note": "auto-scheduled 2026-11-16T13:00:00Z (re-rendered video-20261116-002615) voice en-GB-Chirp3-HD-Kore",
    "variants": {
     "cta": "cta5"
    }

@@ -209,6 +209,15 @@
    "from": "RPVK",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-17",
+   "style": "intl-music",
+   "flight": "KE622",
+   "airline": "KAL",
+   "from": "RPLL",
+   "to": "RKSI",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

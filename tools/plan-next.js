@@ -8,7 +8,7 @@ const a = process.argv.slice(2), opt = (k, d) => { const i = a.indexOf('--' + k)
 // --page <name> (e.g. flightviewer) uses data/history-<name>.json + data/candidates-<name>.json and a voice/music cycle; no --page = Lipad Pinas, unchanged.
 const PAGE = opt('page', ''), SUF = PAGE ? '-' + PAGE : '';
 const HF = path.join(__dirname, '..', 'data', `history${SUF}.json`), H = fs.existsSync(HF) ? JSON.parse(fs.readFileSync(HF, 'utf8')) : { posts: [] };
-const CYCLE = PAGE ? ['intl-voice', 'intl-music'] : ['local-voice', 'intl-music', 'local-music', 'intl-voice'];
+const CYCLE = PAGE ? ['intl-voice'] : ['local-voice', 'intl-music', 'local-music', 'intl-voice'];
 if (a.includes('--record')) {
   H.posts.push({ date: opt('date'), style: opt('style'), flight: opt('flight'), airline: opt('airline'), from: opt('from'), to: opt('to'), note: opt('note', ''), ...(opt('variants') ? { variants: JSON.parse(opt('variants')) } : {}) });
   fs.writeFileSync(HF, JSON.stringify(H, null, 1)); console.log('recorded'); process.exit(0);

@@ -75,5 +75,5 @@ const body = [supHook ? `${SP.label === 'inaugural' ? '🎉' : '🔥'} ${supHook
 const text = body + '\n\n' + tags.filter(Boolean).join(' ');
 const TITLES = { inaugural: `Inaugural Flight: ${from} to ${to} on ${name}`, longest: `One of the World's Longest Flights: ${from} to ${to} on ${name}`, shortest: `A Short International Hop: ${from} to ${to} on ${name}`, popular: `One of the World's Busiest Routes: ${from} to ${to} on ${name}` };
 const title = (TITLES[SP.label] || `${from} to ${to} on ${name}`) + ' | Flight Viewer';
-fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: text, youtube: { title: title.slice(0, 100), text: text + ' #Shorts' }, tiktok: { title: (head + ' ' + tags.join(' ')).slice(0, 150) }, tiktokText: text, variants: chosen }, null, 1));
+fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: text, youtube: { title: title.slice(0, 100), text: text }, tiktok: { title: (head + ' ' + tags.join(' ')).slice(0, 150) }, tiktokText: text, variants: chosen }, null, 1));
 console.log(text);

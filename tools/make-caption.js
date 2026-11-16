@@ -26,5 +26,5 @@ if (ofw) { parts.push(slot('capCloseOfw', SC.capCloseOfw)); parts.push(slot('cap
 const body = parts.join('\n\n'), text = body + '\n\n' + tags.join(' ');
 const title = `${M.fromCity} to ${city} on ${name} | Lipad Pinas`;
 let variants = {}; try { variants = JSON.parse(fs.readFileSync(process.env.VARIANTS_OUT || path.join(__dirname, '..', 'out', 'variants.json'), 'utf8')); } catch (e) {}
-fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: text, youtube: { title: title.slice(0, 100), text: text + ' #Shorts' }, tiktok: { title: (lines[0] + ' · ' + hook + ' ' + tags.join(' ')).slice(0, 150) }, tiktokText: text, variants }, null, 1));
+fs.writeFileSync(process.argv[3], JSON.stringify({ facebook: text, youtube: { title: title.slice(0, 100), text: text }, tiktok: { title: (lines[0] + ' · ' + hook + ' ' + tags.join(' ')).slice(0, 150) }, tiktokText: text, variants }, null, 1));
 console.log(text);

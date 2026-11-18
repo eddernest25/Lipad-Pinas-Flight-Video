@@ -49,6 +49,18 @@
     "hook": "hook4",
     "cta": "cta10"
    }
+  },
+  {
+   "date": "2026-11-19",
+   "style": "intl-voice",
+   "flight": "GF102",
+   "airline": "GFA",
+   "from": "OEDF",
+   "to": "OBBI",
+   "note": "auto-scheduled 2026-11-19T13:00:00Z voice en-GB-Chirp3-HD-Leda",
+   "variants": {
+    "cta": "cta9"
+   }
   }
  ]
 }

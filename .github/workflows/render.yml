@@ -80,6 +80,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: Install ffmpeg + dependencies
+        timeout-minutes: 10   # normally under a minute; a stuck download ends here instead of holding the job for 25 min
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ffmpeg fonts-liberation

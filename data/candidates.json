@@ -34,12 +34,6 @@
 {
 "type": "local",
 "from": "RPLL",
-"to": "RPMD",
-"airline": "APG"
-},
-{
-"type": "local",
-"from": "RPLL",
 "to": "RPVI",
 "airline": "CEB"
 },
@@ -102,12 +96,6 @@
 "from": "RPLL",
 "to": "RPVP",
 "airline": "PAL"
-},
-{
-"type": "local",
-"from": "RPLL",
-"to": "RPVP",
-"airline": "APG"
 },
 {
 "type": "local",
@@ -132,12 +120,6 @@
 "from": "RPLL",
 "to": "RPMV",
 "airline": "PAL"
-},
-{
-"type": "local",
-"from": "RPLL",
-"to": "RPMV",
-"airline": "APG"
 },
 {
 "type": "local",
@@ -490,12 +472,6 @@
 {
 "type": "intl",
 "from": "RPLL",
-"to": "OKBK",
-"airline": "KAC"
-},
-{
-"type": "intl",
-"from": "RPLL",
 "to": "WIII",
 "airline": "GIA"
 },
@@ -579,12 +555,6 @@
 },
 {
 "type": "local",
-"from": "RPMD",
-"to": "RPLL",
-"airline": "APG"
-},
-{
-"type": "local",
 "from": "RPVI",
 "to": "RPLL",
 "airline": "CEB"
@@ -648,12 +618,6 @@
 "from": "RPVP",
 "to": "RPLL",
 "airline": "PAL"
-},
-{
-"type": "local",
-"from": "RPVP",
-"to": "RPLL",
-"airline": "APG"
 },
 {
 "type": "local",
@@ -678,12 +642,6 @@
 "from": "RPMV",
 "to": "RPLL",
 "airline": "PAL"
-},
-{
-"type": "local",
-"from": "RPMV",
-"to": "RPLL",
-"airline": "APG"
 },
 {
 "type": "local",
@@ -1035,12 +993,6 @@
 },
 {
 "type": "intl",
-"from": "OKBK",
-"to": "RPLL",
-"airline": "KAC"
-},
-{
-"type": "intl",
 "from": "WIII",
 "to": "RPLL",
 "airline": "GIA"
@@ -1239,18 +1191,6 @@
 },
 {
 "type": "local",
-"from": "RPLC",
-"to": "RPVK",
-"airline": "CEB"
-},
-{
-"type": "local",
-"from": "RPVK",
-"to": "RPLC",
-"airline": "CEB"
-},
-{
-"type": "local",
 "from": "RPMD",
 "to": "RPMZ",
 "airline": "CEB"
@@ -1368,18 +1308,6 @@
 "from": "RKSI",
 "to": "RPVM",
 "airline": "KAL"
-},
-{
-"type": "intl",
-"from": "RPVM",
-"to": "RKSI",
-"airline": "JNA"
-},
-{
-"type": "intl",
-"from": "RKSI",
-"to": "RPVM",
-"airline": "JNA"
 },
 {
 "type": "intl",

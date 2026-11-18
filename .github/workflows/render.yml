@@ -120,6 +120,10 @@ jobs:
           node tools/make-voice.js out/narration.json out/voice --video-secs "${{ inputs.flight_secs }}" --gender "${{ inputs.voice_gender }}" ${{ inputs.voice_name && format('--voice "{0}"', inputs.voice_name) || '' }} ${{ inputs.voice_dir && format('--files-dir "{0}"', inputs.voice_dir) || '' }} ${{ inputs.bg_file && format('--bg "{0}"', inputs.bg_file) || '' }}
           fi
           ZC="${{ inputs.zoom_cruise }}"; DOM=$(node -p "const m=require('./$RAW').meta; m.fromCountry===m.toCountry")
+          if [ "${{ inputs.narration }}" = "global" ] && [ "$ZC" = "6.4" ]; then   # Flight Viewer: cruise zoom scales continuously with flight distance (short hop = very close so cities are visible, long = wide)
+            GKM=$(node -p "const p=require('./out/track.json').points,r=Math.PI/180,a=p[0],b=p[p.length-1];Math.round(6371*Math.acos(Math.min(1,Math.sin(a.lat*r)*Math.sin(b.lat*r)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.cos((b.lon-a.lon)*r))))")
+            if [ "$GKM" -lt 1500 ]; then ZC=$(node -p "Math.max(6.6, Math.min(10.8, 10.8 - Math.log2(Math.max($GKM,60)/100))).toFixed(1)"); echo "distance $GKM km: cruise zoom $ZC"; fi
+          fi
           if [ "${{ inputs.narration }}" = "global" ] && [ "$DOM" != "true" ]; then   # Flight Viewer only: a SHORT international hop gets the same close zoom as a domestic flight so places and names stay readable
             SHKM=$(node -p "const p=require('./out/track.json').points,r=Math.PI/180,a=p[0],b=p[p.length-1];Math.round(6371*Math.acos(Math.min(1,Math.sin(a.lat*r)*Math.sin(b.lat*r)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.cos((b.lon-a.lon)*r))))")
             if [ "$SHKM" -lt 1500 ]; then DOM=true; echo "short international hop ($SHKM km): close zoom"; fi

@@ -227,6 +227,15 @@
    "from": "RPVE",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-19",
+   "style": "intl-voice",
+   "flight": "LJ46",
+   "airline": "JNA",
+   "from": "RPLC",
+   "to": "RKSI",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

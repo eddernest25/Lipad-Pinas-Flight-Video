@@ -60,7 +60,7 @@ jobs:
             ROUTE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).route")
             AIRL=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).airline")
             echo "attempt $ATTEMPT: $STYLE $ROUTE $AIRL"
-            ARGS=(-f ref=${{ github.ref_name }} -f "inputs[airline]=$AIRL" -f "inputs[route]=$ROUTE" -f "inputs[date]=$FLIGHTDAY" -f "inputs[logo_file]=$LOGO" -f "inputs[narration]=global" -f "inputs[overview]=auto" -f "inputs[flight_secs]=80")
+            ARGS=(-f ref=${{ github.ref_name }} -f "inputs[airline]=$AIRL" -f "inputs[route]=$ROUTE" -f "inputs[date]=$FLIGHTDAY" -f "inputs[logo_file]=$LOGO" -f "inputs[narration]=global" -f "inputs[overview]=auto" -f "inputs[flight_secs]=70")
             if [[ "$STYLE" == *music ]]; then ARGS+=(-f "inputs[style]=music"); else
               # rotate Google British English (en-GB) Chirp3 HD voices by number of Flight Viewer posts so far
               VOICES=(en-GB-Chirp3-HD-Aoede:FEMALE en-GB-Chirp3-HD-Charon:MALE en-GB-Chirp3-HD-Kore:FEMALE en-GB-Chirp3-HD-Puck:MALE en-GB-Chirp3-HD-Leda:FEMALE en-GB-Chirp3-HD-Fenrir:MALE en-GB-Chirp3-HD-Zephyr:FEMALE en-GB-Chirp3-HD-Orus:MALE)

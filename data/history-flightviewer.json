@@ -61,6 +61,19 @@
    "variants": {
     "cta": "cta8"
    }
+  },
+  {
+   "date": "2026-11-20",
+   "style": "intl-voice",
+   "flight": "EK1",
+   "airline": "UAE",
+   "from": "OMDB",
+   "to": "EGLL",
+   "note": "auto-scheduled 2026-11-20T13:00:00Z voice en-GB-Chirp3-HD-Fenrir",
+   "variants": {
+    "hook": "hook16",
+    "cta": "cta7"
+   }
   }
  ]
 }

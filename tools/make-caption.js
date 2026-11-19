@@ -7,22 +7,26 @@ const rd = f => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', f)
 const air = rd('airlines.json'), facts = rd('facts.json'), SC = facts.scripts || {};
 const mins = M.takeoffUtc && M.landedUtc ? Math.round((new Date(M.landedUtc) - new Date(M.takeoffUtc)) / 60000) : Math.round((P[P.length - 1]?.t || 0) / 60);
 const name = air[M.airline] || M.airline, dom = M.fromCountry === M.toCountry, B = M.toCountry, city = M.toCity;
+const LP = require('./lp-dest'), D = LP.dest(M), nice = n => new Intl.NumberFormat('en-US').format(n);
 const fare = (facts.fares || {})[`${M.from}-${M.to}`], php = n => '₱' + n.toLocaleString('en-US');
-const ofw = !dom && M.fromCountry === 'PH' && (facts.ofwCountries || []).includes(B);
-const m5 = Math.round(mins / 5) * 5, dur = `about ${Math.floor(m5 / 60)} hours${m5 % 60 ? " and " + (m5 % 60) + " minutes" : ""}`, seed = `${M.flight}${M.date}`, fill = t => t.replace('{dur}', dur).replace(/\{city\}/g, city);
+const rsFile = process.argv[4], rs = (rsFile && fs.existsSync(rsFile) ? JSON.parse(fs.readFileSync(rsFile, 'utf8')) : null) || R.routeStats || null;   // route stats: file arg, else embedded in raw.json by the render workflow
+const spoken = m => { const mm = Math.round(m / 5) * 5; return `about ${Math.floor(mm / 60)} hours${mm % 60 ? " and " + (mm % 60) + " minutes" : ""}`; };
+const dur = spoken(mins), avg = spoken(rs && rs.avgMin ? rs.avgMin : mins), km50 = Math.round(LP.distKm(P) / 50) * 50, seed = `${M.flight}${M.date}`;
+const fill = t => t.replace(/\{dur\}/g, dur).replace(/\{city\}/g, city).replace(/\{from\}/g, M.fromCity).replace(/\{tag\}/g, D ? D.tag : '');
 const slot = (s, pool) => { const v = pick(s, pool, seed, M.date); return fill(v.text); };
-const hook = slot(ofw ? 'capHookOfw' : dom ? 'capHookDom' : 'capHookIntl', ofw ? SC.capHookOfw : dom ? SC.capHookDom : SC.capHookIntl);
-const lines = [`${name} · ${M.fromCity} → ${city}`];
-const rsFile = process.argv[4], rs = rsFile && fs.existsSync(rsFile) ? JSON.parse(fs.readFileSync(rsFile, 'utf8')) : null;
-const others = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2 && (!dom || ['CEB', 'PAL', 'GAP', 'APG'].includes(a.icao))).sort((a, b) => b.n - a.n).map(a => a.airline).slice(0, 4) : [];
-if (others.length) lines.push(`✈️ Also flies this route: ${others.join(', ')}`);
+// Lipad Pinas captions: Route first, then a destination hook; what the place offers, distance, average flight time and other airlines
+const hook = D ? slot('capHookDest', SC.capHookDest) : slot(dom ? 'capHookDom' : 'capHookIntl', dom ? SC.capHookDom : SC.capHookIntl);
+const lines = [`${M.fromCity} → ${city} · ${name}`];
+if (D) lines.push(`📍 ${D.offers[0]}`);
+lines.push(`📏 About ${nice(km50)} km · ⏱️ average flight time ${avg}`);
+const others = LP.others(M, rs, air).slice(0, 4);
+if (others.length) lines.push(`✈️ Also flies this route non-stop: ${others.join(', ')}`);
 if (fare) lines.push(`💸 ` + (fare.phpFrom ? `One-way fares from around ${php(fare.phpFrom)}` : `One-way fares about ${php(fare.phpLow)} to ${php(fare.phpHigh)}`) + ` (estimate; varies by date and airline)`);
-if (ofw) lines.push('✅ Heading abroad to work? Use a licensed agency and make sure your OEC and DMW papers are complete before you fly.');
-else if (!dom && M.fromCountry === 'PH') lines.push('✅ Always check the official embassy or immigration site before you book.');
+if (!dom && M.fromCountry === 'PH') lines.push('✅ Always check the official embassy or immigration site before you book.');
 const tag = s => '#' + String(s || '').replace(/[^A-Za-z0-9]/g, '');
-const tags = ['#LipadPinas', ...(ofw ? ['#OFW', '#Kabayan', '#BagongBayani'] : ['#Aviation', '#PinoyTravel']), tag(name), tag(city)].filter((x, i, a) => x.length > 1 && a.indexOf(x) === i);
+const tags = ['#LipadPinas', '#PinoyTravel', '#Travel', ...(B === 'PH' ? ['#Philippines'] : []), tag(city), tag(name)].filter((x, i, a) => x.length > 1 && a.indexOf(x) === i);
 const parts = [`✈️ ${lines[0]}`, hook, lines.slice(1).join('\n')].filter(Boolean);
-if (ofw) { parts.push(slot('capCloseOfw', SC.capCloseOfw)); parts.push(slot('capCta', SC.capCta)); }
+parts.push(slot('capCtaDest', SC.capCtaDest));
 const body = parts.join('\n\n'), text = body + '\n\n' + tags.join(' ');
 const title = `${M.fromCity} to ${city} on ${name} | Lipad Pinas`;
 let variants = {}; try { variants = JSON.parse(fs.readFileSync(process.env.VARIANTS_OUT || path.join(__dirname, '..', 'out', 'variants.json'), 'utf8')); } catch (e) {}

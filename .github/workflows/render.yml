@@ -106,6 +106,7 @@ jobs:
           if [ -n "${{ inputs.flight }}" ] || [ -n "${{ inputs.airline }}" ]; then
             FROMI=$(node -p "require('./out/raw.json').meta.fromIcao"); TOI=$(node -p "require('./out/raw.json').meta.toIcao"); DAY=$(node -p "require('./out/raw.json').meta.date")
             node tools/route-stats.js --route "$FROMI-$TOI" --to "$DAY" --days 7 || echo "route stats unavailable"
+            [ -f out/route-stats.json ] && node -e "const fs=require('fs'),r=JSON.parse(fs.readFileSync('out/raw.json'));r.routeStats=JSON.parse(fs.readFileSync('out/route-stats.json'));fs.writeFileSync('out/raw.json',JSON.stringify(r))" || true   # embed route stats in raw.json so captions can show average flight time + other airlines
           fi
           if [ "${{ inputs.style }}" = "music" ]; then
             node tools/make-narration.js out/track.json out/narration.json --video-secs "${{ inputs.flight_secs }}" --music ${{ inputs.narration == 'global' && '--global' || '' }}

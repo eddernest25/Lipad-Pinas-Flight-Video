@@ -65,7 +65,8 @@ const S = [];
 const facts = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, 'data/facts.json'), 'utf8')); } catch (e) { return {}; } })();
 const rs = (() => { try { return JSON.parse(fs.readFileSync(opt('route-stats', 'out/route-stats.json'), 'utf8')); } catch (e) { return null; } })();
 const entry = (facts.entry || {})[B.cc] || null, fare = (facts.fares || {})[`${M.from}-${M.to}`] || null;
-const ofw = M.fromCountry === 'PH' && M.toCountry !== 'PH' && (facts.ofwCountries || []).includes(M.toCountry), inspire = (facts.inspire || {}).voice || '';
+const ofw = false, inspire = '';   // Lipad Pinas scripts are about the destination now (what it offers), not OFW stories
+const LP = require('./lp-dest'), DEST = LP.dest(M);
 const mins = Math.round((M.takeoffUtc && M.landedUtc ? (new Date(M.landedUtc) - new Date(M.takeoffUtc)) / 60000 : D.meta.durationS / 60));
 const spokenDur = m => { const h = Math.floor(m / 60), r = m % 60; if (!h) return `${r} minute${r === 1 ? '' : 's'}`; return `${h} hour${h === 1 ? '' : 's'}${r ? ` and ${r} minute${r === 1 ? '' : 's'}` : ''}`; };
 const five = m => Math.round(m / 5) * 5;
@@ -101,12 +102,12 @@ if (args.includes('--music')) {
     console.log(caps.map(c => `[${c.s}-${c.e}s] ${c.text}`).join('\n')); process.exit(0);
   }
   const DOMAIR = ['CEB', 'PAL', 'GAP', 'APG'], domestic = M.fromCountry === M.toCountry;   // local: only real Philippine passenger carriers (route data also holds ferry/charter/business-jet legs)
-  const oth = rs ? rs.airlines.filter(a => a.icao !== M.airline && a.n >= 2 && (!domestic || DOMAIR.includes(a.icao))).sort((a, b) => b.n - a.n).map(a => a.airline) : [];
+  const oth = LP.others(M, rs, airlines);
   const L = [`${M.fromCity} to ${M.toCity} is about ${nice(km50)} kilometers`, `Average flight time is about ${spokenDur(five(rs && rs.avgMin ? rs.avgMin : mins))}`];
   if (oth.length) L.push(`Also flies non-stop on ${join(oth)}`);
   if (fare && fare.phpFrom) L.push(`One-way tickets start around ₱${nice(fare.phpFrom)}`); else if (fare) L.push(fare.usdLow ? `One-way tickets cost about $${fare.usdLow} to $${fare.usdHigh}, or ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}` : `One-way tickets cost about ₱${nice(fare.phpLow)} to ₱${nice(fare.phpHigh)}`);
   if (M.fromCountry === M.toCountry) L.splice(2, 0, `Cruising altitude is about ${nice(ft)} feet at around ${nice(cruiseKmh)} kilometers per hour`);   // domestic: general flight facts instead of visa info
-  if (entry && entry.ofw) L.push(...entry.ofw);   // OFW-focused: no tourist visa / generic passport lines
+  if (DEST) L.push(DEST.tag.replace(/\.$/, ''), ...DEST.offers);   // destination highlights
   else if (entry) { L.push(`Visa: ${entry.visa.replace(/\.$/, '')}`); const rl = entry.rules.replace(/\.$/, ''), k = rl.lastIndexOf(', and ');
     if (rl.length > 90 && k > 20) { L.push(rl.slice(0, k)); L.push(rl.slice(k + 6).replace(/^./, c => c.toUpperCase())); } else L.push(rl); }
   if (ofw) L.push('For every OFW flying for family: keep going.');
@@ -138,6 +139,18 @@ if (ofw) {   // OFW destination: hook -> flight facts -> price (open loop paid o
   S.push({ text: `The plane touches down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
   S.push({ text: close });
   S.push({ text: `Follow for your next flight.` });
+}
+if (DEST && !GLOBAL) {   // Lipad Pinas: hook -> flight -> distance + average time -> other airlines -> what the destination offers -> close
+  S.length = 0;
+  const avg = five(rs && rs.avgMin ? rs.avgMin : mins), an = /^[AEIOU]/i.test(acName) ? 'an' : 'a', oth = LP.others(M, rs, airlines);
+  S.push({ text: `Next stop, ${B.city}. ${DEST.tag} It's ${spokenDur(avg)} from ${M.fromCity} by air.` });
+  S.push({ text: `This is ${airline} flight ${flightSpoken}, ${an} ${acName}. It left ${M.fromCity}${depT ? ` at ${depT} local time` : ''} and climbed to ${nice(ft)} feet.` });
+  S.push({ text: `The flight covered about ${nice(km50)} kilometers, and the average flight time on this route is about ${spokenDur(avg)}.` });
+  if (oth.length) S.push({ text: `Besides ${airline}, you can fly ${M.fromCity} to ${M.toCity} non-stop on ${join(oth.slice(0, 4))}.`, opt: 4 });
+  DEST.offers.forEach((o, i) => S.push(i ? { text: o, opt: 3 } : { text: o }));
+  if (fare && fare.phpFrom) S.push({ text: `One-way tickets start from around ${nice(fare.phpFrom)} pesos, depending on the date and airline.`, opt: 5 });
+  S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
+  S.push({ text: `Would you fly to ${B.city}? Follow Lipad Pinas for more flights and places to go.` });
 }
 const CLOSINGS = ['Follow Flight Viewer and fly the world with us, one real route at a time.', 'Follow Flight Viewer for more real flights from around the world.', "Follow Flight Viewer, and we'll take you along on the next route.", 'Where should we track next? Tell us in the comments, and follow Flight Viewer.', 'Which route should we fly next? Comment below and follow Flight Viewer.', "Another route is coming soon. Follow Flight Viewer so you don't miss it.", 'Real flights. Real routes. Follow Flight Viewer.', "Follow Flight Viewer. The world's flights, tracked.", "That's the route. Follow Flight Viewer for the next one.", 'Follow Flight Viewer to see where the world is flying next.'];
 if (GLOBAL) {

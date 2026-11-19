@@ -132,6 +132,22 @@
    "Watch this flight to {city}, from takeoff to touchdown. 🇵🇭",
    "Short flight, big adventure. Next stop: {city}! 🌴",
    "Explore the Philippines one flight at a time. Today: {city}! 🇵🇭"
+  ],
+  "capHookDest": [
+   "🌏 {city} is only {dur} away. {tag}",
+   "✈️ Dreaming of {city}? {tag} It's just {dur} from {from}.",
+   "📍 {city}: {tag} Fly there in {dur}.",
+   "🔥 Add {city} to your bucket list. {tag}",
+   "✨ {tag} That's {city}, and it's {dur} by air.",
+   "🧳 Pack your bags: {city} is {dur} from {from}. {tag}"
+  ],
+  "capCtaDest": [
+   "👇 Would you fly here? Tell us in the comments!",
+   "👇 Tag the travel buddy you'd bring along.",
+   "👇 Been to {city}? Share your favorite spot below.",
+   "👇 Save this for your next trip and follow Lipad Pinas for more places to go.",
+   "👇 Drop a ✈️ if {city} is on your list.",
+   "👇 Where should we fly next? Comment below."
   ]
  }
 }

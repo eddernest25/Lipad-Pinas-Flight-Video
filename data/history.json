@@ -236,6 +236,15 @@
    "from": "RPLC",
    "to": "RKSI",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-20",
+   "style": "local-voice",
+   "flight": "5J638",
+   "airline": "CEB",
+   "from": "RPVP",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

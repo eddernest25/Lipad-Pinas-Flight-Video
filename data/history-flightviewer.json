@@ -74,6 +74,18 @@
     "hook": "hook16",
     "cta": "cta7"
    }
+  },
+  {
+   "date": "2026-11-21",
+   "style": "intl-voice",
+   "flight": "6E1851",
+   "airline": "IGO",
+   "from": "VABB",
+   "to": "HTDA",
+   "note": "auto-scheduled 2026-11-21T13:00:00Z voice en-GB-Chirp3-HD-Zephyr",
+   "variants": {
+    "cta": "cta2"
+   }
   }
  ]
 }

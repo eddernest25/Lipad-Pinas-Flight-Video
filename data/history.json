@@ -245,6 +245,15 @@
    "from": "RPVP",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-21",
+   "style": "intl-music",
+   "flight": "UO522",
+   "airline": "HKE",
+   "from": "VHHH",
+   "to": "RPLC",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

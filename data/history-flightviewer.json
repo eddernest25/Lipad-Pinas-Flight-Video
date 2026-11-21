@@ -86,6 +86,19 @@
    "variants": {
     "cta": "cta2"
    }
+  },
+  {
+   "date": "2026-11-22",
+   "style": "intl-voice",
+   "flight": "SQ308",
+   "airline": "SIA",
+   "from": "WSSS",
+   "to": "EGLL",
+   "note": "auto-scheduled 2026-11-22T13:00:00Z voice en-GB-Chirp3-HD-Orus",
+   "variants": {
+    "hook": "hook7",
+    "cta": "cta6"
+   }
   }
  ]
 }

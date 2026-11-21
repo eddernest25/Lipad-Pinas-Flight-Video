@@ -254,6 +254,15 @@
    "from": "VHHH",
    "to": "RPLC",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-22",
+   "style": "local-music",
+   "flight": "PR2952",
+   "airline": "GAP",
+   "from": "RPMZ",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

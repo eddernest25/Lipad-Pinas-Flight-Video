@@ -99,6 +99,18 @@
     "hook": "hook7",
     "cta": "cta6"
    }
+  },
+  {
+   "date": "2026-11-23",
+   "style": "intl-voice",
+   "flight": "NZ2",
+   "airline": "ANZ",
+   "from": "NZAA",
+   "to": "KJFK",
+   "note": "auto-scheduled 2026-11-23T13:00:00Z voice en-GB-Chirp3-HD-Aoede",
+   "variants": {
+    "cta": "cta1"
+   }
   }
  ]
 }

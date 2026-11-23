@@ -272,6 +272,15 @@
    "from": "WSSS",
    "to": "RPLC",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-24",
+   "style": "local-voice",
+   "flight": "PR2984",
+   "airline": "GAP",
+   "from": "RPVA",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

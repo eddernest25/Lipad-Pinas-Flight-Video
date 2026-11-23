@@ -111,6 +111,19 @@
    "variants": {
     "cta": "cta1"
    }
+  },
+  {
+   "date": "2026-11-24",
+   "style": "intl-voice",
+   "flight": "EI152",
+   "airline": "EIN",
+   "from": "EIDW",
+   "to": "EGLL",
+   "note": "auto-scheduled 2026-11-24T13:00:00Z voice en-GB-Chirp3-HD-Charon",
+   "variants": {
+    "hook": "hook9",
+    "cta": "cta9"
+   }
   }
  ]
 }

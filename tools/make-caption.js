@@ -27,6 +27,7 @@ const tag = s => '#' + String(s || '').replace(/[^A-Za-z0-9]/g, '');
 const tags = ['#LipadPinas', '#PinoyTravel', '#Travel', ...(B === 'PH' ? ['#Philippines'] : []), tag(city), tag(name)].filter((x, i, a) => x.length > 1 && a.indexOf(x) === i);
 const parts = [`✈️ ${lines[0]}`, hook, lines.slice(1).join('\n')].filter(Boolean);
 parts.push(slot('capCtaDest', SC.capCtaDest));
+parts.push('💬 Comment the route you want to see next!');
 const body = parts.join('\n\n'), text = body + '\n\n' + tags.join(' ');
 const title = `${M.fromCity} to ${city} on ${name} | Lipad Pinas`;
 let variants = {}; try { variants = JSON.parse(fs.readFileSync(process.env.VARIANTS_OUT || path.join(__dirname, '..', 'out', 'variants.json'), 'utf8')); } catch (e) {}

@@ -166,6 +166,7 @@ if (GLOBAL) {
   S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
   S.push({ text: CLOSINGS[GL.nPosts % CLOSINGS.length] });
 }
+S.push({ text: 'Comment the route you want to see next.' });
 // spread start times evenly by word count; the last line is anchored to the end of the video
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }
 // spoken form for the voice: no hyphens (TTS reads them as 'dash'), flight codes and acronyms spelled out

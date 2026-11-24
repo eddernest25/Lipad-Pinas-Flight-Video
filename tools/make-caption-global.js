@@ -71,7 +71,7 @@ const join = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and 
 const airLine = othAir.length ? `✈️ Also flying this route non-stop: ${join(othAir.slice(0, 5))}.` : '';
 const busyLine = busyInfo ? `📊 About ${busyInfo.daily} flights a day operate from ${busyInfo.from} to ${busyInfo.to}, across all airlines.` : '';
 const factLine = SP.facts[0] || SP.destFact || '';   // a true fact about the route (or destination airport) makes every caption different
-const body = [supHook ? `${SP.label === 'inaugural' ? '🎉' : '🔥'} ${supHook}` : '', head, supHook ? '' : pick('hook', HOOKS), busyLine, airLine, factLine, pick('cta', CTAS)].filter(Boolean).join('\n\n');
+const body = [supHook ? `${SP.label === 'inaugural' ? '🎉' : '🔥'} ${supHook}` : '', head, supHook ? '' : pick('hook', HOOKS), busyLine, airLine, factLine, pick('cta', CTAS), '💬 Comment the route you want to see next!'].filter(Boolean).join('\n\n');
 const text = body + '\n\n' + tags.filter(Boolean).join(' ');
 const TITLES = { inaugural: `Inaugural Flight: ${from} to ${to} on ${name}`, longest: `One of the World's Longest Flights: ${from} to ${to} on ${name}`, shortest: `A Short International Hop: ${from} to ${to} on ${name}`, popular: `One of the World's Busiest Routes: ${from} to ${to} on ${name}` };
 const title = (TITLES[SP.label] || `${from} to ${to} on ${name}`) + ' | Flight Viewer';

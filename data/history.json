@@ -281,6 +281,15 @@
    "from": "RPVA",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-25",
+   "style": "intl-music",
+   "flight": "7C2107",
+   "airline": "JJA",
+   "from": "RKSI",
+   "to": "RPLC",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

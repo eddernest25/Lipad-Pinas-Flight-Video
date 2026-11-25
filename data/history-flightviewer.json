@@ -136,6 +136,19 @@
    "variants": {
     "cta": "cta3"
    }
+  },
+  {
+   "date": "2026-11-26",
+   "style": "intl-voice",
+   "flight": "PR2774",
+   "airline": "CPA",
+   "from": "RPSP",
+   "to": "RPLL",
+   "note": "auto-scheduled 2026-11-26T13:00:00Z voice en-GB-Chirp3-HD-Puck",
+   "variants": {
+    "hook": "hook8",
+    "cta": "cta5"
+   }
   }
  ]
 }

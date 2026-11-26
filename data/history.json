@@ -290,6 +290,15 @@
    "from": "RKSI",
    "to": "RPLC",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-26",
+   "style": "local-music",
+   "flight": "5J624",
+   "airline": "CEB",
+   "from": "RPVD",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day 15:50Z (manual catch-up)"
   }
  ]
 }

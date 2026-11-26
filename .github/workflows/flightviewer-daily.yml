@@ -19,6 +19,9 @@ on:
       post_time:
         description: "Local publish time HH:MM in that zone (default 7 AM; the next 7 AM that is still ahead)"
         default: "07:00"
+      release_tag:
+        description: "Optional: reuse an already-rendered video-* release (skips planning and rendering; still enforces the international-only check)"
+        default: ""
 
 concurrency:
   group: flightviewer-daily
@@ -44,6 +47,7 @@ jobs:
           LOGO: ${{ inputs.logo_file }}
           PTZ: ${{ inputs.post_tz }}
           PTIME: ${{ inputs.post_time }}
+          REUSE_TAG: ${{ inputs.release_tag }}
         run: |
           set -o pipefail
           TARGET=$(TZ="$PTZ" date +%F)
@@ -53,8 +57,9 @@ jobs:
           FLIGHTDAY=$(date -u -d 'yesterday' +%F)
           LASTP=$(node -p "const p=require('./data/history-flightviewer.json').posts;p.length?p[p.length-1].date:''")
           if [[ -n "$LASTP" && ! "$LASTP" < "$TARGET" ]]; then echo "already posted/scheduled for $LASTP"; exit 0; fi
-          SKIP=""
-          for ATTEMPT in 1 2 3 4 5; do
+          SKIP=""; STYLE=intl-voice
+          if [ -n "$REUSE_TAG" ]; then ATTEMPTS="0"; else ATTEMPTS="1 2 3 4 5"; fi
+          for ATTEMPT in $ATTEMPTS; do
             PLAN=$(node tools/plan-next.js --page flightviewer --flightday "$FLIGHTDAY" --skip "$SKIP") || { echo "no candidate left"; exit 1; }
             STYLE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).style")
             ROUTE=$(echo "$PLAN" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).route")
@@ -79,9 +84,22 @@ jobs:
             SKIP="$SKIP,$ROUTE:$AIRL"; SKIP=${SKIP#,}
             [ "$ATTEMPT" = 5 ] && { echo "giving up today"; exit 1; }
           done
-          TAG=$(gh release list --limit 20 --json tagName,createdAt --jq '[.[]|select(.tagName|startswith("video-"))]|sort_by(.createdAt)|last|.tagName')
+          if [ -n "$REUSE_TAG" ]; then TAG="$REUSE_TAG"; mkdir -p out && gh release download "$TAG" -p raw.json -p narration.json -D out
+            ROUTE=$(node -p "const m=require('./out/raw.json').meta;m.fromIcao+'-'+m.toIcao"); AIRL=$(node -p "require('./out/raw.json').meta.airline||''"); NPOSTS=$(node -p "require('./data/history-flightviewer.json').posts.length"); VNAME=""
+          else
+            # pick the release that THIS attempt produced: published after STARTED AND its raw.json route matches ROUTE
+            # (the repo also renders Lipad Pinas videos, so "newest video-* release" can belong to another run)
+            TAG=""
+            for T in $(gh api "repos/${{ github.repository }}/releases?per_page=30" --jq "[.[]|select(.tag_name|startswith(\"video-\"))|select(.published_at>=\"$STARTED\")]|sort_by(.published_at)|reverse|.[].tag_name"); do
+              rm -rf out && mkdir -p out && gh release download "$T" -p raw.json -p narration.json -D out || continue
+              GOT=$(node -p "const m=require('./out/raw.json').meta;m.fromIcao+'-'+m.toIcao")
+              if [ "$GOT" = "$ROUTE" ]; then TAG="$T"; break; fi
+            done
+            [ -z "$TAG" ] && { echo "no release matches rendered route $ROUTE - refusing to post"; exit 1; }
+          fi
           echo "release $TAG"
-          mkdir -p out && gh release download "$TAG" -p raw.json -p narration.json -D out
+          # Flight Viewer is worldwide/international only: refuse a flight where both ends are Philippine (ICAO RP..)
+          node -e "const m=require('./out/raw.json').meta;if(/^RP/.test(m.fromIcao)&&/^RP/.test(m.toIcao)){console.error('domestic flight '+m.fromIcao+'-'+m.toIcao+' is not allowed on Flight Viewer');process.exit(1)}"
           VIDEO="https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4"
           node tools/make-caption-global.js out/raw.json out/caption.json
           FLIGHT=$(node -p "require('./out/raw.json').meta.flight")

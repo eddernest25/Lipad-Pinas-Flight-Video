@@ -141,10 +141,10 @@
    "date": "2026-11-26",
    "style": "intl-voice",
    "flight": "PR2774",
-   "airline": "CPA",
+   "airline": "GAP",
    "from": "RPSP",
    "to": "RPLL",
-   "note": "auto-scheduled 2026-11-26T13:00:00Z voice en-GB-Chirp3-HD-Puck",
+   "note": "auto-scheduled 2026-11-26T13:00:00Z voice en-GB-Chirp3-HD-Puck | MISTAKE: domestic flight posted by wrong-release bug; kept so the pair is not reused",
    "variants": {
     "hook": "hook8",
     "cta": "cta5"

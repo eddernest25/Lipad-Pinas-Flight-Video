@@ -151,13 +151,13 @@
    }
   },
   {
-   "date": "2026-11-27",
+   "date": "2026-11-26",
    "style": "intl-voice",
    "flight": "CX257",
    "airline": "CPA",
    "from": "VHHH",
    "to": "EGLL",
-   "note": "auto-scheduled 2026-11-27T13:00:00Z (re-rendered video-20261125-223711)",
+   "note": "rescheduled to 2026-11-26T17:00:00Z",
    "variants": {
     "hook": "hook2",
     "cta": "cta10"

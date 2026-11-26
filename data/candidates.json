@@ -112,13 +112,13 @@
 {
 "type": "local",
 "from": "RPLL",
-"to": "RPMV",
+"to": "RPMY",
 "airline": "CEB"
 },
 {
 "type": "local",
 "from": "RPLL",
-"to": "RPMV",
+"to": "RPMY",
 "airline": "PAL"
 },
 {
@@ -633,13 +633,13 @@
 },
 {
 "type": "local",
-"from": "RPMV",
+"from": "RPMY",
 "to": "RPLL",
 "airline": "CEB"
 },
 {
 "type": "local",
-"from": "RPMV",
+"from": "RPMY",
 "to": "RPLL",
 "airline": "PAL"
 },
@@ -1096,24 +1096,24 @@
 {
 "type": "local",
 "from": "RPVM",
-"to": "RPMV",
+"to": "RPMY",
 "airline": "CEB"
 },
 {
 "type": "local",
-"from": "RPMV",
+"from": "RPMY",
 "to": "RPVM",
 "airline": "CEB"
 },
 {
 "type": "local",
 "from": "RPVM",
-"to": "RPMV",
+"to": "RPMY",
 "airline": "PAL"
 },
 {
 "type": "local",
-"from": "RPMV",
+"from": "RPMY",
 "to": "RPVM",
 "airline": "PAL"
 },
@@ -1500,18 +1500,6 @@
 "from": "RKSI",
 "to": "RPMD",
 "airline": "JNA"
-},
-{
-"type": "intl",
-"from": "RPVK",
-"to": "RKSI",
-"airline": "JJA"
-},
-{
-"type": "intl",
-"from": "RKSI",
-"to": "RPVK",
-"airline": "JJA"
 },
 {
 "type": "intl",

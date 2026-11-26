@@ -162,6 +162,19 @@
     "hook": "hook2",
     "cta": "cta10"
    }
+  },
+  {
+   "date": "2026-11-27",
+   "style": "intl-voice",
+   "flight": "TK1979",
+   "airline": "THY",
+   "from": "LTFM",
+   "to": "EGLL",
+   "note": "auto-scheduled 2026-11-27T13:00:00Z voice en-GB-Chirp3-HD-Fenrir",
+   "variants": {
+    "hook": "hook5",
+    "cta": "cta4"
+   }
   }
  ]
 }

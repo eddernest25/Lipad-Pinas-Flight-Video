@@ -299,6 +299,15 @@
    "from": "RPVD",
    "to": "RPLL",
    "note": "auto-scheduled same-day 15:50Z (manual catch-up)"
+  },
+  {
+   "date": "2026-11-27",
+   "style": "intl-voice",
+   "flight": "CX907",
+   "airline": "CPA",
+   "from": "VHHH",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

@@ -149,6 +149,19 @@
     "hook": "hook8",
     "cta": "cta5"
    }
+  },
+  {
+   "date": "2026-11-27",
+   "style": "intl-voice",
+   "flight": "CX257",
+   "airline": "CPA",
+   "from": "VHHH",
+   "to": "EGLL",
+   "note": "auto-scheduled 2026-11-27T13:00:00Z",
+   "variants": {
+    "hook": "hook14",
+    "cta": "cta4"
+   }
   }
  ]
 }

@@ -157,10 +157,10 @@
    "airline": "CPA",
    "from": "VHHH",
    "to": "EGLL",
-   "note": "auto-scheduled 2026-11-27T13:00:00Z",
+   "note": "auto-scheduled 2026-11-27T13:00:00Z (re-rendered video-20261125-223711)",
    "variants": {
-    "hook": "hook14",
-    "cta": "cta4"
+    "hook": "hook2",
+    "cta": "cta10"
    }
   }
  ]

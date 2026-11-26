@@ -79,7 +79,9 @@ jobs:
             SKIP="$SKIP,$ROUTE:$AIRL"; SKIP=${SKIP#,}
             [ "$ATTEMPT" = 5 ] && { echo "giving up today"; exit 1; }
           done
-          TAG=$(gh release list --limit 20 --json tagName,createdAt --jq '[.[]|select(.tagName|startswith("video-"))]|sort_by(.createdAt)|last|.tagName')
+          # take the release made by THIS render run (release createdAt is the commit date, so several renders on one commit tie and the newest-by-date pick can grab another page's video)
+          TAG=$(gh api "repos/${{ github.repository }}/releases?per_page=30" --jq "[.[]|select((.tag_name|startswith(\"video-\")) and ((.body // \"\")|contains(\"(render run $RUN)\")))]|first|.tag_name // empty")
+          [ -n "$TAG" ] || { echo "no release found for render run $RUN"; exit 1; }
           echo "release $TAG"
           mkdir -p out && gh release download "$TAG" -p raw.json -p narration.json -D out
           VIDEO="https://github.com/${{ github.repository }}/releases/download/$TAG/video.mp4"

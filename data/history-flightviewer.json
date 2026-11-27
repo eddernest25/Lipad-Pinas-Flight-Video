@@ -175,6 +175,18 @@
     "hook": "hook5",
     "cta": "cta4"
    }
+  },
+  {
+   "date": "2026-11-28",
+   "style": "intl-voice",
+   "flight": "SQ22",
+   "airline": "SIA",
+   "from": "WSSS",
+   "to": "KEWR",
+   "note": "auto-scheduled 2026-11-28T13:00:00Z voice en-GB-Chirp3-HD-Zephyr",
+   "variants": {
+    "cta": "cta8"
+   }
   }
  ]
 }

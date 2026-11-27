@@ -308,6 +308,15 @@
    "from": "VHHH",
    "to": "RPLL",
    "note": "auto-scheduled same-day"
+  },
+  {
+   "date": "2026-11-28",
+   "style": "local-voice",
+   "flight": "PR2774",
+   "airline": "PAL",
+   "from": "RPSP",
+   "to": "RPLL",
+   "note": "auto-scheduled same-day"
   }
  ]
 }

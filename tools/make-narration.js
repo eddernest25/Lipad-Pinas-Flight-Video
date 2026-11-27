@@ -78,7 +78,7 @@ const GLOBAL = args.includes('--global');
 const mi50 = Math.round(Math.round(D.meta.distanceKm / 50) * 50 * 0.621371 / 50) * 50;   // miles, rounded like the kilometers
 let GL = null;
 if (GLOBAL) {
-  const SP = require('./fv-facts').special(M), routeFacts = SP.facts, destFact = SP.destFact;
+  const SP = require('./fv-facts').special(M), routeFacts = SP.facts, destFact = SP.reason;   // destFact now = why people fly this route (not airport info)
   const VET = FV.vetted(M), seen = rs ? [...new Set(rs.airlines.map(a => FV.brand(a.icao)))] : [];
   const oth = FV.others(M, airlineIcao, airlines);   // vetted non-stop passenger airlines (never cargo/positioning flights)
   const onlyAirline = !oth.length && !!(rs && rs.flights > 0 && seen.length && seen.every(c => c === airlineIcao) && [...VET].every(c => c === airlineIcao));
@@ -166,7 +166,7 @@ if (GLOBAL) {
   S.push({ text: `The aircraft touched down at ${B.name}${arrT ? ` at ${arrT} local time` : ''}.` });
   S.push({ text: CLOSINGS[GL.nPosts % CLOSINGS.length] });
 }
-S.push({ text: 'Comment the route you want to see next.' });
+if (!GLOBAL) S.push({ text: 'Comment the route you want to see next.' });   // Flight Viewer: the closing line already asks / follows, no duplicate
 // spread start times evenly by word count; the last line is anchored to the end of the video
 { const w = S.map(s => s.text.split(/\s+/).length), tot = w.reduce((a, b) => a + b, 0); let c = 0; S.forEach((s, i) => { s.want = Math.round((0.3 + (c / tot) * (VIDEO - 0.7 - 4)) * 10) / 10; c += w[i]; }); }
 // spoken form for the voice: no hyphens (TTS reads them as 'dash'), flight codes and acronyms spelled out

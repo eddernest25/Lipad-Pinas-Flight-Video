@@ -9,7 +9,7 @@ function special(M) {
   const sup = (RF.superlatives || {})[key], fill = t => t.replace('{from}', M.fromCity).replace('{to}', M.toCity);
   const busy = (rd('candidates-flightviewer.json') || { candidates: [] }).candidates.some(c => c.cat === 'popular' && [c.from, c.to].sort().join('-') === key) || (sup && sup.label === 'popular');
   return { busy: !!busy, key, label: ina ? 'inaugural' : sup ? sup.label : '', hook: ina ? fill(ina.hook) : sup ? fill(sup.hook) : '',
-    facts: [...(ina ? ina.facts : []), ...((RF.pairs || {})[key] || [])], destFact: (RF.airports || {})[M.toIcao] || '' };
+    facts: [...(ina ? ina.facts : []), ...((RF.pairs || {})[key] || [])], destFact: (RF.airports || {})[M.toIcao] || '', reason: (RF.reasons || {})[key] || '' };
 }
 // Regional operators fly under a mainline brand (the brand is what passengers see and what the page names)
 const BRAND = { EDV: 'DAL', SKW: 'UAL', RPA: 'UAL', ASH: 'AAL', ENY: 'AAL', PDT: 'AAL', PSA: 'AAL', JIA: 'AAL', GJS: 'UAL', CPZ: 'UAL', QXE: 'ASA', SCX: 'SCX', JZA: 'ACA', ASQ: 'DAL' };
